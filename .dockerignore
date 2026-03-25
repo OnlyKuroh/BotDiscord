@@ -1,0 +1,15 @@
+.git
+.gitignore
+.agents
+.claude
+.vscode
+node_modules
+npm-debug.log*
+dashboard-v2
+dashboard-v2.worktrees
+pixel-agents
+uploads
+data/*.db-shm
+data/*.db-wal
+*.log
+CLAUDE.md
