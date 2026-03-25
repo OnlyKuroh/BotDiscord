@@ -17,12 +17,13 @@ module.exports = (client) => {
             
             command.category = category;
 
-            if (command.data && command.data.name) {
-                client.commands.set(command.data.name, command);
-                // Carregar aliases para comandos de prefixo
+            const commandName = command.data?.name || command.prefixOnlyName;
+
+            if (commandName) {
+                client.commands.set(commandName, command);
                 if (command.aliases && Array.isArray(command.aliases)) {
                     for (const alias of command.aliases) {
-                        client.aliases.set(alias, command.data.name);
+                        client.aliases.set(alias, commandName);
                     }
                 }
             } else {

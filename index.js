@@ -9,6 +9,7 @@ const client = new Client({
         GatewayIntentBits.GuildPresences,
         GatewayIntentBits.GuildMembers,
         GatewayIntentBits.GuildVoiceStates,
+        GatewayIntentBits.DirectMessages,
     ],
     partials: [Partials.Message, Partials.Channel, Partials.Reaction]
 });
@@ -34,6 +35,7 @@ process.on('uncaughtExceptionMonitor', async (err, origin) => {
 
 async function sendLogError(client, title, description) {
     const db = require('./utils/db');
+    db.addLog('SYSTEM_ERROR', `${title} | ${String(description).slice(0, 1200)}`, null, null, 'Process Monitor');
     // Procuramos globalmente ou no primeiro cache (o ideal é espalhar pra todos que ativaram)
     // Para simplificar: enviamos ao menos pro primeiro servidor que o bot está e tem log definido.
     client.guilds.cache.forEach(async guild => {

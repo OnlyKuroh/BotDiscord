@@ -300,24 +300,94 @@ async function publishUpdate(client, payload) {
     const guilds = client.guilds.cache.map((guild) => guild);
 
     for (const guild of guilds) {
-        const channelId = db.get(`novidades_channel_${guild.id}`);
-        if (!channelId) continue;
+        await publishUpdateToGuild(client, guild, payload);
+    }
+}
 
-        const channel = guild.channels.cache.get(channelId);
-        if (!channel || !channel.isTextBased()) continue;
+async function publishUpdateToGuild(client, guild, payload, options = {}) {
+    const deliveredKey = `novidades_delivered_${guild.id}_${payload.fingerprint}`;
+    if (!options.forceResend && db.get(deliveredKey)) {
+        clearPendingDelivery(guild.id, payload.fingerprint);
+        return { ok: true, status: 'already_delivered', channelId: db.get(`novidades_channel_${guild.id}`) || null };
+    }
 
-        const deliveredKey = `novidades_delivered_${guild.id}_${payload.fingerprint}`;
-        if (db.get(deliveredKey)) continue;
+    const channelId = db.get(`novidades_channel_${guild.id}`);
+    if (!channelId) {
+        markPendingDelivery(guild.id, payload.fingerprint, null, 'Canal de novidades nao configurado');
+        return { ok: false, status: 'missing_channel', channelId: null };
+    }
 
-        await channel.send({ embeds: [buildDiscordEmbed(client, payload)] }).catch((error) => {
-            console.error(`[UPDATES] Falha ao publicar novidades em ${guild.id}:`, error.message);
-        });
+    const channel = guild.channels.cache.get(channelId) || await guild.channels.fetch(channelId).catch(() => null);
+    if (!channel || !channel.isTextBased()) {
+        markPendingDelivery(guild.id, payload.fingerprint, channelId, 'Canal de novidades indisponivel');
+        return { ok: false, status: 'invalid_channel', channelId };
+    }
 
+    try {
+        await channel.send({ embeds: [buildDiscordEmbed(client, payload)] });
         db.set(deliveredKey, {
             channelId,
             deliveredAt: new Date().toISOString(),
+            forced: Boolean(options.forceResend),
         });
+        clearPendingDelivery(guild.id, payload.fingerprint);
+        return { ok: true, status: options.forceResend ? 'resent' : 'sent', channelId };
+    } catch (error) {
+        console.error(`[UPDATES] Falha ao publicar novidades em ${guild.id}:`, error.message);
+        markPendingDelivery(guild.id, payload.fingerprint, channelId, error.message);
+        return { ok: false, status: 'send_failed', channelId, error: error.message };
     }
+}
+
+async function forceDeliverPendingUpdate(client, guildId, options = {}) {
+    const guild = client.guilds.cache.get(guildId) || await client.guilds.fetch(guildId).catch(() => null);
+    if (!guild) {
+        return { ok: false, status: 'guild_not_found' };
+    }
+
+    const payload = findLatestUndeliveredPayloadForGuild(guildId);
+    if (!payload) {
+        return { ok: false, status: 'nothing_pending' };
+    }
+
+    return publishUpdateToGuild(client, guild, payload, {
+        forceResend: Boolean(options.forceResend),
+    });
+}
+
+function findLatestUndeliveredPayloadForGuild(guildId) {
+    const pending = db.get(`novidades_pending_${guildId}`);
+    if (pending?.fingerprint) {
+        const pendingPayload = db.getReleaseUpdateByFingerprint(pending.fingerprint);
+        if (pendingPayload) return pendingPayload;
+    }
+
+    const recentUpdates = db.getRecentReleaseUpdates(12);
+    for (const payload of recentUpdates) {
+        const deliveredKey = `novidades_delivered_${guildId}_${payload.fingerprint}`;
+        if (!db.get(deliveredKey)) {
+            return payload;
+        }
+    }
+
+    return null;
+}
+
+function markPendingDelivery(guildId, fingerprint, channelId, reason) {
+    db.set(`novidades_pending_${guildId}`, {
+        fingerprint,
+        channelId: channelId || null,
+        reason: reason || 'Falha desconhecida ao publicar novidades',
+        createdAt: new Date().toISOString(),
+    });
+}
+
+function clearPendingDelivery(guildId, fingerprint) {
+    const key = `novidades_pending_${guildId}`;
+    const pending = db.get(key);
+    if (!pending) return;
+    if (fingerprint && pending.fingerprint && pending.fingerprint !== fingerprint) return;
+    db.delete(key);
 }
 
 function buildDiscordEmbed(client, payload) {
@@ -520,4 +590,7 @@ module.exports = {
     start,
     syncUpdates,
     buildDiscordEmbed,
+    publishUpdateToGuild,
+    forceDeliverPendingUpdate,
+    findLatestUndeliveredPayloadForGuild,
 };

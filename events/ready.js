@@ -1,4 +1,5 @@
 const { Events, ActivityType } = require('discord.js');
+const { reconcileKnownGuilds } = require('../utils/guild-join-announcer');
 
 const statusMessages = [
     "A engrenagem não para. Use /help para acessar o arsenal.",
@@ -10,7 +11,7 @@ const statusMessages = [
 module.exports = {
     name: Events.ClientReady,
     once: true,
-    execute(client) {
+    async execute(client) {
         console.log(`Logado como ${client.user.tag}. O ciclo continua.`);
         
         let index = 0;
@@ -24,5 +25,7 @@ module.exports = {
 
         updateStatus();
         setInterval(updateStatus, 15 * 1000);
+
+        await reconcileKnownGuilds(client);
     },
 };

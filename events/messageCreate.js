@@ -1,6 +1,7 @@
 const { Events, EmbedBuilder } = require('discord.js');
 const { formatResponse } = require('../utils/persona');
 const { maybeHandleItadoriChat } = require('../utils/itadori-chatbot');
+const { trackCommandAbuse } = require('../utils/security-monitor');
 
 const MENTION_RESPONSES = [
     'Oi! Precisando de ajuda? Use `/help` pra ver o que eu consigo fazer. Eu tô aqui, assim como fiquei quando Gojo me disse que eu seria o receptáculo... exceto que dessa vez é só um bot.',
@@ -13,9 +14,19 @@ const MENTION_RESPONSES = [
 module.exports = {
     name: Events.MessageCreate,
     async execute(message, client) {
-        if (!message.guild || message.author.bot) return;
-
         const db = require('../utils/db');
+        if (message.author.bot) return;
+
+        if (!message.guild) {
+            db.addLog(
+                'BOT_DM_INBOUND',
+                `DM recebida: ${String(message.content || '[sem texto]').slice(0, 500)}`,
+                null,
+                message.author.id,
+                message.author.username
+            );
+            return;
+        }
 
         // --- SISTEMA DE VERIFICAÇÃO ---
         const verifyChannelId = db.get(`verify_channel_${message.guild.id}`);
@@ -59,6 +70,7 @@ module.exports = {
         if (message.mentions.has(client.user)) {
             const customResponse = db.get(`mention_response_${message.guild.id}`);
             const text = customResponse || MENTION_RESPONSES[Math.floor(Math.random() * MENTION_RESPONSES.length)];
+            db.addLog('MENTION', `Bot mencionado em <#${message.channel.id}>`, message.guild.id, message.author.id, message.author.username);
             await message.reply(text).catch(() => null);
             return;
         }
@@ -88,6 +100,7 @@ module.exports = {
                 }
 
                 await message.reply(cmd.response).catch(() => null);
+                db.addLog('CUSTOM_CMD_TRIGGER', `Comando customizado "${cmd.trigger}" acionado`, message.guild.id, message.author.id, message.author.username);
                 return;
             }
         }
@@ -123,6 +136,14 @@ module.exports = {
 
         try {
             await command.executePrefix(message, args, client);
+            db.incrementStat('slash_commands_used');
+            db.addLog('COMMAND', `${client.prefix}${commandName} usado por ${message.author.username}`, message.guild.id, message.author.id, message.author.username);
+            trackCommandAbuse({
+                guild: message.guild,
+                user: message.author,
+                commandName: `${client.prefix}${commandName}`,
+                source: 'prefix',
+            });
 
             // LOG DE COMANDO USADO (Prefixo)
             const logChannelId = require('../utils/db').get(`logs_${message.guild.id}`);
@@ -143,6 +164,13 @@ module.exports = {
 
         } catch (error) {
             console.error(error);
+            db.addLog(
+                'COMMAND_ERROR',
+                `Erro no comando ${client.prefix}${commandName}: ${String(error?.stack || error).slice(0, 1200)}`,
+                message.guild.id,
+                message.author.id,
+                message.author.username
+            );
             const msg = 'Encontrei um erro. Mesmo sangrando, não vamos parar.';
             await message.reply({ content: formatResponse(msg) });
         }

@@ -1,17 +1,10 @@
 const { Events } = require('discord.js');
-const db = require('../utils/db');
+const { handleGuildJoin } = require('../utils/guild-join-announcer');
 
 module.exports = {
     name: Events.GuildCreate,
-    async execute(guild) {
-        db.addLog(
-            'GUILD_JOIN',
-            `Itadori adicionado ao servidor "${guild.name}" (${guild.memberCount} membros)`,
-            guild.id,
-            null,
-            guild.name
-        );
-
+    async execute(guild, client) {
+        await handleGuildJoin(client, guild, { detectedAfterRestart: false, suppressLog: false });
         if (global._dashboardIo) {
             global._dashboardIo.emit('guildJoin', {
                 id: guild.id,

@@ -339,6 +339,28 @@ function sanitizeAssistantReply(text) {
         .slice(0, 1900);
 }
 
+async function safeReply(message, payload) {
+    const body = typeof payload === 'string' ? { content: payload } : payload;
+    const sendPayload = {
+        ...body,
+        reply: {
+            messageReference: message.id,
+        },
+    };
+
+    if (message.channel?.isTextBased?.()) {
+        const sent = await message.channel.send(sendPayload).catch(() => null);
+        if (sent) return sent;
+    }
+
+    const fetchedChannel = await message.client.channels.fetch(message.channelId).catch(() => null);
+    if (fetchedChannel?.isTextBased?.()) {
+        return fetchedChannel.send(sendPayload).catch(() => null);
+    }
+
+    return null;
+}
+
 function buildSystemPrompt(message) {
     const serverName = message.guild?.name || 'Servidor desconhecido';
     const memberName = message.member?.displayName || message.author?.username || 'Membro';
@@ -446,7 +468,7 @@ async function handleLowEffortMessage(message, session, guildId, userId) {
     if (warnings >= 2) {
         clearSession(guildId, userId);
         setCooldown(guildId, userId, LOW_EFFORT_COOLDOWN_MS);
-        await message.reply('Preciso de uma dúvida real e objetiva pra ajudar de verdade. Vou encerrar por agora; depois do cooldown, me chama com um resumo curto do problema.');
+        await safeReply(message, 'Preciso de uma dúvida real e objetiva pra ajudar de verdade. Vou encerrar por agora; depois do cooldown, me chama com um resumo curto do problema.');
         return true;
     }
 
@@ -457,7 +479,7 @@ async function handleLowEffortMessage(message, session, guildId, userId) {
         turns: session?.turns || 0,
     });
 
-    await message.reply('Manda a dúvida de forma objetiva. Diz o que você quer fazer, onde travou e qual erro apareceu.');
+    await safeReply(message, 'Manda a dúvida de forma objetiva. Diz o que você quer fazer, onde travou e qual erro apareceu.');
     return true;
 }
 
@@ -499,7 +521,7 @@ async function maybeHandleItadoriChat(message, client) {
     // ── Detecção de flood (>3 msgs em 10s) ────────────────────────────────────
     if (isUserFlooding(guildId, userId)) {
         setCooldown(guildId, userId, LOW_EFFORT_COOLDOWN_MS);
-        await message.reply('Muitas mensagens seguidas. Calma aí, manda tua dúvida de uma vez só.').catch(() => null);
+        await safeReply(message, 'Muitas mensagens seguidas. Calma aí, manda tua dúvida de uma vez só.');
         return true;
     }
 
@@ -536,24 +558,24 @@ async function maybeHandleItadoriChat(message, client) {
     if (!activeSession && triggerStart && !isWithinTimeWindow(iaConfig)) {
         const start = iaConfig.horaInicio;
         const end = iaConfig.horaFim;
-        await message.reply(`Fora do horário de atendimento da IA neste servidor (${start}h – ${end}h, horário de Brasília). Volta mais tarde!`);
+        await safeReply(message, `Fora do horário de atendimento da IA neste servidor (${start}h – ${end}h, horário de Brasília). Volta mais tarde!`);
         return true;
     }
 
     if (!activeSession && getRemainingCooldown(guildId, userId) > 0) {
         const minutes = Math.max(1, Math.ceil(getRemainingCooldown(guildId, userId) / 60000));
-        await message.reply(`Tua última conversa já foi encerrada. Espera cerca de ${minutes} min antes de puxar outro atendimento.`);
+        await safeReply(message, `Tua última conversa já foi encerrada. Espera cerca de ${minutes} min antes de puxar outro atendimento.`);
         return true;
     }
 
     if (queuedPosition > 0 && state.activeUserId !== userId) {
-        await message.reply(`Yuji tá atendendo outra pessoa agora. Você já entrou na fila e está na posição **${queuedPosition}**.`);
+        await safeReply(message, `Yuji tá atendendo outra pessoa agora. Você já entrou na fila e está na posição **${queuedPosition}**.`);
         return true;
     }
 
     if (state.activeUserId && state.activeUserId !== userId) {
         const position = enqueueUser(guildId, userId, message.channel.id);
-        await message.reply(`Yuji já está atendendo alguém neste servidor. Você entrou na fila na posição **${position}**.`);
+        await safeReply(message, `Yuji já está atendendo alguém neste servidor. Você entrou na fila na posição **${position}**.`);
         return true;
     }
 
@@ -571,7 +593,7 @@ async function maybeHandleItadoriChat(message, client) {
     if (isResolvedUserMessage(cleanedContent)) {
         clearSession(guildId, userId);
         setCooldown(guildId, userId, resolvedCooldown);
-        await message.reply('Fechou. Como tua dúvida já acabou, vou encerrar por aqui. Depois do cooldown, se surgir outra real, me chama.');
+        await safeReply(message, 'Fechou. Como tua dúvida já acabou, vou encerrar por aqui. Depois do cooldown, se surgir outra real, me chama.');
         await releaseGuildTurn(guildId, userId, client);
         return true;
     }
@@ -579,7 +601,7 @@ async function maybeHandleItadoriChat(message, client) {
     if (looksLikeBugReport(cleanedContent)) {
         clearSession(guildId, userId);
         setCooldown(guildId, userId, resolvedCooldown);
-        await message.reply(buildBugReply());
+        await safeReply(message, buildBugReply());
         await releaseGuildTurn(guildId, userId, client);
         return true;
     }
@@ -590,7 +612,7 @@ async function maybeHandleItadoriChat(message, client) {
 
     const processingKey = getProcessingKey(guildId, userId);
     if (processingLocks.has(processingKey)) {
-        await message.reply('Calma aí, ainda tô processando tua última mensagem.');
+        await safeReply(message, 'Calma aí, ainda tô processando tua última mensagem.');
         return true;
     }
 
@@ -598,19 +620,19 @@ async function maybeHandleItadoriChat(message, client) {
     if (turns >= MAX_TURNS) {
         clearSession(guildId, userId);
         setCooldown(guildId, userId, resolvedCooldown);
-        await message.reply('Essa conversa já ficou longa demais. Vou encerrar e deixar um cooldown. Se precisar de novo, volta com um resumo curto e objetivo.');
+        await safeReply(message, 'Essa conversa já ficou longa demais. Vou encerrar e deixar um cooldown. Se precisar de novo, volta com um resumo curto e objetivo.');
         await releaseGuildTurn(guildId, userId, client);
         return true;
     }
 
     // ── Rate limits antes de chamar Groq ──────────────────────────────────────
     if (!checkGlobalRateLimit()) {
-        await message.reply('Muita gente usando a IA agora. Tenta de novo em 1 minuto.').catch(() => null);
+        await safeReply(message, 'Muita gente usando a IA agora. Tenta de novo em 1 minuto.');
         return true;
     }
 
     if (!checkGuildRateLimit(guildId)) {
-        await message.reply('Limite de atendimentos IA deste servidor atingido por hora. Volta daqui a pouco!').catch(() => null);
+        await safeReply(message, 'Limite de atendimentos IA deste servidor atingido por hora. Volta daqui a pouco!');
         return true;
     }
 
@@ -624,6 +646,7 @@ async function maybeHandleItadoriChat(message, client) {
     const dmMode = iaConfig.dmMode === true;
 
     try {
+        db.addLog('AI_INTERACTION', `Mensagem recebida pela IA em <#${message.channel.id}>: ${cleanedContent.slice(0, 220)}`, guildId, userId, message.author.username);
         await message.channel.sendTyping().catch(() => null);
         const rawReply = await callGroq(messages, message.author.username);
         const resolved = /\[FIM_DUVIDA\]/i.test(rawReply);
@@ -633,13 +656,16 @@ async function maybeHandleItadoriChat(message, client) {
             const dm = await message.author.createDM().catch(() => null);
             if (dm) {
                 await dm.send(assistantReply).catch(() => null);
-                await message.reply('📬 Respondi no seu privado!').catch(() => null);
+                db.addLog('BOT_DM_OUTBOUND', `Resposta de IA enviada por DM para ${message.author.username}: ${assistantReply.slice(0, 220)}`, guildId, userId, message.author.username);
+                await safeReply(message, '📬 Respondi no seu privado!');
             } else {
-                await message.reply(assistantReply);
+                await safeReply(message, assistantReply);
             }
         } else {
-            await message.reply(assistantReply);
+            await safeReply(message, assistantReply);
         }
+
+        db.addLog('AI_INTERACTION', `IA respondeu para ${message.author.username}: ${assistantReply.slice(0, 220)}`, guildId, userId, message.author.username);
 
         if (resolved) {
             clearSession(guildId, userId);
@@ -662,9 +688,10 @@ async function maybeHandleItadoriChat(message, client) {
         return true;
     } catch (err) {
         console.error('[ITADORI CHATBOT]', err.response?.status || err.message);
+        db.addLog('AI_ERROR', `Falha na IA para ${message.author.username}: ${String(err?.response?.status || err?.message || err).slice(0, 400)}`, guildId, userId, message.author.username);
         clearSession(guildId, userId);
         await releaseGuildTurn(guildId, userId, client);
-        await message.reply('Tentei responder, mas a conexão com minha energia amaldiçoada caiu agora. Me chama de novo depois.');
+        await safeReply(message, 'Tentei responder, mas a conexão com minha energia amaldiçoada caiu agora. Me chama de novo depois.');
         return true;
     } finally {
         processingLocks.delete(processingKey);

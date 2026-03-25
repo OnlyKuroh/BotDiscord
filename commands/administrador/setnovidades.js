@@ -5,7 +5,7 @@ const { formatResponse } = require('../../utils/persona');
 module.exports = {
     data: new SlashCommandBuilder()
         .setName('setnovidades')
-        .setDescription('Define o canal que recebera atualizacoes automaticas do bot e do dashboard.')
+        .setDescription('Define o canal que recebera atualizacoes automaticas e avisos de novos servidores.')
         .setDefaultMemberPermissions(PermissionsBitField.Flags.ManageGuild)
         .addChannelOption((option) =>
             option
@@ -15,7 +15,7 @@ module.exports = {
                 .setRequired(true)
         ),
     aliases: ['novidades', 'setupdatefeed'],
-    detailedDescription: 'Configura o canal oficial de changelog automatico, gerado pela IA a partir das mudancas detectadas no bot e no dashboard.',
+    detailedDescription: 'Configura o canal oficial de changelog automatico, noticias e avisos de entrada em novos servidores, incluindo resumo via IA, icone e banner.',
     usage: '`/setnovidades #canal`',
     permissions: ['Administrador / Gerenciar Servidor'],
 
@@ -37,7 +37,7 @@ module.exports = {
         db.addLog('UPDATES_SETUP', `/setnovidades configurado para #${channel.name}`, interaction.guildId, interaction.user.id, interaction.user.username);
 
         await interaction.reply({
-            content: formatResponse(`Canal <#${channel.id}> marcado como destino oficial das novidades. No proximo deploy relevante, eu mesmo aviso por la.`),
+            content: formatResponse(`Canal <#${channel.id}> marcado como destino oficial das novidades. A partir de agora ele tambem recebe changelogs e avisos quando o bot entrar em um novo servidor.`),
             flags: ['Ephemeral'],
         });
     },
@@ -55,6 +55,6 @@ module.exports = {
         db.set(`novidades_channel_${message.guild.id}`, channel.id);
         db.addLog('UPDATES_SETUP', `Canal de novidades definido para #${channel.name}`, message.guild.id, message.author.id, message.author.username);
 
-        await message.reply({ content: formatResponse(`Pronto. As proximas atualizacoes automaticas vao cair em <#${channel.id}>.`) });
+        await message.reply({ content: formatResponse(`Pronto. As proximas atualizacoes automaticas e os avisos de novos servidores vao cair em <#${channel.id}>.`) });
     },
 };

@@ -1,5 +1,7 @@
 const { Events } = require('discord.js');
 const { formatResponse } = require('../utils/persona');
+const { buildCommandLogEmbed } = require('../utils/system-embeds');
+const { trackCommandAbuse } = require('../utils/security-monitor');
 
 module.exports = {
     name: Events.InteractionCreate,
@@ -34,26 +36,32 @@ module.exports = {
                     const db = require('../utils/db');
                     db.incrementStat('slash_commands_used');
                     db.addLog('COMMAND', `/${interaction.commandName} usado por ${interaction.user.username}`, interaction.guildId, interaction.user.id, interaction.user.username);
+                    trackCommandAbuse({
+                        guild: interaction.guild,
+                        user: interaction.user,
+                        commandName: `/${interaction.commandName}`,
+                        source: 'slash',
+                    });
 
                     // LOG DE COMANDO USADO NO DISCORD
                     const logChannelId = db.get(`logs_${interaction.guildId}`);
                     if (logChannelId) {
                         const logChannel = interaction.guild.channels.cache.get(logChannelId);
                         if (logChannel) {
-                            const { EmbedBuilder } = require('discord.js');
-                            const embedLog = new EmbedBuilder()
-                                .setColor('#3498db')
-                                .setAuthor({ name: 'Corte Desferido', iconURL: interaction.user.displayAvatarURL({ dynamic: true }) })
-                                .setDescription(`⚔️ <@${interaction.user.id}> usou um comando local em <#${interaction.channelId}>\n\n⚙️ **Comando**\n\`/${interaction.commandName}\``)
-                                .setThumbnail(interaction.user.displayAvatarURL({ dynamic: true }))
-                                .setTimestamp()
-                                .setFooter({ text: `ID: ${interaction.user.id} • ${interaction.user.username} • ${interaction.guild.name}`, iconURL: interaction.user.displayAvatarURL({ dynamic: true }) });
-                            await logChannel.send({ embeds: [embedLog] }).catch(()=>null);
+                            await logChannel.send({ embeds: [buildCommandLogEmbed(interaction)] }).catch(()=>null);
                         }
                     }
                 }
             } catch (error) {
                 console.error(error);
+                const db = require('../utils/db');
+                db.addLog(
+                    'COMMAND_ERROR',
+                    `Erro no comando /${interaction.commandName}: ${String(error?.stack || error).slice(0, 1200)}`,
+                    interaction.guildId,
+                    interaction.user?.id || null,
+                    interaction.user?.username || 'desconhecido'
+                );
                 const msg = 'Encontrei um erro. Mesmo sangrando, não vamos parar.';
                 if (interaction.replied || interaction.deferred) {
                     await interaction.followUp({ content: formatResponse(msg), flags: ['Ephemeral'] });

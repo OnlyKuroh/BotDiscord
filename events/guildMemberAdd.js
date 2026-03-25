@@ -1,6 +1,7 @@
 const { Events, EmbedBuilder } = require('discord.js');
 const db = require('../utils/db');
 const updateMemberCounter = require('../utils/updateMemberCounter');
+const { buildMemberJoinLogEmbed } = require('../utils/system-embeds');
 
 module.exports = {
     name: Events.GuildMemberAdd,
@@ -69,14 +70,7 @@ module.exports = {
         const logChannel = member.guild.channels.cache.get(logChannelId);
         if (!logChannel) return;
 
-        const logEmbed = new EmbedBuilder()
-            .setColor('#2ecc71') // Verde - entrou no servidor
-            .setAuthor({ name: 'Nova Alma (Membro Entrou)', iconURL: member.user.displayAvatarURL({ dynamic: true }) })
-            .setDescription(`🔰 <@${member.user.id}> adentrou o servidor.`)
-            .setTimestamp()
-            .setFooter({ text: `ID: ${member.user.id} • ${member.user.username} • ${member.guild.name}`, iconURL: member.user.displayAvatarURL({ dynamic: true }) });
-
         db.addLog('MEMBER_JOIN', `Entrada de ${member.user.username}`, member.guild.id, member.user.id, member.user.username);
-        await logChannel.send({ embeds: [logEmbed] }).catch(() => null);
+        await logChannel.send({ embeds: [buildMemberJoinLogEmbed(member)] }).catch(() => null);
     },
 };

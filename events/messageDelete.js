@@ -1,5 +1,6 @@
-const { Events, EmbedBuilder } = require('discord.js');
+const { Events } = require('discord.js');
 const db = require('../utils/db');
+const { buildMessageDeleteLogEmbed } = require('../utils/system-embeds');
 
 module.exports = {
     name: Events.MessageDelete,
@@ -13,14 +14,7 @@ module.exports = {
         if (!logChannel) return;
 
         // Tentar buscar o log de auditoria para saber quem apagou. Mas na maioria das vezes, o discord atrasa.
-        const embed = new EmbedBuilder()
-            .setColor('#e74c3c')
-            .setAuthor({ name: 'Rastro Apagado', iconURL: message.author.displayAvatarURL({ dynamic: true }) })
-            .setDescription(`**Usuário:** <@${message.author.id}> | **Onde:** <#${message.channel.id}>\n**O que foi dito:** ${message.content || 'Apenas anexos/vazio'}`)
-            .setTimestamp()
-            .setFooter({ text: `ID: ${message.author.id} • ${message.author.username} • ${message.guild.name}`, iconURL: message.author.displayAvatarURL({ dynamic: true }) });
-            
         db.addLog('MSG_DELETE', `Mensagem de ${message.author.username} apagada em <#${message.channel.id}>`, message.guild.id, message.author.id, message.author.username);
-        await logChannel.send({ embeds: [embed] }).catch(() => null);
+        await logChannel.send({ embeds: [buildMessageDeleteLogEmbed(message)] }).catch(() => null);
     },
 };

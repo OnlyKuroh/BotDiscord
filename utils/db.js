@@ -209,6 +209,13 @@ function getLogsForGuild(guildId, limit = 50) {
     return db.prepare('SELECT * FROM activity_logs WHERE guild_id = ? ORDER BY timestamp DESC LIMIT ?').all(guildId, limit);
 }
 
+function getEntriesByPrefix(prefix) {
+    return db.prepare('SELECT key, value FROM kv_store WHERE key LIKE ? ORDER BY key ASC').all(`${prefix}%`).map((row) => ({
+        key: row.key,
+        value: safeParseJson(row.value, row.value),
+    }));
+}
+
 // ─── Release Updates ──────────────────────────────────────────────────────────
 
 function createReleaseUpdate(update) {
@@ -275,4 +282,5 @@ module.exports = {
     getCustomCommands, getCustomCommand, setCustomCommand, deleteCustomCommand, toggleCustomCommand,
     blacklistGuild, unblacklistGuild, isGuildBlacklisted, getBlacklist, getLogsForGuild,
     createReleaseUpdate, getReleaseUpdateByFingerprint, getRecentReleaseUpdates,
+    getEntriesByPrefix,
 };

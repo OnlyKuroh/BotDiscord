@@ -6,6 +6,7 @@ const multer = require('multer');
 const { EmbedBuilder } = require('discord.js');
 const db = require('../utils/db');
 const { getNewsStatsSnapshot } = require('../utils/newsRoleStats');
+const { buildGlobalLogEmbed } = require('../utils/system-embeds');
 const http = require('http');
 const { Server } = require('socket.io');
 const jwt = require('jsonwebtoken');
@@ -116,19 +117,23 @@ function startDashboard(client) {
         // Envia para o canal global do Dono (se definido por /globallogs)
         const globalId = db.get('global_logs_channel');
         if (globalId) {
-            const channel = client.channels.cache.get(globalId);
-            if (channel) {
-                void (async () => {
+            void (async () => {
+                const channel = client.channels.cache.get(globalId) || await client.channels.fetch(globalId).catch(() => null);
+                if (channel) {
                     let guildName = 'Desconhecido';
+                    let guildIconUrl = null;
+                    let userAvatarUrl = null;
 
                     if (guild_id) {
                         const cachedGuild = client.guilds.cache.get(guild_id);
                         if (cachedGuild) {
                             guildName = cachedGuild.name;
+                            guildIconUrl = cachedGuild.iconURL({ dynamic: true, size: 256 }) || null;
                         } else {
                             try {
                                 const fetchedGuild = await client.guilds.fetch(guild_id);
                                 guildName = fetchedGuild.name;
+                                guildIconUrl = fetchedGuild.iconURL({ dynamic: true, size: 256 }) || null;
                             } catch {
                                 guildName = 'Desconhecido';
                             }
@@ -137,16 +142,26 @@ function startDashboard(client) {
                         guildName = 'Global';
                     }
 
-                    // Evite loop de logs do próprio comando globallogs se quiser,
-                    // mas é útil receber tudo.
-                    const embed = new EmbedBuilder()
-                        .setColor('#C41230')
-                        .setTitle(`[${type}] Sangue Rastreado`)
-                        .setDescription(`**Usuário:** ${user_name || 'Desconhecido'} (${user_id || 'N/A'})\n**Servidor:** ${guildName} (${guild_id || 'Global'})\n\n**Ação:** ${content}`)
-                        .setTimestamp();
+                    if (user_id) {
+                        const user = client.users.cache.get(user_id) || await client.users.fetch(user_id).catch(() => null);
+                        userAvatarUrl = user?.displayAvatarURL({ dynamic: true, size: 256 }) || null;
+                    }
+
+                    const embed = buildGlobalLogEmbed({
+                        type,
+                        content,
+                        guildName,
+                        guildId: guild_id,
+                        userName: user_name,
+                        userId: user_id,
+                        guildIconUrl,
+                        userAvatarUrl,
+                        timestamp: new Date(),
+                    });
+
                     channel.send({ embeds: [embed] }).catch(() => null);
-                })();
-            }
+                }
+            })();
         }
     };
 

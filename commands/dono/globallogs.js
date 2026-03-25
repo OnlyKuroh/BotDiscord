@@ -15,7 +15,7 @@ module.exports = {
         ),
     
     async execute(interaction) {
-        if (!requireOwner(interaction)) return;
+        if (await requireOwner(interaction)) return;
 
         const channel = interaction.options.getChannel('canal');
 
