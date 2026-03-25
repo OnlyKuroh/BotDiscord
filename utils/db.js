@@ -2,9 +2,8 @@ const Database = require('better-sqlite3');
 const path = require('path');
 const fs = require('fs');
 
-const isFly = Boolean(process.env.FLY_APP_NAME);
-const dataDir = process.env.DATA_DIR || (isFly ? '/data' : path.join(__dirname, '..', 'data'));
-const dbPath = process.env.DB_PATH || path.join(dataDir, 'database.db');
+const dataDir = path.join(__dirname, '..', 'data');
+const dbPath = path.join(dataDir, 'database.db');
 
 // Garante que o diretório data exista
 if (!fs.existsSync(dataDir)) {

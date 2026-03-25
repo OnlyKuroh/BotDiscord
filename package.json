@@ -7,8 +7,9 @@
     "test": "echo \"Error: no test specified\" && exit 1",
     "start": "node index.js",
     "deploy": "node deploy-commands.js",
-    "dev": "concurrently \"node deploy-commands.js && nodemon index.js\" \"npm --prefix dashboard-v2 run dev\"",
-    "dev-bot": "node deploy-commands.js && nodemon index.js",
+    "dev": "concurrently \"nodemon index.js\" \"npm --prefix dashboard-v2 run dev\"",
+    "dev-bot": "nodemon index.js",
+    "dev-bot:deploy": "node deploy-commands.js && nodemon index.js",
     "start:sharded": "node shard.js"
   },
   "keywords": [],

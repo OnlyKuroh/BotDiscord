@@ -16,10 +16,8 @@ const JWT_SECRET = process.env.SESSION_SECRET || 'itadori_secret_change_me_in_en
 const DISCORD_CLIENT_SECRET = process.env.DISCORD_CLIENT_SECRET || '';
 const OAUTH_REDIRECT_URI = process.env.OAUTH_REDIRECT_URI || 'http://localhost:3001/auth/discord/callback';
 const FRONTEND_URL = process.env.FRONTEND_URL || 'http://localhost:3002';
-const isFly = Boolean(process.env.FLY_APP_NAME);
-const dataDir = process.env.DATA_DIR || (isFly ? '/data' : path.join(__dirname, '..', 'data'));
-const uploadsDir = process.env.UPLOADS_DIR || path.join(dataDir, 'uploads');
-const publicBaseUrl = process.env.PUBLIC_BASE_URL || process.env.APP_URL || process.env.FLY_PUBLIC_URL || '';
+const dataDir = path.join(__dirname, '..', 'data');
+const uploadsDir = path.join(dataDir, 'uploads');
 
 function requireAuth(req, res, next) {
     const auth = req.headers.authorization || '';
@@ -492,8 +490,8 @@ function startDashboard(client) {
     // API: Upload Image
     app.post('/api/upload', upload.single('file'), (req, res) => {
         if (!req.file) return res.status(400).json({ error: 'Nenhuma imagem enviada.' });
-            const inferredBaseUrl = publicBaseUrl || `${req.protocol}://${req.get('host')}`;
-            const fileUrl = `${inferredBaseUrl}/uploads/${req.file.filename}`;
+        const inferredBaseUrl = `${req.protocol}://${req.get('host')}`;
+        const fileUrl = `${inferredBaseUrl}/uploads/${req.file.filename}`;
         res.json({ url: fileUrl });
     });
 

@@ -41,7 +41,6 @@ async function buildTelemetryEmbed(client, user, apiLatency) {
         : `WebSocket: \`${wsping}ms\`\nAPI: \`—\``;
 
     const shardMetrics = await getShardMetrics(client);
-    const flyRuntime = getFlyRuntime();
 
     return new EmbedBuilder()
         .setColor('#3498db')
@@ -59,8 +58,7 @@ async function buildTelemetryEmbed(client, user, apiLatency) {
             { name: '💻 Sistema Operacional', value: `Plataforma: \`${os.platform()}\`\nVersão: \`${os.release()}\`\nNode.js: \`${process.version}\``, inline: true },
             { name: '📊 Estatísticas do Bot', value: `Servidores: \`${shardMetrics.guilds}\`\nMembros: \`${shardMetrics.members}\`\nShards: \`${shardMetrics.summary}\``, inline: true },
             { name: '💬 Canais e Recursos', value: `Canais: \`${shardMetrics.channels}\`\nUsuários em cache: \`${shardMetrics.users}\`\nComandos: \`${client.commands.size}\``, inline: true },
-            { name: '🧩 Estado dos Shards', value: shardMetrics.details, inline: false },
-            { name: '🛩️ Ambiente Fly', value: flyRuntime, inline: false }
+            { name: '🧩 Estado dos Shards', value: shardMetrics.details, inline: false }
         )
         .setFooter({ text: `Itadori © ${shardMetrics.footer} • Solicitado por ${user.username}`, iconURL: user.displayAvatarURL() })
         .setTimestamp();
@@ -123,24 +121,6 @@ async function getShardMetrics(client) {
         footer: `Shard #${currentShardId} / ${shardCount}`,
         details: detailLines.join('\n').slice(0, 1024)
     };
-}
-
-function getFlyRuntime() {
-    if (!process.env.FLY_APP_NAME) {
-        return 'Hospedagem Fly: `não detectada`\nModo atual: `local/outro provedor`';
-    }
-
-    const appName = process.env.FLY_APP_NAME;
-    const machineId = process.env.FLY_MACHINE_ID || process.env.FLY_ALLOC_ID || 'desconhecida';
-    const region = process.env.FLY_REGION || process.env.PRIMARY_REGION || 'desconhecida';
-    const publicUrl = process.env.PUBLIC_BASE_URL || `https://${appName}.fly.dev`;
-
-    return [
-        `App: \`${appName}\``,
-        `Machine: \`${machineId}\``,
-        `Região: \`${region}\``,
-        `URL: \`${publicUrl}\``
-    ].join('\n');
 }
 
 function formatDuration(ms) {

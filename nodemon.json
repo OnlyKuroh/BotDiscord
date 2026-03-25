@@ -1,0 +1,22 @@
+{
+  "watch": [
+    "index.js",
+    "shard.js",
+    "commands",
+    "events",
+    "handlers",
+    "utils",
+    "deploy-commands.js"
+  ],
+  "ext": "js,json",
+  "ignore": [
+    "node_modules/**",
+    "dashboard-v2/**",
+    "dashboard-v2.worktrees/**",
+    "pixel-agents/**",
+    "data/**",
+    "uploads/**",
+    "dashboard/uploads/**",
+    ".git/**"
+  ]
+}
