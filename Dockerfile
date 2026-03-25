@@ -13,14 +13,15 @@ COPY package*.json ./
 RUN npm ci --omit=dev
 
 COPY commands ./commands
-COPY dashboard ./dashboard
 COPY events ./events
 COPY handlers ./handlers
 COPY utils ./utils
-COPY data ./data
 COPY index.js ./index.js
 COPY shard.js ./shard.js
 COPY deploy-commands.js ./deploy-commands.js
+
+# Runtime dirs; Fly volume should provide /data
+RUN mkdir -p /app/dashboard /app/data /app/uploads
 
 ENV NODE_ENV=production
 ENV PORT=8080
