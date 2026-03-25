@@ -42,6 +42,21 @@ db.prepare(`
 
 db.prepare("INSERT OR IGNORE INTO stats_store (key, value) VALUES ('slash_commands_used', 0)").run();
 
+db.prepare(`
+    CREATE TABLE IF NOT EXISTS release_updates (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        fingerprint TEXT NOT NULL UNIQUE,
+        title TEXT NOT NULL,
+        lead TEXT NOT NULL,
+        sections_json TEXT NOT NULL,
+        closing_text TEXT,
+        summary_lines_json TEXT NOT NULL,
+        commits_json TEXT NOT NULL,
+        repos_json TEXT NOT NULL,
+        created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+    )
+`).run();
+
 // Tabela de comandos personalizados por servidor
 db.prepare(`
     CREATE TABLE IF NOT EXISTS custom_commands (
@@ -195,8 +210,70 @@ function getLogsForGuild(guildId, limit = 50) {
     return db.prepare('SELECT * FROM activity_logs WHERE guild_id = ? ORDER BY timestamp DESC LIMIT ?').all(guildId, limit);
 }
 
+// ─── Release Updates ──────────────────────────────────────────────────────────
+
+function createReleaseUpdate(update) {
+    db.prepare(`
+        INSERT INTO release_updates (
+            fingerprint,
+            title,
+            lead,
+            sections_json,
+            closing_text,
+            summary_lines_json,
+            commits_json,
+            repos_json
+        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+    `).run(
+        update.fingerprint,
+        update.title,
+        update.lead,
+        JSON.stringify(update.sections || []),
+        update.closingText || null,
+        JSON.stringify(update.summaryLines || []),
+        JSON.stringify(update.commits || []),
+        JSON.stringify(update.repos || [])
+    );
+}
+
+function getReleaseUpdateByFingerprint(fingerprint) {
+    const row = db.prepare('SELECT * FROM release_updates WHERE fingerprint = ?').get(fingerprint);
+    return mapReleaseUpdateRow(row);
+}
+
+function getRecentReleaseUpdates(limit = 6) {
+    const rows = db.prepare('SELECT * FROM release_updates ORDER BY datetime(created_at) DESC LIMIT ?').all(limit);
+    return rows.map(mapReleaseUpdateRow);
+}
+
+function mapReleaseUpdateRow(row) {
+    if (!row) return null;
+    return {
+        id: row.id,
+        fingerprint: row.fingerprint,
+        title: row.title,
+        lead: row.lead,
+        closingText: row.closing_text || '',
+        createdAt: row.created_at,
+        sections: safeParseJson(row.sections_json, []),
+        summaryLines: safeParseJson(row.summary_lines_json, []),
+        commits: safeParseJson(row.commits_json, []),
+        repos: safeParseJson(row.repos_json, []),
+    };
+}
+
+function safeParseJson(value, fallback) {
+    if (!value) return fallback;
+    try {
+        return JSON.parse(value);
+    } catch {
+        return fallback;
+    }
+}
+
 module.exports = {
     get, set, delete: deleteKey, addLog, getLogs, getLogs, incrementStat, getStat,
     getCustomCommands, getCustomCommand, setCustomCommand, deleteCustomCommand, toggleCustomCommand,
     blacklistGuild, unblacklistGuild, isGuildBlacklisted, getBlacklist, getLogsForGuild,
+    createReleaseUpdate, getReleaseUpdateByFingerprint, getRecentReleaseUpdates,
 };

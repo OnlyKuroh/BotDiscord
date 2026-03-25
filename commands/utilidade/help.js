@@ -40,6 +40,7 @@ const CMD_SHORT = {
     setverificar:     'Sistema de verificação de membros',
     setwelcome:       'Configurar mensagem de boas-vindas',
     setmembercounter: 'Canal contador de membros',
+    setnovidades:     'Canal de changelog automatico',
     update:           'Enviar update/anúncio do bot',
     // Utilidade
     help:     'Ver todos os comandos',

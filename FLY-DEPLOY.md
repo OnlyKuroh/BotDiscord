@@ -8,6 +8,7 @@
 - O banco SQLite e os uploads agora aceitam `DATA_DIR`, `DB_PATH` e `UPLOADS_DIR`.
 - Foi criado um `Dockerfile` na raiz.
 - Foi criado um `fly.toml` para o app `itadoritrue`.
+- O `fly.toml` do bot foi ajustado para modo sempre ativo, sem auto-stop.
 - Foi criado `.dockerignore` para o bot.
 
 Arquivos principais:
@@ -70,9 +71,10 @@ fly secrets set `
 fly deploy -a itadoritrue
 ```
 
-4. Conferir logs:
+4. Conferir status e logs:
 
 ```powershell
+fly status -a itadoritrue
 fly logs -a itadoritrue
 ```
 
@@ -141,5 +143,6 @@ fly logs -a itadori-dashboard
 - O bot e o dashboard sao dois apps Fly separados.
 - O app do bot sai da raiz `BOT DISCORD`.
 - O app do dashboard sai de `dashboard-v2`.
+- O bot ficou configurado para ficar sempre online na Fly com `auto_stop_machines = "off"`.
 - Se voce mantiver o dashboard na Vercel, nao precisa subir o `dashboard-v2` no Fly.
 - Como secrets reais ja apareceram no terminal/chat, rotacione os mais sensiveis.

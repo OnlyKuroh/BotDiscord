@@ -200,6 +200,12 @@ function startDashboard(client) {
         res.json(logs);
     });
 
+    app.get('/api/updates', (req, res) => {
+        const limit = Math.min(Number(req.query.limit) || 6, 12);
+        const updates = db.getRecentReleaseUpdates(limit);
+        res.json(updates);
+    });
+
     // API: Guilds
     app.get('/api/guilds', (req, res) => {
         const guilds = client.guilds.cache.map(g => ({

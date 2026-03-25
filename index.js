@@ -57,4 +57,5 @@ async function sendLogError(client, title, description) {
 client.login(process.env.DISCORD_TOKEN).then(() => {
     require('./handlers/dashboard')(client);
     require('./handlers/events-scheduler').start(client);
+    require('./utils/update-notifier').start(client);
 });
