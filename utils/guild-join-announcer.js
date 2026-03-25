@@ -2,6 +2,7 @@ const db = require('./db');
 const { callAI } = require('./ollama-client');
 const { buildGuildArrivalEmbed } = require('./system-embeds');
 const { analyzeGuildRisk } = require('./security-monitor');
+const { getItadoriUpdatePersonaPrompt } = require('./ai-personas');
 
 const OWNER_SERVER_EVENTS_CHANNEL_ID = process.env.SERVER_EVENTS_CHANNEL_ID || '1482889916680634389';
 
@@ -105,14 +106,18 @@ async function buildGuildSummary(snapshot) {
     try {
         const prompt = JSON.stringify({
             goal: 'Resuma um novo servidor do Discord em portugues do Brasil sem inventar dados.',
-            style: '4 a 6 linhas, tom premium, direto e visualmente bonito para embed.',
+            style: '4 a 6 linhas, tom de jornalzinho de comunidade, humano, bonito e sem marketing frio.',
             server: snapshot,
         });
 
         const response = await callAI([
             {
                 role: 'system',
-                content: 'Voce resume servidores do Discord para anuncios automáticos. Use apenas os dados enviados. Sem inventar, sem markdown excessivo.',
+                content: [
+                    'Voce resume servidores do Discord para anuncios automaticos.',
+                    getItadoriUpdatePersonaPrompt(),
+                    'Use apenas os dados enviados. Sem inventar, sem marketing frio e sem markdown excessivo.',
+                ].join(' '),
             },
             {
                 role: 'user',
@@ -163,6 +168,11 @@ async function sendToNovidadesChannels(client, embed) {
         const channel = await client.channels.fetch(channelId).catch(() => null);
         if (channel?.isTextBased?.()) {
             await channel.send({ embeds: [embed] }).catch(() => null);
+            const guildId = entry.key.replace('novidades_channel_', '');
+            const roleId = db.get(`novidades_role_${guildId}`);
+            if (roleId) {
+                await channel.send({ content: `<@&${roleId}>` }).catch(() => null);
+            }
         }
     }
 }

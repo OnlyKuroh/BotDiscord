@@ -209,6 +209,20 @@ function getLogsForGuild(guildId, limit = 50) {
     return db.prepare('SELECT * FROM activity_logs WHERE guild_id = ? ORDER BY timestamp DESC LIMIT ?').all(guildId, limit);
 }
 
+function getLogsSince(sinceTimestamp, limit = 100, types = []) {
+    const since = typeof sinceTimestamp === 'string' ? sinceTimestamp : new Date(sinceTimestamp || 0).toISOString();
+    if (Array.isArray(types) && types.length > 0) {
+        const placeholders = types.map(() => '?').join(', ');
+        return db.prepare(
+            `SELECT * FROM activity_logs WHERE datetime(timestamp) >= datetime(?) AND type IN (${placeholders}) ORDER BY datetime(timestamp) DESC LIMIT ?`
+        ).all(since, ...types, limit);
+    }
+
+    return db.prepare(
+        'SELECT * FROM activity_logs WHERE datetime(timestamp) >= datetime(?) ORDER BY datetime(timestamp) DESC LIMIT ?'
+    ).all(since, limit);
+}
+
 function getEntriesByPrefix(prefix) {
     return db.prepare('SELECT key, value FROM kv_store WHERE key LIKE ? ORDER BY key ASC').all(`${prefix}%`).map((row) => ({
         key: row.key,
@@ -281,6 +295,7 @@ module.exports = {
     get, set, delete: deleteKey, addLog, getLogs, getLogs, incrementStat, getStat,
     getCustomCommands, getCustomCommand, setCustomCommand, deleteCustomCommand, toggleCustomCommand,
     blacklistGuild, unblacklistGuild, isGuildBlacklisted, getBlacklist, getLogsForGuild,
+    getLogsSince,
     createReleaseUpdate, getReleaseUpdateByFingerprint, getRecentReleaseUpdates,
     getEntriesByPrefix,
 };

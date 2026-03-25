@@ -3,6 +3,7 @@ const db = require('../utils/db');
 const updateMemberCounter = require('../utils/updateMemberCounter');
 const { handleMemberLeave } = require('../utils/newsRoleStats');
 const { buildMemberLeaveLogEmbed } = require('../utils/system-embeds');
+const { evaluatePlatformMilestones } = require('../utils/milestone-announcer');
 
 module.exports = {
     name: Events.GuildMemberRemove,
@@ -13,6 +14,7 @@ module.exports = {
 
         // --- CONTADOR DE MEMBROS ---
         await updateMemberCounter(member.guild);
+        await evaluatePlatformMilestones(member.client);
 
         const logChannelId = db.get(`logs_${member.guild.id}`);
         if (!logChannelId) return;

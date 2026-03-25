@@ -2,12 +2,14 @@ const { Events, EmbedBuilder } = require('discord.js');
 const db = require('../utils/db');
 const updateMemberCounter = require('../utils/updateMemberCounter');
 const { buildMemberJoinLogEmbed } = require('../utils/system-embeds');
+const { evaluatePlatformMilestones } = require('../utils/milestone-announcer');
 
 module.exports = {
     name: Events.GuildMemberAdd,
     async execute(member) {
         // --- CONTADOR DE MEMBROS ---
         await updateMemberCounter(member.guild);
+        await evaluatePlatformMilestones(member.client);
 
         // --- AUTO ROLE PARA BOTS ---
         if (member.user.bot) {

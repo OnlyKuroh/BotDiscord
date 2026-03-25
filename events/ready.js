@@ -1,5 +1,6 @@
 const { Events, ActivityType } = require('discord.js');
 const { reconcileKnownGuilds } = require('../utils/guild-join-announcer');
+const { evaluatePlatformMilestones } = require('../utils/milestone-announcer');
 
 const statusMessages = [
     "A engrenagem não para. Use /help para acessar o arsenal.",
@@ -27,5 +28,6 @@ module.exports = {
         setInterval(updateStatus, 15 * 1000);
 
         await reconcileKnownGuilds(client);
+        await evaluatePlatformMilestones(client);
     },
 };

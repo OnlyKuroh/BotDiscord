@@ -3,6 +3,7 @@ const axios = require('axios');
 const { EmbedBuilder } = require('discord.js');
 const db = require('./db');
 const { callAI } = require('./ollama-client');
+const { getItadoriUpdatePersonaPrompt } = require('./ai-personas');
 
 const GITHUB_API_BASE = 'https://api.github.com';
 const UPDATE_SYSTEM_NAME = process.env.UPDATE_SYSTEM_NAME || 'Itadori Yuji © System v2.1';
@@ -164,27 +165,36 @@ async function buildUpdatePayload(changes) {
     const fingerprint = createFingerprint(changes.repos);
     const commits = flattenCommits(changes.repos);
     const counts = buildCounts(commits);
+    const commandChanges = extractCommandChanges(commits);
+    const incidentLogs = getRecentIncidentLogs();
 
     try {
-        const aiPayload = await generateWithAI(changes.repos, counts);
+        const aiPayload = await generateWithAI(changes.repos, counts, {
+            commandChanges,
+            incidentLogs,
+        });
         return {
             fingerprint,
-            ...aiPayload,
+            ...ensureUniqueTitle(aiPayload, changes.repos),
             commits,
             repos: changes.repos.map(stripRepoPayload),
         };
     } catch (error) {
         console.warn('[UPDATES] IA indisponível, usando fallback local:', error.message);
+        const fallback = buildFallbackUpdate(changes.repos, counts, {
+            commandChanges,
+            incidentLogs,
+        });
         return {
             fingerprint,
-            ...buildFallbackUpdate(changes.repos, counts),
+            ...ensureUniqueTitle(fallback, changes.repos),
             commits,
             repos: changes.repos.map(stripRepoPayload),
         };
     }
 }
 
-async function generateWithAI(repos, counts) {
+async function generateWithAI(repos, counts, context = {}) {
     const compactRepos = repos.map((repo) => ({
         label: repo.label,
         repo: `${repo.owner}/${repo.repo}`,
@@ -198,10 +208,14 @@ async function generateWithAI(repos, counts) {
 
     const systemPrompt = [
         'Voce cria notas de atualizacao em portugues do Brasil para um bot de Discord e seu dashboard.',
+        getItadoriUpdatePersonaPrompt(),
         'Responda somente JSON valido.',
-        'Estilo: profissional, forte, direto, parecido com um changelog premium.',
+        'Estilo: jornalzinho de comunidade premium, humano, quente, natural e vivo.',
         'Nao invente funcionalidades que nao aparecam nos commits.',
         'Mantenha 3 secoes maximo.',
+        'Deixe o titulo especifico e diferente de titulos antigos, evitando repetir frases genericas.',
+        'Se houver comandos alterados, mencione isso como comando mexido ou comando refinado.',
+        'Se houver erros recentes capturados pelo bot, trate isso como correcoes ou pontos de estabilidade.',
         'Campos obrigatorios:',
         '{',
         '  "title": string,',
@@ -215,9 +229,16 @@ async function generateWithAI(repos, counts) {
     const userPrompt = JSON.stringify({
         repos: compactRepos,
         counts,
+        commandChanges: context.commandChanges || [],
+        recentErrorIncidents: (context.incidentLogs || []).map((log) => ({
+            type: log.type,
+            content: log.content,
+            timestamp: log.timestamp,
+            user: log.user_name,
+        })),
         styleGuide: {
-            titleExample: 'Update de Produtividade: O Fim dos Logs Manuais',
-            summaryTone: 'objetivo, tecnico, elegante, sem emojis excessivos',
+            titleExample: 'Plantao do Itadori: Logs ficaram mais casca-grossa e o help veio redondo',
+            summaryTone: 'humano, brasileiro, direto, elegante, parceiro, sem marketing frio',
             includeCodeMentions: true,
             mentionBothBotAndDashboardWhenRelevant: true,
         },
@@ -232,11 +253,11 @@ async function generateWithAI(repos, counts) {
     });
 
     const parsed = parseJsonObject(raw);
-    return sanitizeAiPayload(parsed, counts);
+    return sanitizeAiPayload(parsed, counts, context);
 }
 
-function sanitizeAiPayload(payload, counts) {
-    const fallback = buildFallbackUpdate([], counts);
+function sanitizeAiPayload(payload, counts, context = {}) {
+    const fallback = buildFallbackUpdate([], counts, context);
     const summaryLines = Array.isArray(payload.summaryLines) && payload.summaryLines.length > 0
         ? payload.summaryLines.map((line) => ({
             kind: normalizeSummaryKind(line.kind),
@@ -263,36 +284,42 @@ function sanitizeAiPayload(payload, counts) {
     };
 }
 
-function buildFallbackUpdate(repos, counts) {
+function buildFallbackUpdate(repos, counts, context = {}) {
     const activeRepos = repos.filter((repo) => repo.commits.length > 0);
     const labels = activeRepos.map((repo) => repo.label).join(' + ') || 'Bot';
     const topMessages = activeRepos.flatMap((repo) => repo.commits.slice(0, 2).map((commit) => commit.message));
+    const commandBit = context.commandChanges?.length
+        ? `Tambem teve mexida em comando, tipo ${context.commandChanges.slice(0, 4).map((item) => `\`${item}\``).join(', ')}.`
+        : '';
+    const incidentsBit = context.incidentLogs?.length
+        ? `O sistema ainda carregou no colo ${context.incidentLogs.length} erro${context.incidentLogs.length === 1 ? '' : 's'} recente${context.incidentLogs.length === 1 ? '' : 's'} para virar pauta de correcoes no jornalzinho.`
+        : '';
 
     return {
-        title: `Update de Sistema: ${labels} em sincronia`,
-        lead: `Nesta rodada, o ecossistema do Itadori recebeu ${counts.total} alteracao${counts.total === 1 ? '' : 'oes'} rastreada${counts.total === 1 ? '' : 's'}, cobrindo ajustes no bot, no dashboard e no fluxo de deploy onde isso apareceu nos commits.`,
+        title: `Plantao do Itadori: ${labels} mexido e casa arrumada`,
+        lead: `Papo reto: essa rodada trouxe ${counts.total} mudanca${counts.total === 1 ? '' : 's'} rastreada${counts.total === 1 ? '' : 's'} no bot e no dashboard. ${commandBit} ${incidentsBit}`.trim(),
         sections: [
             {
                 icon: '✦',
-                title: 'Rastreamento Inteligente',
+                title: 'O que entrou no corre',
                 subtitle: 'Mudancas consolidadas por repositorio',
                 body: activeRepos.length
                     ? activeRepos.map((repo) => `**${repo.label}:** ${repo.commits.slice(0, 2).map((commit) => `\`${commit.message}\``).join(' • ')}`).join('\n')
                     : 'Nenhum repositorio trouxe detalhes suficientes para montar o resumo automatico.',
-                calloutLabel: 'Contexto',
-                calloutText: topMessages[0] || 'O sistema consolidou os commits mais recentes e preparou a leitura para Discord e dashboard.',
+                calloutLabel: 'Papo reto',
+                calloutText: topMessages[0] || 'O sistema juntou os commits recentes e montou o jornalzinho do deploy.',
             },
             {
                 icon: '🔒',
-                title: 'Estabilidade e Acabamento',
-                subtitle: 'Melhorias tecnicas e correcoes',
-                body: `Foram detectadas **${counts.fixes} correcoes** e **${counts.improvements} melhorias**, com foco em estabilidade, estrutura e refinamento do fluxo principal.`,
+                title: 'Onde a casa ficou mais firme',
+                subtitle: 'Melhorias tecnicas, comandos mexidos e correcoes',
+                body: buildFallbackStabilityBody(counts, context),
                 calloutLabel: 'Resultado',
-                calloutText: 'Menos retrabalho manual, mais clareza sobre o que entrou em cada deploy.',
+                calloutText: 'Menos susto em producao e mais visibilidade do que mudou de verdade.',
             },
         ],
-        closingText: 'Agora, cada reinicio importante pode virar um changelog pronto para publicar.',
-        summaryLines: buildSummaryLines(counts),
+        closingText: 'No fim das contas, ficou mais redondo, mais claro e menos sofrido de manter.',
+        summaryLines: buildSummaryLines(counts, context),
     };
 }
 
@@ -325,6 +352,10 @@ async function publishUpdateToGuild(client, guild, payload, options = {}) {
 
     try {
         await channel.send({ embeds: [buildDiscordEmbed(client, payload)] });
+        const roleId = db.get(`novidades_role_${guild.id}`);
+        if (roleId) {
+            await channel.send({ content: `<@&${roleId}>` });
+        }
         db.set(deliveredKey, {
             channelId,
             deliveredAt: new Date().toISOString(),
@@ -406,9 +437,10 @@ function buildDiscordEmbed(client, payload) {
     }).join('\n\n');
 
     const description = [
+        '## Jornal do Deploy',
         payload.lead,
         '',
-        'Confira os pilares desta versao:',
+        'Segura o resumao do que bateu nessa rodada:',
         '',
         descriptionSections,
         '',
@@ -417,14 +449,14 @@ function buildDiscordEmbed(client, payload) {
 
     return new EmbedBuilder()
         .setColor('#2ecc71')
-        .setAuthor({ name: UPDATE_SYSTEM_NAME, iconURL: client.user?.displayAvatarURL() || undefined })
+        .setAuthor({ name: 'Jornal do Itadori • Plantao das Atualizacoes', iconURL: client.user?.displayAvatarURL() || undefined })
         .setTitle(payload.title)
         .setDescription(description.slice(0, 4096))
         .addFields({
-            name: '🧾 Resumo da Build',
+            name: '🧾 Quadro da Rodada',
             value: buildAnsiSummary(payload.summaryLines),
         })
-        .setFooter({ text: `Administracao © Kuroh Community • ${formatUpdateDate(payload.createdAt || new Date().toISOString())}` })
+        .setFooter({ text: `Saiu do forno em ${formatUpdateDate(payload.createdAt || new Date().toISOString())} • Itadori no plantao` })
         .setTimestamp(new Date(payload.createdAt || Date.now()));
 }
 
@@ -460,29 +492,107 @@ function buildCounts(commits) {
     }, { features: 0, improvements: 0, fixes: 0, total: 0 });
 }
 
-function buildSummaryLines(counts) {
-    return [
+function buildSummaryLines(counts, context = {}) {
+    const lines = [
         {
             kind: 'feature',
-            label: '+ Features (Novidades)',
-            text: `${String(counts.features).padStart(2, '0')} alteracoes de produto rastreadas`,
+            label: '+ Novidades',
+            text: `${String(counts.features).padStart(2, '0')} mudancas novas pintaram no bot ou no dashboard`,
         },
         {
             kind: 'improvement',
-            label: '! Improvements (Melhorias)',
-            text: `${String(counts.improvements).padStart(2, '0')} refinamentos tecnicos consolidados`,
+            label: '! Melhorias',
+            text: `${String(counts.improvements).padStart(2, '0')} ajustes deixaram o fluxo mais redondo`,
         },
         {
             kind: 'fix',
-            label: '- Fixes (Correcões)',
-            text: `${String(counts.fixes).padStart(2, '0')} correcoes ou blindagens aplicadas`,
-        },
-        {
-            kind: 'total',
-            label: '# Total de Alteracoes',
-            text: `${counts.total} mudanca${counts.total === 1 ? '' : 's'} rastreada${counts.total === 1 ? '' : 's'}`,
+            label: '- Correcoes',
+            text: `${String(counts.fixes).padStart(2, '0')} blindagens ou reparos entraram na jogada`,
         },
     ];
+
+    if (context.commandChanges?.length) {
+        lines.push({
+            kind: 'improvement',
+            label: '! Comandos mexidos',
+            text: `${context.commandChanges.length} comando${context.commandChanges.length === 1 ? '' : 's'} tiveram alguma mexida`,
+        });
+    }
+
+    if (context.incidentLogs?.length) {
+        lines.push({
+            kind: 'fix',
+            label: '- Erros rastreados',
+            text: `${context.incidentLogs.length} incidente${context.incidentLogs.length === 1 ? '' : 's'} recente${context.incidentLogs.length === 1 ? '' : 's'} entrou${context.incidentLogs.length === 1 ? '' : 'ram'} no radar`,
+        });
+    }
+
+    lines.push({
+        kind: 'total',
+        label: '# Total da rodadinha',
+        text: `${counts.total} mudanca${counts.total === 1 ? '' : 's'} rastreada${counts.total === 1 ? '' : 's'}`,
+    });
+
+    return lines.slice(0, 5);
+}
+
+function extractCommandChanges(commits) {
+    const commands = new Set();
+
+    for (const commit of commits) {
+        for (const file of commit.files || []) {
+            if (!String(file).startsWith('commands/')) continue;
+            const base = String(file).split('/').pop()?.replace(/\.js$/, '');
+            if (base) commands.add(base);
+        }
+    }
+
+    return [...commands].slice(0, 12);
+}
+
+function getRecentIncidentLogs() {
+    const recentUpdates = db.getRecentReleaseUpdates(1);
+    const since = recentUpdates[0]?.createdAt || new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString();
+    return db.getLogsSince(since, 20, ['COMMAND_ERROR', 'SYSTEM_ERROR', 'AI_ERROR']);
+}
+
+function buildFallbackStabilityBody(counts, context = {}) {
+    const lines = [
+        `Foram rastreadas **${counts.fixes} correcoes** e **${counts.improvements} melhorias** nessa rodada.`,
+    ];
+
+    if (context.commandChanges?.length) {
+        lines.push(`Comando mexido tambem entrou no bonde: ${context.commandChanges.slice(0, 5).map((item) => `\`${item}\``).join(', ')}.`);
+    }
+
+    if (context.incidentLogs?.length) {
+        lines.push(`O monitoramento puxou ${context.incidentLogs.length} erro${context.incidentLogs.length === 1 ? '' : 's'} recente${context.incidentLogs.length === 1 ? '' : 's'} para virar pauta de correcoes no deploy.`);
+    }
+
+    return lines.join(' ');
+}
+
+function ensureUniqueTitle(payload, repos) {
+    const title = String(payload.title || '').trim();
+    const labels = repos.filter((repo) => repo.commits.length > 0).map((repo) => repo.label);
+    const anchors = repos
+        .flatMap((repo) => repo.commits.slice(0, 1).map((commit) => commit.shortSha))
+        .filter(Boolean);
+    const suffixParts = [];
+    if (labels.length) suffixParts.push(labels.join(' + '));
+    if (anchors.length) suffixParts.push(anchors.join('/'));
+    const suffix = suffixParts.length ? ` • ${suffixParts.join(' • ')}` : ' • Nova Rodada';
+    const recentTitles = db.getRecentReleaseUpdates(8).map((update) => String(update.title || '').trim());
+    const hasCollision = title && recentTitles.some((recentTitle) => recentTitle === title || recentTitle.startsWith(`${title} •`));
+
+    if (hasCollision) {
+        return {
+            ...payload,
+            title: `${title}${suffix}`.slice(0, 256),
+        };
+    }
+
+    return payload;
 }
 
 function flattenCommits(repos) {
