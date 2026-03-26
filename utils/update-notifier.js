@@ -261,27 +261,67 @@ function sanitizeAiPayload(payload, counts, context = {}) {
     const summaryLines = Array.isArray(payload.summaryLines) && payload.summaryLines.length > 0
         ? payload.summaryLines.map((line) => ({
             kind: normalizeSummaryKind(line.kind),
-            label: String(line.label || '').trim() || 'Resumo',
-            text: String(line.text || '').trim() || 'Sem detalhes.',
+            label: coerceAiText(line.label, 'Resumo'),
+            text: coerceAiText(line.text, 'Sem detalhes.'),
         }))
         : fallback.summaryLines;
 
     return {
-        title: String(payload.title || fallback.title).trim(),
-        lead: String(payload.lead || fallback.lead).trim(),
+        title: coerceAiText(payload.title, fallback.title),
+        lead: coerceAiText(payload.lead, fallback.lead),
         sections: Array.isArray(payload.sections) && payload.sections.length > 0
             ? payload.sections.slice(0, 3).map((section) => ({
-                icon: String(section.icon || '✦').trim(),
-                title: String(section.title || 'Atualizacao').trim(),
-                subtitle: String(section.subtitle || 'Mudancas aplicadas').trim(),
-                body: String(section.body || '').trim(),
-                calloutLabel: String(section.calloutLabel || 'Como funciona').trim(),
-                calloutText: String(section.calloutText || '').trim(),
+                icon: coerceAiText(section.icon, '✦'),
+                title: coerceAiText(section.title, 'Atualizacao'),
+                subtitle: coerceAiText(section.subtitle, 'Mudancas aplicadas'),
+                body: coerceAiText(section.body, fallback.sections[0]?.body || 'Sem resumo adicional.'),
+                calloutLabel: coerceAiText(section.calloutLabel, 'Como funciona'),
+                calloutText: coerceAiText(section.calloutText, 'Sem observacoes extras nessa rodada.'),
             }))
             : fallback.sections,
-        closingText: String(payload.closingText || fallback.closingText).trim(),
+        closingText: coerceAiText(payload.closingText, fallback.closingText),
         summaryLines,
     };
+}
+
+function coerceAiText(value, fallback = '') {
+    if (typeof value === 'string') {
+        const cleaned = value.trim();
+        if (cleaned && cleaned !== '[object Object]') return cleaned;
+        return fallback;
+    }
+
+    if (typeof value === 'number' || typeof value === 'boolean') {
+        return String(value).trim() || fallback;
+    }
+
+    if (Array.isArray(value)) {
+        const joined = value
+            .map((item) => coerceAiText(item, ''))
+            .filter(Boolean)
+            .join(' • ')
+            .trim();
+        return joined || fallback;
+    }
+
+    if (value && typeof value === 'object') {
+        const preferredKeys = ['text', 'label', 'title', 'body', 'content', 'message', 'name'];
+        for (const key of preferredKeys) {
+            if (value[key] != null) {
+                const parsed = coerceAiText(value[key], '');
+                if (parsed) return parsed;
+            }
+        }
+
+        const flatValues = Object.values(value)
+            .map((entry) => coerceAiText(entry, ''))
+            .filter(Boolean)
+            .join(' • ')
+            .trim();
+        return flatValues || fallback;
+    }
+
+    return fallback;
 }
 
 function buildFallbackUpdate(repos, counts, context = {}) {

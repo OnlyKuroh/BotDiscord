@@ -24,7 +24,8 @@ function buildPerfilEmbed(member, view) {
             `**Energia Amaldiçoada:** \`${profile.xp}\` XP`,
             `${progressBar} \`${progress.currentLevelXp}/${progress.nextLevelXp}\` para o próximo grau`,
             '',
-            `**Foguinhos:** ${flames} • sequência atual de **${profile.streak}** dia${profile.streak === 1 ? '' : 's'}`,
+            `**${flames} Foguinhos:** Sequência atual de **${profile.streak}** dia${profile.streak === 1 ? '' : 's'}`,
+            
             `**Bônus da chama:** +${bonusPct}%`,
             graceLine,
         ].join('\n'))

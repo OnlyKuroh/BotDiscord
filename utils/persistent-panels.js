@@ -6,6 +6,7 @@ const db = require('./db');
 
 const dataDir = path.join(__dirname, '..', 'data');
 const uploadsDir = path.join(dataDir, 'uploads');
+const PANEL_REPAIR_INTERVAL_MS = 24 * 60 * 60 * 1000;
 
 const NEWS_REACTIONS = [
     { key: 'anime', emoji: '🎌', label: 'Anime' },
@@ -234,6 +235,13 @@ async function findRecentBotPanelMessage(channel, matcher) {
     }) || null;
 }
 
+async function fetchTrackedPanelMessage(channel, messageId) {
+    if (!messageId) return null;
+    const message = await channel.messages.fetch(messageId).catch(() => null);
+    if (!message || message.author?.id !== channel.client.user.id) return null;
+    return message;
+}
+
 async function findRecentBotPanelMessages(channel, matcher, limit = 40) {
     const messages = await channel.messages.fetch({ limit }).catch(() => null);
     if (!messages) return [];
@@ -259,9 +267,24 @@ async function ensureVerificationPanel(client, guildId) {
 
     const embed = buildVerifyPanelEmbed(client, guildId);
     const trackedMessageId = db.get(`verify_message_${guildId}`) || null;
+    const trackedMessage = await fetchTrackedPanelMessage(channel, trackedMessageId);
+
+    if (trackedMessage) {
+        return trackedMessage;
+    }
+
+    const existingPanel = await findRecentBotPanelMessage(channel, (message) =>
+        message.embeds?.[0]?.title?.includes('Verificacao')
+        || message.embeds?.[0]?.author?.name?.includes('Seguranca do Dominio')
+    );
+
+    if (existingPanel) {
+        db.set(`verify_message_${guildId}`, existingPanel.id);
+        return existingPanel;
+    }
+
     const staleMessages = await findRecentBotPanelMessages(channel, (message) =>
-        message.id === trackedMessageId
-        || message.embeds?.[0]?.title?.includes('Verificacao')
+        message.embeds?.[0]?.title?.includes('Verificacao')
         || message.embeds?.[0]?.author?.name?.includes('Seguranca do Dominio')
     );
 
@@ -286,9 +309,36 @@ async function ensureNewsPanel(client, guildId) {
 
     const embed = buildNewsPanelEmbed(client, guildId);
     const trackedMessageId = db.get(`news_panel_message_${guildId}`) || null;
+    const trackedMessage = await fetchTrackedPanelMessage(channel, trackedMessageId);
+
+    if (trackedMessage) {
+        for (const entry of activeReactions) {
+            const alreadyThere = trackedMessage.reactions.cache.find((reaction) => reaction.emoji.name === entry.emoji);
+            if (!alreadyThere) {
+                await trackedMessage.react(entry.emoji).catch(() => null);
+            }
+        }
+        return trackedMessage;
+    }
+
+    const existingPanel = await findRecentBotPanelMessage(channel, (message) =>
+        message.embeds?.[0]?.title?.includes('Noticias')
+        || message.embeds?.[0]?.author?.name?.includes('Central de Noticias')
+    );
+
+    if (existingPanel) {
+        db.set(`news_panel_message_${guildId}`, existingPanel.id);
+        for (const entry of activeReactions) {
+            const alreadyThere = existingPanel.reactions.cache.find((reaction) => reaction.emoji.name === entry.emoji);
+            if (!alreadyThere) {
+                await existingPanel.react(entry.emoji).catch(() => null);
+            }
+        }
+        return existingPanel;
+    }
+
     const staleMessages = await findRecentBotPanelMessages(channel, (message) =>
-        message.id === trackedMessageId
-        || message.embeds?.[0]?.title?.includes('Noticias')
+        message.embeds?.[0]?.title?.includes('Noticias')
         || message.embeds?.[0]?.author?.name?.includes('Central de Noticias')
     );
 
@@ -342,9 +392,16 @@ async function repairWelcomeConfigMedia(client, guildId) {
 
 async function reconcilePersistentArtifacts(client) {
     for (const guild of client.guilds.cache.values()) {
+        const lastRunKey = `persistent_panels_last_check_${guild.id}`;
+        const lastRun = Number(db.get(lastRunKey) || 0);
+        if (lastRun && (Date.now() - lastRun) < PANEL_REPAIR_INTERVAL_MS) {
+            continue;
+        }
+
         await repairWelcomeConfigMedia(client, guild.id).catch(() => null);
         await ensureVerificationPanel(client, guild.id).catch(() => null);
         await ensureNewsPanel(client, guild.id).catch(() => null);
+        db.set(lastRunKey, Date.now());
     }
 }
 

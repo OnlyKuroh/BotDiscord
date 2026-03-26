@@ -2,6 +2,7 @@ const { Events, ActivityType } = require('discord.js');
 const { reconcileKnownGuilds } = require('../utils/guild-join-announcer');
 const { evaluatePlatformMilestones } = require('../utils/milestone-announcer');
 const { reconcilePersistentArtifacts } = require('../utils/persistent-panels');
+const PERSISTENT_ARTIFACT_REVIEW_MS = 24 * 60 * 60 * 1000;
 
 const statusMessages = [
     "A engrenagem não para. Use /help para acessar o arsenal.",
@@ -31,5 +32,9 @@ module.exports = {
         await reconcileKnownGuilds(client);
         await reconcilePersistentArtifacts(client);
         await evaluatePlatformMilestones(client);
+
+        setInterval(() => {
+            void reconcilePersistentArtifacts(client);
+        }, PERSISTENT_ARTIFACT_REVIEW_MS);
     },
 };
