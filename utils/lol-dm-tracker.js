@@ -2,8 +2,9 @@ const { EmbedBuilder } = require('discord.js');
 const axios = require('axios');
 const db = require('./db');
 const { rememberKnownPlayer, indexMatchParticipants } = require('./lol-player-index');
+const { getRiotApiKey } = require('./riot-api-key');
 
-const RIOT_KEY = process.env.RIOT_API_KEY || '';
+const RIOT_KEY = getRiotApiKey();
 const CHECK_INTERVAL_MS = 2 * 60 * 1000;
 const TRACKER_PREFIX = 'lol_dm_tracker_';
 
@@ -51,6 +52,13 @@ function formatNumber(value) {
     return String(Math.round(n));
 }
 
+// ────────────────────────────────────────────────────────────────────────────
+// Embed de DM: inicio da partida
+// Header = assinatura do tracker
+// Title = jogador que entrou em game
+// Description = fila, campeao e duracao ao vivo
+// Footer = shard/regiao do jogador
+// ────────────────────────────────────────────────────────────────────────────
 function buildTrackerStartEmbed(tracker, liveGame, me) {
     return new EmbedBuilder()
         .setColor('#e67e22')
@@ -67,6 +75,13 @@ function buildTrackerStartEmbed(tracker, liveGame, me) {
         .setTimestamp();
 }
 
+// ────────────────────────────────────────────────────────────────────────────
+// Embed de DM: fim da partida
+// Fields em 2 colunas para ficar leitura rapida:
+// - farm/visao
+// - dano/ouro
+// - duracao
+// ────────────────────────────────────────────────────────────────────────────
 function buildTrackerFinishEmbed(tracker, match, participant) {
     const cs = Number(participant.totalMinionsKilled || 0) + Number(participant.neutralMinionsKilled || 0);
     const durationMinutes = Math.floor((match.info?.gameDuration || 0) / 60);

@@ -7,6 +7,9 @@ const {
     MessageFlags,
 } = require('discord.js');
 const axios = require('axios');
+const { getRiotApiKey } = require('../../utils/riot-api-key');
+
+// ─── Assets oficiais do LoL / Riot + Data Dragon ────────────────────────────
 const {
     getLatestDataDragonVersion,
     getChampionCatalog,
@@ -15,6 +18,11 @@ const {
     getChampionSquareUrl,
     getRankEmblemUrl,
 } = require('../../utils/lol-assets');
+
+// ─── Helpers visuais inline do LoL ───────────────────────────────────────────
+// Hoje este arquivo esta em modo passivo: NAO cria emoji/app emoji.
+// Se no futuro voce quiser mexer nisso, o arquivo central e:
+// utils/lol-app-emojis.js
 const {
     getTierEmoji,
     getRoleEmoji,
@@ -24,6 +32,8 @@ const {
     getMasteryLevelEmoji,
     getRuneEmoji,
 } = require('../../utils/lol-app-emojis');
+
+// ─── Cache/index de jogadores conhecidos ─────────────────────────────────────
 const {
     rememberKnownPlayer,
     indexMatchParticipants,
@@ -32,28 +42,16 @@ const {
     normalizeSearchText,
 } = require('../../utils/lol-player-index');
 
-// Suporte a duas API keys com fallback automático em 401/403
-const RIOT_KEYS = [
-    process.env.RIOT_API_KEY,
-    process.env.RIOT_API_KEY_2,
-].filter(Boolean);
-
-let activeKeyIndex = 0;
-
 function getRiotKey() {
-    return RIOT_KEYS[activeKeyIndex] || '';
+    return getRiotApiKey();
 }
 
 function getRiotHeaders() {
     return { headers: { 'X-Riot-Token': getRiotKey() } };
 }
 
-// Se uma key retornar 401/403, tenta rotacionar para a próxima
 function rotateRiotKey() {
-    if (RIOT_KEYS.length > 1) {
-        activeKeyIndex = (activeKeyIndex + 1) % RIOT_KEYS.length;
-        console.log(`[LOL] Rotacionando para RIOT_API_KEY_${activeKeyIndex + 1}`);
-    }
+    return null;
 }
 
 
@@ -74,6 +72,7 @@ const TIER_DATA = {
 
 
 // ─── Helpers ─────────────────────────────────────────────────────────────────
+// Estas funcoes so formatam texto/numero para o layout. Nao puxam API.
 function calcKDA(k, d, a) {
     return d === 0 ? 'Perfect' : ((k + a) / d).toFixed(2);
 }
@@ -291,7 +290,7 @@ module.exports = {
     async execute(interaction) {
         await interaction.deferReply();
 
-        if (RIOT_KEYS.length === 0) {
+        if (!getRiotKey()) {
             return interaction.editReply({
                 content: '❌ **RIOT_API_KEY** não configurada.\n> Obtenha em: https://developer.riotgames.com'
             });
@@ -638,7 +637,11 @@ module.exports = {
                 .slice(0, 5)
                 .map(([name]) => name);
 
-            // ── Coletar IDs de items, spells e runas das últimas partidas para emojis ──
+            // ───────────────────────────────────────────────────────────────
+            // Assets/Emojis auxiliares da UI
+            // Aqui a gente so junta o que APARECEU nas partidas recentes.
+            // Isso alimenta os detalhes visuais das paginas.
+            // ───────────────────────────────────────────────────────────────
             const recentItemIds = new Set();
             const recentSpellIds = new Set();
             const recentRuneIds = new Set();
@@ -661,7 +664,13 @@ module.exports = {
                 matchDetails[0]?.participant?.championName,
             ].filter(Boolean)));
 
-            // ── Buscar todos os emojis em paralelo ──────────────────────────
+            // ───────────────────────────────────────────────────────────────
+            // Buscar os assets auxiliares em paralelo
+            // championEmojiMap = bonecos
+            // tierEmojiResults = elo/rank
+            // item/spell/rune maps = detalhes do historico
+            // Hoje isso esta em modo passivo se os emojis nao estiverem ativos.
+            // ───────────────────────────────────────────────────────────────
             const [
                 championEmojiResults,
                 tierEmojiResults,
@@ -681,6 +690,7 @@ module.exports = {
                 Promise.allSettled([...recentRuneIds].map(id => getRuneEmoji(interaction.client, patchVersion, id).then(e => ({ id, e })))),
             ]);
 
+            // ─── Mapa final de assets em memoria para a renderizacao ───────
             const championEmojiMap = new Map();
             emojiChampionNames.forEach((n, i) => {
                 championEmojiMap.set(n, championEmojiResults[i]?.status === 'fulfilled' ? championEmojiResults[i].value : '');
@@ -730,7 +740,11 @@ module.exports = {
                 .slice(0, 3);
 
             // ════════════════════════════════════════════════════════════════
-            // HELPERS Components V2
+            // Helpers visuais do Components V2
+            // sessionId = prende os botoes nesta mensagem
+            // sep() = linha divisoria entre blocos
+            // txt() = bloco de texto; se vier vazio, joga um espaco invisivel
+            // buildNavButtons() = linha de botoes para trocar de pagina
             // ════════════════════════════════════════════════════════════════
             const sessionId = interaction.id;
 
@@ -738,7 +752,7 @@ module.exports = {
                 .setDivider(true)
                 .setSpacing(large ? SeparatorSpacingSize.Large : SeparatorSpacingSize.Small);
 
-            const txt = (content) => new TextDisplayBuilder().setContent(content);
+            const txt = (content) => new TextDisplayBuilder().setContent(String(content || '\u200b'));
 
             function buildNavButtons(activeKey) {
                 return new ActionRowBuilder().addComponents(
@@ -770,6 +784,16 @@ module.exports = {
                 ? topRoles.map(([lane, s]) => `${primaryRoleEmoji} **${LANE_PT[lane] || lane}** ${((s.wins/s.games)*100).toFixed(0)}% WR (${s.games}p)`).join('  ·  ')
                 : 'Sem dados de role';
 
+            // ════════════════════════════════════════════════════════════════
+            // page1 = PERFIL
+            // Este e o primeiro card do /lol perfil.
+            // Blocos:
+            // 1. Header com nome, nivel, shard e patch
+            // 2. Rank atual
+            // 3. Resumo das ultimas partidas
+            // 4. Main champion + roles
+            // 5. Status ao vivo / ultima partida
+            // ════════════════════════════════════════════════════════════════
             const page1 = new ContainerBuilder()
                 .setAccentColor(parseInt(corTier.replace('#', ''), 16))
                 .addSectionComponents(
@@ -784,7 +808,7 @@ module.exports = {
                 .addTextDisplayComponents(txt('### Rank Ranqueado'))
                 .addTextDisplayComponents(txt(`⚔️ Solo/Duo — ${rankSoloLine}`))
                 .addTextDisplayComponents(txt(`👥 Flex — ${rankFlexLine}`))
-                .addTextDisplayComponents(rankArenaLine ? txt(`🏟️ Arena — ${rankArenaLine}`) : txt(''))
+                .addTextDisplayComponents(rankArenaLine ? txt(`🏟️ Arena — ${rankArenaLine}`) : txt('\u200b'))
                 .addSeparatorComponents(sep())
                 .addTextDisplayComponents(txt('### Partidas Recentes'))
                 .addTextDisplayComponents(txt(
@@ -824,6 +848,10 @@ module.exports = {
                 return `${i + 1}. ${champEmoji} **${champName}** · M${entry.championLevel} · ${formatNumber(entry.championPoints)} pts · ${lastPlay} · ${chest}`;
             });
 
+            // ════════════════════════════════════════════════════════════════
+            // page2 = MAESTRIAS
+            // Aqui fica so o bloco de mastery/top champions do jogador.
+            // ════════════════════════════════════════════════════════════════
             const page2 = new ContainerBuilder()
                 .setAccentColor(parseInt(corTier.replace('#', ''), 16))
                 .addSectionComponents(
@@ -887,6 +915,13 @@ module.exports = {
                     return `${emoji} **${name}** · ${s.games}p · ${wr}% WR · ${kda} KDA`;
                 });
 
+            // ════════════════════════════════════════════════════════════════
+            // page3 = HISTORICO
+            // Aqui ficam:
+            // - linhas das partidas recentes
+            // - spells/runas/items capturados
+            // - mais jogados no recorte
+            // ════════════════════════════════════════════════════════════════
             const page3 = new ContainerBuilder()
                 .setAccentColor(parseInt(corTier.replace('#', ''), 16))
                 .addSectionComponents(
@@ -918,6 +953,14 @@ module.exports = {
             const wrSolo = rankSolo ? getWinRate(rankSolo.wins, rankSolo.losses) : { wr: 0, text: 'N/A' };
             const wrFlex = rankFlex ? getWinRate(rankFlex.wins, rankFlex.losses) : { wr: 0, text: 'N/A' };
 
+            // ════════════════════════════════════════════════════════════════
+            // page4 = ESTATISTICAS
+            // Aqui ficam os blocos mais tecnicos:
+            // - rank/LP
+            // - medias do recorte
+            // - desafios
+            // - maestria total
+            // ════════════════════════════════════════════════════════════════
             const page4 = new ContainerBuilder()
                 .setAccentColor(parseInt(corTier.replace('#', ''), 16))
                 .addSectionComponents(
@@ -957,6 +1000,7 @@ module.exports = {
             // ════════════════════════════════════════════════════════════════
             // ENVIO + COLLECTOR
             // ════════════════════════════════════════════════════════════════
+            // pageContainers = mapa que liga o nome da pagina ao card visual
             const pageContainers = { profile: page1, mastery: page2, history: page3, stats: page4 };
 
             await interaction.editReply({
@@ -987,20 +1031,9 @@ module.exports = {
 
         } catch (err) {
             if (err.response?.status === 401 || err.response?.status === 403) {
-                rotateRiotKey();
-                const keyCount = RIOT_KEYS.length;
                 const status = err.response.status;
-                const msg = status === 401
-                    ? `API Key **#${activeKeyIndex === 0 ? keyCount : activeKeyIndex}** expirada (401) — rotacionando para próxima.`
-                    : `API Key **#${activeKeyIndex === 0 ? keyCount : activeKeyIndex}** inválida (403) — rotacionando para próxima.`;
-                console.warn(`[LOL] ${msg}`);
-                if (RIOT_KEYS.length <= 1) {
-                    return interaction.editReply({
-                        content: `❌ **API Key ${status === 401 ? 'expirada' : 'inválida'} (${status})**\n\n> A Development Key expira a cada **24 horas**.\n> Gere uma nova em: https://developer.riotgames.com`
-                    });
-                }
                 return interaction.editReply({
-                    content: `⚠️ ${msg} Tente novamente.`
+                    content: `❌ **API da Riot recusou a key 2 (${status})**\n\n> Se for key de desenvolvimento, gera outra em: https://developer.riotgames.com`
                 });
             }
             if (err.response?.status === 404) {

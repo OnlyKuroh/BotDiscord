@@ -469,9 +469,13 @@ function buildDiscordEmbeds(client, payload) {
     const changedRepos = [...new Set(commits.map((commit) => commit.label).filter(Boolean))];
 
     const coverEmbed = new EmbedBuilder()
+        // setColor = cor da capa/plantao
         .setColor('#f39c12')
+        // setAuthor = assinatura do jornal
         .setAuthor({ name: 'Jornal do Itadori • Plantão das Atualizações', iconURL: client.user?.displayAvatarURL() || undefined })
+        // setTitle = manchete principal do deploy
         .setTitle(payload.title)
+        // setDescription = lead + repos + commits
         .setDescription([
             '## Jornal do Deploy',
             payload.lead,
@@ -481,6 +485,7 @@ function buildDiscordEmbeds(client, payload) {
             '',
             '*Abaixo está tudo separado por etapa da rodada, pra leitura ficar limpa e direta.*',
         ].join('\n').slice(0, 4096))
+        // setFooter = data/resumo tecnico da rodada
         .setFooter({ text: `Resumo automático do deploy • ${formatUpdateDate(payload.createdAt || new Date().toISOString())}` })
         .setTimestamp(createdAt);
 

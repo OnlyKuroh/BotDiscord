@@ -1,8 +1,9 @@
 const axios = require('axios');
 const db = require('./db');
 const { getLatestDataDragonVersion, getProfileIconUrl } = require('./lol-assets');
+const { getRiotApiKey } = require('./riot-api-key');
 
-const RIOT_KEY = process.env.RIOT_API_KEY || '';
+const RIOT_KEY = getRiotApiKey();
 const KNOWN_PLAYER_PREFIX = 'lol_known_player_';
 const INDEX_META_KEY = 'lol_player_index_meta';
 const INDEX_INTERVAL_MS = 12 * 60 * 60 * 1000;

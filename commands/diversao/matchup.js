@@ -3,6 +3,10 @@ const { callAI, callAIVision, getProviderInfo } = require('../../utils/ollama-cl
 const {
     getLatestDataDragonVersion,
     getChampionCatalog,
+    getItemCatalog,
+    getRuneCatalog,
+    getSummonerSpellCatalog,
+    normalizeAssetLookup,
 } = require('../../utils/lol-assets');
 const { collectMatchupSources } = require('../../utils/lol-matchup-sources');
 const {
@@ -40,6 +44,51 @@ function toArray(value) {
     if (Array.isArray(value)) return value.filter(Boolean).map(String);
     if (!value) return [];
     return [String(value)];
+}
+
+function resolveCatalogEntry(rawValue, catalogEntries) {
+    const normalized = normalizeAssetLookup(rawValue);
+    if (!normalized || !Array.isArray(catalogEntries) || catalogEntries.length === 0) {
+        return null;
+    }
+
+    const exact = catalogEntries.find((entry) => entry.normalizedName === normalized);
+    if (exact) return exact;
+
+    const contains = catalogEntries.find((entry) =>
+        normalized.includes(entry.normalizedName) || entry.normalizedName.includes(normalized)
+    );
+    if (contains) return contains;
+
+    const partial = catalogEntries.find((entry) => {
+        const tokens = normalized.split(' ').filter(Boolean);
+        return tokens.length >= 2 && tokens.every((token) => entry.normalizedName.includes(token));
+    });
+
+    return partial || null;
+}
+
+function sanitizeNamedList(list, catalogEntries, maxItems = 6) {
+    const result = [];
+    const seen = new Set();
+
+    for (const rawValue of toArray(list)) {
+        const resolved = resolveCatalogEntry(rawValue, catalogEntries);
+        if (!resolved || seen.has(resolved.name)) continue;
+        seen.add(resolved.name);
+        result.push(resolved.name);
+        if (result.length >= maxItems) break;
+    }
+
+    return result;
+}
+
+function buildCatalogPromptBlock(label, catalogEntries, maxEntries = 160) {
+    if (!Array.isArray(catalogEntries) || catalogEntries.length === 0) {
+        return `${label}: indisponível agora`;
+    }
+
+    return `${label}: ${catalogEntries.slice(0, maxEntries).map((entry) => entry.name).join(', ')}`;
 }
 
 function roleFromText(text) {
@@ -211,7 +260,10 @@ Nick do jogador: ${nick || 'não informado'}
     };
 }
 
-async function buildMatchupAnalysis(scenario, patchVersion, sourceBundle) {
+async function buildMatchupAnalysis(scenario, patchVersion, sourceBundle, officialCatalogs) {
+    const itemCatalog = officialCatalogs?.itemCatalog || [];
+    const runeCatalog = officialCatalogs?.runeCatalog || [];
+    const summonerCatalog = officialCatalogs?.summonerCatalog || [];
     const prompt = `
 Você é um coach high elo de League of Legends, falando em português do Brasil de forma natural, direta e útil.
 Monte uma recomendação completa de matchup.
@@ -230,6 +282,11 @@ Contexto:
 
 Base factual aberta disponível:
 ${sourceBundle?.digest || 'Sem fontes externas abertas adicionais além do patch e do catálogo de campeões.'}
+
+Catálogo oficial validado do patch:
+${buildCatalogPromptBlock('Itens oficiais permitidos', itemCatalog)}
+${buildCatalogPromptBlock('Runas oficiais permitidas', runeCatalog, 80)}
+${buildCatalogPromptBlock('Feitiços oficiais permitidos', summonerCatalog, 40)}
 
 Responda APENAS JSON válido com:
 {
@@ -251,6 +308,8 @@ Regras:
 - não invente dados numéricos de winrate.
 - se faltar certeza, fale isso de forma curta no summary ou coachCall.
 - dê build adaptada, não genérica.
+- quando citar item ou feitiço, use APENAS nomes oficiais do catálogo recebido.
+- se você não tiver certeza do nome oficial de um item ou feitiço, deixe a lista vazia em vez de inventar.
 - use a base factual acima para entender padrões dos campeões, alcance, perfil de dano, utilidade e função.
 - trate qualquer recomendação como consenso prático entre contexto do jogador + base factual disponível, sem fingir fonte que você não recebeu.
 `.trim();
@@ -260,19 +319,25 @@ Regras:
         { role: 'user', content: prompt },
     ], { maxTokens: 900, temperature: 0.35, model: DEFAULT_COACH_MODEL }));
 
-    return {
+    const sanitized = {
         headline: parsed.headline || 'Leitura de matchup pronta',
         summary: parsed.summary || 'Não consegui montar um resumo forte dessa vez.',
-        runes: toArray(parsed.runes),
-        summoners: toArray(parsed.summoners),
-        startItems: toArray(parsed.startItems),
-        coreItems: toArray(parsed.coreItems),
-        situationalItems: toArray(parsed.situationalItems),
+        runes: sanitizeNamedList(parsed.runes, runeCatalog, 6),
+        summoners: sanitizeNamedList(parsed.summoners, summonerCatalog, 2),
+        startItems: sanitizeNamedList(parsed.startItems, itemCatalog, 3),
+        coreItems: sanitizeNamedList(parsed.coreItems, itemCatalog, 4),
+        situationalItems: sanitizeNamedList(parsed.situationalItems, itemCatalog, 4),
         lanePlan: toArray(parsed.lanePlan),
         dangerWindows: toArray(parsed.dangerWindows),
         winCondition: parsed.winCondition || 'Sem condição de vitória descrita.',
         coachCall: parsed.coachCall || 'Joga o early com respeito e adapta conforme a lane.',
     };
+
+    if (!sanitized.startItems.length && !sanitized.coreItems.length && !sanitized.situationalItems.length) {
+        sanitized.coachCall = 'Ainda não vou cravar item fechado no escuro. Me passa teu gold, estado da wave e quem tá forte no mapa que eu ajusto contigo sem inventar build.';
+    }
+
+    return sanitized;
 }
 
 function joinOrFallback(list, fallback = '`Sem leitura suficiente.`') {
@@ -361,6 +426,11 @@ module.exports = {
             const providerInfo = getProviderInfo();
             const patchVersion = await getLatestDataDragonVersion();
             const championCatalog = await getChampionCatalog(patchVersion);
+            const [itemCatalog, runeCatalog, summonerCatalog] = await Promise.all([
+                getItemCatalog(patchVersion),
+                getRuneCatalog(patchVersion),
+                getSummonerSpellCatalog(patchVersion),
+            ]);
             const championEntries = buildChampionEntries(championCatalog);
 
             let scenario = null;
@@ -389,7 +459,11 @@ module.exports = {
                 myChampionId: myChampion?.id,
                 enemyChampionId: enemyChampion?.id,
             });
-            const analysis = await buildMatchupAnalysis(scenario, patchVersion, sourceBundle);
+            const analysis = await buildMatchupAnalysis(scenario, patchVersion, sourceBundle, {
+                itemCatalog,
+                runeCatalog,
+                summonerCatalog,
+            });
             const initialPlan = formatInitialPlanText(scenario, analysis, patchVersion, providerInfo, sourceBundle);
             const session = startMatchupCoachSession({
                 guildId: interaction.guildId,
@@ -407,6 +481,13 @@ module.exports = {
                 sourceDigest: sourceBundle?.digest || '',
                 sourceNames: sourceBundle?.providerNames || [],
                 initialPlan,
+                openingCall: analysis.coachCall,
+                summary: analysis.summary,
+                validatedRunes: analysis.runes,
+                validatedSummoners: analysis.summoners,
+                validatedStartItems: analysis.startItems,
+                validatedCoreItems: analysis.coreItems,
+                validatedSituationalItems: analysis.situationalItems,
                 model: DEFAULT_COACH_MODEL,
             });
 

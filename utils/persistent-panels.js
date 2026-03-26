@@ -189,6 +189,12 @@ function buildVerifyPanelEmbed(client, guildId) {
     const roleId = db.get(`verify_role_${guildId}`) || null;
     const keyword = config.keyword || 'verificar';
 
+    // ─── Painel fixo de verificacao ────────────────────────────────────────
+    // setAuthor = assinatura pequena do painel
+    // setTitle = chamada principal
+    // setDescription = instrucoes de verificacao
+    // addFields = palavra-chave + cargo
+    // setThumbnail = icone do bot
     const embed = new EmbedBuilder()
         .setColor('#C41230')
         .setAuthor({ name: 'Seguranca do Dominio', iconURL: client.user?.displayAvatarURL() || undefined })
@@ -215,6 +221,11 @@ function buildNewsPanelEmbed(client, guildId) {
         return `${entry.emoji} **${entry.label}** → <@&${conf.roleId}>`;
     });
 
+    // ─── Painel fixo de noticias/cargos ────────────────────────────────────
+    // setTitle = nome do painel
+    // setDescription = texto + lista de reacoes/cargos
+    // setThumbnail = icone pequeno do bot
+    // setFooter = orientacao final
     return new EmbedBuilder()
         .setColor(panelConfig.customColor || '#2b2d31')
         .setAuthor({ name: 'Central de Noticias', iconURL: client.user?.displayAvatarURL() || undefined })

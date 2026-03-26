@@ -2,6 +2,9 @@ const axios = require('axios');
 
 const DEFAULT_DDRAGON_VERSION = '15.1.1';
 const RUNE_CACHE = new Map();
+const RUNE_CATALOG_CACHE = new Map();
+const ITEM_CACHE = new Map();
+const SUMMONER_CACHE = new Map();
 const DDRAGON_VERSIONS_URL = 'https://ddragon.leagueoflegends.com/api/versions.json';
 const DDRAGON_REALMS_BR_URL = 'https://ddragon.leagueoflegends.com/realms/br.json';
 const CACHE_TTL_MS = 6 * 60 * 60 * 1000;
@@ -37,6 +40,16 @@ async function getLatestDataDragonVersion() {
 
 function getProfileIconUrl(version, iconId) {
     return `https://ddragon.leagueoflegends.com/cdn/${version}/img/profileicon/${iconId}.png`;
+}
+
+function normalizeAssetLookup(value) {
+    return String(value || '')
+        .toLowerCase()
+        .normalize('NFD')
+        .replace(/[\u0300-\u036f]/g, '')
+        .replace(/[^a-z0-9\s]/g, ' ')
+        .replace(/\s+/g, ' ')
+        .trim();
 }
 
 function getChampionSplashUrl(championId, skinNum = 0) {
@@ -185,9 +198,125 @@ async function getChampionCatalog(version, locale = 'pt_BR') {
     }
 }
 
+async function getItemCatalog(version, locale = 'pt_BR') {
+    const cacheKey = `${version}:${locale}`;
+    const cached = ITEM_CACHE.get(cacheKey);
+    if (cached && (Date.now() - cached.cachedAt) < CACHE_TTL_MS) {
+        return cached.data;
+    }
+
+    try {
+        const response = await axios.get(
+            `https://ddragon.leagueoflegends.com/cdn/${version}/data/${locale}/item.json`,
+            { timeout: 8000 }
+        );
+
+        const entries = Object.entries(response.data?.data || {})
+            .map(([id, item]) => ({
+                id,
+                name: item.name,
+                normalizedName: normalizeAssetLookup(item.name),
+                description: item.description || '',
+                tags: Array.isArray(item.tags) ? item.tags : [],
+                maps: item.maps || {},
+                purchasable: item.gold?.purchasable !== false,
+            }))
+            .filter((item) => item.name)
+            .filter((item) => item.purchasable && item.maps?.['11'] !== false);
+
+        ITEM_CACHE.set(cacheKey, { data: entries, cachedAt: Date.now() });
+        return entries;
+    } catch {
+        return cached?.data || [];
+    }
+}
+
+async function getSummonerSpellCatalog(version, locale = 'pt_BR') {
+    const cacheKey = `${version}:${locale}`;
+    const cached = SUMMONER_CACHE.get(cacheKey);
+    if (cached && (Date.now() - cached.cachedAt) < CACHE_TTL_MS) {
+        return cached.data;
+    }
+
+    try {
+        const response = await axios.get(
+            `https://ddragon.leagueoflegends.com/cdn/${version}/data/${locale}/summoner.json`,
+            { timeout: 8000 }
+        );
+
+        const entries = Object.values(response.data?.data || {})
+            .map((spell) => ({
+                id: spell.id,
+                key: spell.key,
+                name: spell.name,
+                normalizedName: normalizeAssetLookup(spell.name),
+                description: spell.description || '',
+            }))
+            .filter((spell) => spell.name);
+
+        SUMMONER_CACHE.set(cacheKey, { data: entries, cachedAt: Date.now() });
+        return entries;
+    } catch {
+        return cached?.data || [];
+    }
+}
+
+async function getRuneCatalog(version, locale = 'pt_BR') {
+    const cacheKey = `${version}:${locale}`;
+    const cached = RUNE_CATALOG_CACHE.get(cacheKey);
+    if (cached && (Date.now() - cached.cachedAt) < CACHE_TTL_MS) {
+        return cached.data;
+    }
+
+    const tryLocales = [locale, 'en_US'].filter((value, index, list) => value && list.indexOf(value) === index);
+
+    for (const currentLocale of tryLocales) {
+        try {
+            const response = await axios.get(
+                `https://ddragon.leagueoflegends.com/cdn/${version}/data/${currentLocale}/runesReforged.json`,
+                { timeout: 8000 }
+            );
+
+            const entries = [];
+            for (const style of (response.data || [])) {
+                entries.push({
+                    id: String(style.id),
+                    name: style.name,
+                    normalizedName: normalizeAssetLookup(style.name),
+                });
+
+                for (const slot of (style.slots || [])) {
+                    for (const rune of (slot.runes || [])) {
+                        entries.push({
+                            id: String(rune.id),
+                            name: rune.name,
+                            normalizedName: normalizeAssetLookup(rune.name),
+                        });
+                    }
+                }
+            }
+
+            const deduped = entries.filter((entry, index, list) =>
+                entry.name && list.findIndex((candidate) => candidate.name === entry.name) === index
+            );
+
+            RUNE_CATALOG_CACHE.set(cacheKey, { data: deduped, cachedAt: Date.now() });
+            return deduped;
+        } catch {
+            continue;
+        }
+    }
+
+    return cached?.data || [];
+}
+
 module.exports = {
     getLatestDataDragonVersion,
     getChampionCatalog,
+    getItemCatalog,
+    getRuneCatalog,
+    getSummonerSpellCatalog,
+    normalizeAssetLookup,
     getRuneIconMap,
     getProfileIconUrl,
     getChampionSplashUrl,

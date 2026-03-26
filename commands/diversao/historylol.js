@@ -19,8 +19,9 @@ const {
     pickBestRankText,
     searchKnownPlayers,
 } = require('../../utils/lol-player-index');
+const { getRiotApiKey } = require('../../utils/riot-api-key');
 
-const RIOT_KEY = process.env.RIOT_API_KEY || '';
+const RIOT_KEY = getRiotApiKey();
 
 const TIER_DATA = {
     IRON: { hex: '#5C5C5C', name: 'Ferro' },
@@ -256,6 +257,15 @@ function buildHeader(account, regiao, rank, summoner, patchVersion) {
     return `${account.gameName}#${account.tagLine} • ${regiao.toUpperCase()} • ${getTierLabel(rank)} • Nivel ${summoner.summonerLevel} • Patch ${patchVersion}`;
 }
 
+// ────────────────────────────────────────────────────────────────────────────
+// Embed 1 / Pagina "Agora"
+// Este card mostra:
+// - partida ao vivo, se existir
+// - senao cai para a ultima partida recente
+// - author = identidade da pagina
+// - thumbnail = icone do perfil
+// - fields = contexto rapido em blocos
+// ────────────────────────────────────────────────────────────────────────────
 function buildCurrentEmbed(context) {
     const { account, regiao, rankSolo, summoner, patchVersion, liveGame, latestMatch, liveSummary } = context;
     const embed = new EmbedBuilder()
@@ -304,6 +314,11 @@ function buildCurrentEmbed(context) {
     return embed;
 }
 
+// ────────────────────────────────────────────────────────────────────────────
+// Embed 2 / Pagina "Historico"
+// Este card despeja as ultimas 10 partidas em descricao corrida.
+// Se quiser deixar mais compacto ou em colunas, mexe aqui.
+// ────────────────────────────────────────────────────────────────────────────
 function buildHistoryEmbed(context) {
     const { account, regiao, rankSolo, summoner, patchVersion, matchDetails } = context;
     const historyText = matchDetails.length
@@ -320,6 +335,14 @@ function buildHistoryEmbed(context) {
         .setTimestamp();
 }
 
+// ────────────────────────────────────────────────────────────────────────────
+// Embed 3 / Pagina "Analise"
+// Este card agrupa:
+// - rank atual
+// - media de LP/WR
+// - melhores picks
+// - top maestrias
+// ────────────────────────────────────────────────────────────────────────────
 function buildAnalysisEmbed(context) {
     const { account, regiao, rankSolo, rankFlex, summoner, patchVersion, masteryList, recentSummary, averageLp } = context;
     const recentGames = recentSummary.wins + recentSummary.losses;
@@ -361,6 +384,11 @@ function buildAnalysisEmbed(context) {
         .setTimestamp();
 }
 
+// ────────────────────────────────────────────────────────────────────────────
+// Linhas de botoes do painel
+// Linha 1 = navega entre as 3 paginas + Tracker DM
+// Linha 2 = links externos
+// ────────────────────────────────────────────────────────────────────────────
 function buildComponentRows(sessionId, baseSummonerUrl, disableInteractive = false) {
     return [
         new ActionRowBuilder().addComponents(

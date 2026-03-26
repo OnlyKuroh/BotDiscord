@@ -77,6 +77,13 @@ Contexto fixo da sessão:
 Fontes abertas já consultadas:
 - ${session.sourceNames?.length ? session.sourceNames.join(', ') : 'Riot/Data Dragon'}
 
+Nomes validados do plano inicial:
+- runas: ${session.validatedRunes?.join(', ') || 'sem runas travadas'};
+- feitiços: ${session.validatedSummoners?.join(', ') || 'sem feitiços travados'};
+- start: ${session.validatedStartItems?.join(', ') || 'sem item inicial travado'};
+- core: ${session.validatedCoreItems?.join(', ') || 'sem core travado'};
+- situacionais: ${session.validatedSituationalItems?.join(', ') || 'sem situacionais travados'};
+
 Base factual disponível:
 ${session.sourceDigest || 'Sem digest extra salvo.'}
 
@@ -89,6 +96,7 @@ Regras de qualidade:
 - trate como consenso real apenas o que estiver confirmado no contexto;
 - se algo for leitura de coach e não dado confirmado, deixe isso claro sem ficar pedindo desculpa;
 - não invente estatística, winrate ou matchup data externa;
+- não invente nome de item, runa ou feitiço; se não souber, peça gold/estado da wave e ajuste a call sem cravar nome falso;
 - assuma que o jogador quer ganhar a partida, não uma aula teórica;
 - quando ele falar sobre wave, jungle, gold, item, TP, ignite, flash, drag, arauto, baron, side ou teamfight, transforme isso em call prática.
 
@@ -113,13 +121,17 @@ function isStopMessage(content) {
 
 function formatInitialCoachText(session) {
     return [
-        `Coach ligado: **${session.myChampion} vs ${session.enemyChampion}**${session.role ? ` na ${session.role}` : ''}.`,
+        `Fechou. Coach ligado pra **${session.myChampion} vs ${session.enemyChampion}**${session.role ? ` na ${session.role}` : ''}.`,
         '',
-        session.initialPlan || 'Plano inicial indisponível.',
+        session.summary ? `Resumo salvo: ${session.summary}` : null,
+        session.concern ? `Teu foco agora: ${session.concern}` : null,
+        session.openingCall ? `Primeira call: ${session.openingCall}` : null,
+        session.validatedStartItems?.length ? `Start sugerido: ${session.validatedStartItems.join(' | ')}` : null,
+        session.validatedCoreItems?.length ? `Core provável: ${session.validatedCoreItems.join(' | ')}` : null,
         '',
-        'A partir de agora, fala comigo normal no chat que eu vou te guiando na partida.',
+        'Agora me atualiza normal no chat, tipo `lvl 3`, `wave vindo pra mim`, `900 gold`, `jungler top`, que eu vou te guiando na hora.',
         'Quando terminar, manda exatamente: **Acabou a partida**',
-    ].join('\n');
+    ].filter(Boolean).join('\n');
 }
 
 function startMatchupCoachSession(payload) {
@@ -139,6 +151,13 @@ function startMatchupCoachSession(payload) {
         sourceDigest: payload.sourceDigest || '',
         sourceNames: payload.sourceNames || [],
         initialPlan: payload.initialPlan || '',
+        openingCall: payload.openingCall || '',
+        summary: payload.summary || '',
+        validatedRunes: payload.validatedRunes || [],
+        validatedSummoners: payload.validatedSummoners || [],
+        validatedStartItems: payload.validatedStartItems || [],
+        validatedCoreItems: payload.validatedCoreItems || [],
+        validatedSituationalItems: payload.validatedSituationalItems || [],
         model: payload.model || DEFAULT_COACH_MODEL,
         history: payload.initialPlan
             ? [{ role: 'assistant', content: payload.initialPlan.slice(0, 4000) }]
