@@ -8,6 +8,69 @@ const INDEX_META_KEY = 'lol_player_index_meta';
 const INDEX_INTERVAL_MS = 12 * 60 * 60 * 1000;
 
 let indexTimer = null;
+
+function normalizeSearchText(value) {
+    return String(value || '')
+        .toLowerCase()
+        .normalize('NFD')
+        .replace(/[\u0300-\u036f]/g, '')
+        .replace(/[^a-z0-9#\s_-]/g, ' ')
+        .replace(/\s+/g, ' ')
+        .trim();
+}
+
+function searchKnownPlayers(prefix) {
+    const normalized = normalizeSearchText(prefix);
+    if (!normalized) return [];
+
+    const knownPlayers = db.getEntriesByPrefix('lol_known_player_')
+        .map((entry) => entry.value);
+
+    const trackedPlayers = db.getEntriesByPrefix('lol_dm_tracker_')
+        .map((entry) => entry.value)
+        .map((tracker) => ({
+            riotId: tracker?.riotId,
+            gameName: tracker?.gameName,
+            tagLine: tracker?.tagLine,
+            regiao: tracker?.regiao,
+            level: tracker?.level || null,
+            rankText: tracker?.rankText || null,
+            iconUrl: tracker?.profileIconUrl || null,
+            updatedAt: tracker?.updatedAt || tracker?.createdAt || null,
+        }));
+
+    const deduped = new Map();
+    for (const player of [...knownPlayers, ...trackedPlayers]) {
+        if (!player?.riotId) continue;
+        deduped.set(String(player.riotId).toLowerCase(), player);
+    }
+
+    const queryParts = normalized.split(' ').filter(Boolean);
+
+    return [...deduped.values()]
+        .map((player) => {
+            const gameName = normalizeSearchText(player?.gameName);
+            const riotId = normalizeSearchText(player?.riotId);
+            const tagLine = normalizeSearchText(player?.tagLine);
+            const combined = [gameName, riotId, tagLine].filter(Boolean).join(' ');
+            const words = combined.split(' ').filter(Boolean);
+
+            let score = 0;
+            if (gameName.startsWith(normalized) || riotId.startsWith(normalized)) score += 100;
+            if (words.some((word) => word.startsWith(normalized))) score += 60;
+            if (combined.includes(normalized)) score += 30;
+            if (queryParts.every((part) => combined.includes(part))) score += 15;
+
+            return { player, score };
+        })
+        .filter((entry) => entry.score > 0)
+        .sort((a, b) => {
+            if (b.score !== a.score) return b.score - a.score;
+            return String(b.player.updatedAt || '').localeCompare(String(a.player.updatedAt || ''));
+        })
+        .map((entry) => entry.player)
+        .slice(0, 10);
+}
 let indexRunning = false;
 
 function getRouting(regiao) {
@@ -40,10 +103,13 @@ function upsertKnownPlayer(player) {
     const current = db.get(key) || {};
     const next = {
         ...current,
-        ...player,
         riotId,
         updatedAt: new Date().toISOString(),
     };
+    // Só sobrescreve campos não-nulos (evita apagar elo/level com null de indexMatchParticipants)
+    for (const [k, v] of Object.entries(player)) {
+        if (v !== null && v !== undefined) next[k] = v;
+    }
 
     db.set(key, next);
     return next;
@@ -208,4 +274,5 @@ module.exports = {
     indexMatchParticipants,
     seedBrTopLadders,
     start,
+    searchKnownPlayers,
 };

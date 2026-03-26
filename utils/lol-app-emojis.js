@@ -43,40 +43,16 @@ async function getApplicationEmojiCollection(application) {
         return cached.collection;
     }
 
-    if (cached?.pending) {
-        return cached.pending;
+    try {
+        const collection = await application.emojis.fetch();
+        APPLICATION_EMOJI_CACHE.set(application.id, { collection, cachedAt: Date.now() });
+        return collection;
+    } catch (err) {
+        console.warn('[LOL-EMOJI] Falha ao buscar coleção de emojis:', err?.message || err);
+        return null;
     }
-
-    const pending = application.emojis.fetch()
-        .then((collection) => {
-            APPLICATION_EMOJI_CACHE.set(application.id, {
-                collection,
-                cachedAt: Date.now(),
-            });
-            return collection;
-        })
-        .catch(() => null);
-
-    APPLICATION_EMOJI_CACHE.set(application.id, { pending, cachedAt: Date.now() });
-    return pending;
 }
 
-function updateApplicationEmojiCache(application, emoji) {
-    if (!application?.id || !emoji) {
-        return;
-    }
-
-    const cached = APPLICATION_EMOJI_CACHE.get(application.id);
-    const collection = cached?.collection || application.emojis.cache;
-    if (collection?.set) {
-        collection.set(emoji.id, emoji);
-    }
-
-    APPLICATION_EMOJI_CACHE.set(application.id, {
-        collection,
-        cachedAt: Date.now(),
-    });
-}
 
 function cacheKey(kind, name) {
     return `${EMOJI_CACHE_PREFIX}${kind}_${sanitizeEmojiName(name)}`;
@@ -120,14 +96,16 @@ async function ensureEmoji(application, kind, rawName, attachmentUrl) {
 
     try {
         const created = await application.emojis.create({
-            attachment: attachmentUrl,
+            image: attachmentUrl,
             name: safeName,
         });
         db.set(key, { id: created.id, name: created.name });
-        updateApplicationEmojiCache(application, created);
+        APPLICATION_EMOJI_CACHE.delete(application.id); // força refresh do cache na próxima chamada
+        console.log(`[LOL-EMOJI] Criado emoji "${safeName}"`);
         return created.toString();
     } catch (err) {
-        console.warn(`[LOL-EMOJI] Falha ao criar emoji "${safeName}": ${err?.message || err}`);
+        const raw = err?.rawError ? JSON.stringify(err.rawError) : '';
+        console.warn(`[LOL-EMOJI] Falha ao criar "${safeName}": ${err?.message || err} ${raw}`);
         return '';
     }
 }

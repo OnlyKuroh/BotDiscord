@@ -4,7 +4,6 @@ const {
 } = require('discord.js');
 const axios = require('axios');
 const { formatResponse } = require('../../utils/persona');
-const db = require('../../utils/db');
 const {
     getLatestDataDragonVersion,
     getChampionCatalog,
@@ -24,6 +23,7 @@ const {
     rememberKnownPlayer,
     indexMatchParticipants,
     pickBestRankText,
+    searchKnownPlayers,
 } = require('../../utils/lol-player-index');
 
 const RIOT_KEY = process.env.RIOT_API_KEY || '';
@@ -43,19 +43,6 @@ const TIER_DATA = {
     'UNRANKED':    { hex: '#3C3C41', name: 'Sem Rank',    order: -1 },
 };
 
-const TIER_BAR_COLORS = {
-    'IRON':        ['#5C5C5C', '#8a8a8a'],
-    'BRONZE':      ['#8C5A3C', '#CD7F32'],
-    'SILVER':      ['#7B909A', '#C0C0C0'],
-    'GOLD':        ['#C89B3C', '#FFD700'],
-    'PLATINUM':    ['#4E9996', '#00CED1'],
-    'EMERALD':     ['#009B5E', '#50C878'],
-    'DIAMOND':     ['#576BCE', '#B9F2FF'],
-    'MASTER':      ['#9D48E0', '#DA70D6'],
-    'GRANDMASTER': ['#CD4545', '#FF6B6B'],
-    'CHALLENGER':  ['#F4C874', '#FFD700'],
-    'UNRANKED':    ['#3C3C41', '#666666'],
-};
 
 // ─── Helpers ─────────────────────────────────────────────────────────────────
 function calcKDA(k, d, a) {
@@ -87,13 +74,6 @@ function getWinRate(wins, losses) {
     return { wr, text: `${wr.toFixed(1)}%` };
 }
 
-function formatRankFull(r, showLP = true) {
-    if (!r) return '`Unranked`';
-    const { text: wrText } = getWinRate(r.wins, r.losses);
-    const lpText = showLP ? ` • **${r.leaguePoints} LP**` : '';
-    return `**${TIER_DATA[r.tier]?.name || r.tier} ${r.rank}**${lpText}\n` +
-           `> ${r.wins}V / ${r.losses}D (${wrText})`;
-}
 
 function formatRankCompact(r) {
     if (!r) return 'Unranked';
@@ -109,85 +89,29 @@ function timeAgo(timestamp) {
     return `${Math.floor(hours / 24)}d atrás`;
 }
 
-function normalizeSearchText(value) {
-    return String(value || '')
-        .toLowerCase()
-        .normalize('NFD')
-        .replace(/[\u0300-\u036f]/g, '')
-        .replace(/[^a-z0-9#\s_-]/g, ' ')
-        .replace(/\s+/g, ' ')
-        .trim();
-}
-
-function searchKnownPlayers(prefix) {
-    const normalized = normalizeSearchText(prefix);
-    if (!normalized) return [];
-
-    const knownPlayers = db.getEntriesByPrefix('lol_known_player_')
-        .map((entry) => entry.value);
-
-    const trackedPlayers = db.getEntriesByPrefix('lol_dm_tracker_')
-        .map((entry) => entry.value)
-        .map((tracker) => ({
-            riotId: tracker?.riotId,
-            gameName: tracker?.gameName,
-            tagLine: tracker?.tagLine,
-            regiao: tracker?.regiao,
-            level: tracker?.level || null,
-            rankText: tracker?.rankText || null,
-            iconUrl: tracker?.profileIconUrl || null,
-            updatedAt: tracker?.updatedAt || tracker?.createdAt || null,
-        }));
-
-    const deduped = new Map();
-    for (const player of [...knownPlayers, ...trackedPlayers]) {
-        if (!player?.riotId) continue;
-        deduped.set(String(player.riotId).toLowerCase(), player);
-    }
-
-    const queryParts = normalized.split(' ').filter(Boolean);
-
-    return [...deduped.values()]
-        .map((player) => {
-            const gameName = normalizeSearchText(player?.gameName);
-            const riotId = normalizeSearchText(player?.riotId);
-            const tagLine = normalizeSearchText(player?.tagLine);
-            const combined = [gameName, riotId, tagLine].filter(Boolean).join(' ');
-            const words = combined.split(' ').filter(Boolean);
-
-            let score = 0;
-            if (gameName.startsWith(normalized) || riotId.startsWith(normalized)) score += 100;
-            if (words.some((word) => word.startsWith(normalized))) score += 60;
-            if (combined.includes(normalized)) score += 30;
-            if (queryParts.every((part) => combined.includes(part))) score += 15;
-
-            return { player, score };
-        })
-        .filter((entry) => entry.score > 0)
-        .sort((a, b) => {
-            if (b.score !== a.score) return b.score - a.score;
-            return String(b.player.updatedAt || '').localeCompare(String(a.player.updatedAt || ''));
-        })
-        .map((entry) => entry.player)
-        .slice(0, 10);
-}
 
 function buildKnownPlayersReply(query, players) {
     if (!players.length) {
         return [
-            `Nao achei **${query}** porque faltou a hashtag do Riot ID.`,
-            'Ainda nao tenho perfis parecidos salvos no cache para te sugerir agora.',
-            'Tenta no formato `Nome#TAG`, por exemplo: `Velho#BR1`.',
+            `❌ Não achei **${query}** — faltou a hashtag do Riot ID.`,
+            'Sem perfis parecidos no cache ainda.',
+            '> Use o formato **`Nome#TAG`**, ex: `Velho Tahm#BR1`',
         ].join('\n');
     }
 
+    const lines = players.map((player) => {
+        const elo = player.rankText || 'Unranked';
+        const lvl = player.level ? ` • Nv${player.level}` : '';
+        return `> **${player.riotId}** — ${elo}${lvl}`;
+    });
+
     return [
-        `Nao consegui buscar **${query}** porque faltou a hashtag do Riot ID.`,
-        'Os perfis conhecidos que batem com esse comeco de nick sao:',
+        `❓ Faltou a hashtag em **${query}**. Perfis encontrados no cache:`,
         '',
-        ...players.map((player) => `${player.riotId} - Elo: ${player.rankText || 'Sem rank'} Level: ${player.level || '?'}`),
+        ...lines,
         '',
-        'Manda de novo no formato completo `Nome#TAG` que eu puxo o perfil bonito.',
+        '💡 Digite o nome **com a tag** `/lol perfil nome:Velho Tahm#BR1`',
+        '*(ou use o autocomplete — comece a digitar e selecione a sugestão)*',
     ].join('\n');
 }
 
@@ -280,8 +204,9 @@ module.exports = {
                 .setDescription('📊 Estatísticas completas do invocador')
                 .addStringOption(opt =>
                     opt.setName('nome')
-                        .setDescription('Riot ID com tag (ex: Faker#KR1)')
+                        .setDescription('Riot ID com tag (ex: Faker#KR1) ou parte do nome para sugestões')
                         .setRequired(true)
+                        .setAutocomplete(true)
                 )
                 .addStringOption(opt =>
                     opt.setName('regiao')
@@ -312,8 +237,9 @@ module.exports = {
                 .setDescription('🔴 Ver partida ao vivo de um invocador')
                 .addStringOption(opt =>
                     opt.setName('nome')
-                        .setDescription('Riot ID com tag (ex: Faker#KR1)')
+                        .setDescription('Riot ID com tag (ex: Faker#KR1) ou parte do nome para sugestões')
                         .setRequired(true)
+                        .setAutocomplete(true)
                 )
                 .addStringOption(opt =>
                     opt.setName('regiao')
@@ -336,6 +262,23 @@ module.exports = {
     detailedDescription: 'Consulta completa de perfil LoL com painel em embeds, botões por função, maestria, histórico e partida ao vivo.',
     usage: '`/lol perfil [nome#tag]` | `/lol aovivo [nome#tag]` | `/lol rotacao`',
     permissions: [''],
+
+    async autocomplete(interaction) {
+        const focused = interaction.options.getFocused();
+        if (!focused || focused.length < 2) {
+            return interaction.respond([]);
+        }
+        const players = searchKnownPlayers(focused);
+        const choices = players.slice(0, 25).map((player) => {
+            const elo = player.rankText || 'Unranked';
+            const lvl = player.level ? ` • Nv${player.level}` : '';
+            return {
+                name: `${player.riotId} (${elo}${lvl})`.slice(0, 100),
+                value: player.riotId,
+            };
+        });
+        return interaction.respond(choices);
+    },
 
     async execute(interaction) {
         await interaction.deferReply();

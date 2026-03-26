@@ -74,6 +74,11 @@ module.exports = {
                     await interaction.reply({ content: formatResponse(msg), flags: ['Ephemeral'] });
                 }
             }
+        } else if (interaction.isAutocomplete()) {
+            const command = interaction.client.commands.get(interaction.commandName);
+            if (command?.autocomplete) {
+                await command.autocomplete(interaction).catch(() => null);
+            }
         } else if (interaction.isButton() || interaction.isStringSelectMenu()) {
             // ── HELP MENU ─────────────────────────────────────────────
             if (interaction.customId === 'help_menu') {

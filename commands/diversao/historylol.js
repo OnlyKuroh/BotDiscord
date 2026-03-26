@@ -8,7 +8,6 @@ const {
 const axios = require('axios');
 const { formatResponse } = require('../../utils/persona');
 const { toggleTracker, getTracker } = require('../../utils/lol-dm-tracker');
-const db = require('../../utils/db');
 const {
     getLatestDataDragonVersion,
     getChampionCatalog,
@@ -18,6 +17,7 @@ const {
     rememberKnownPlayer,
     indexMatchParticipants,
     pickBestRankText,
+    searchKnownPlayers,
 } = require('../../utils/lol-player-index');
 
 const RIOT_KEY = process.env.RIOT_API_KEY || '';
@@ -386,6 +386,7 @@ module.exports = {
                 .setName('nick')
                 .setDescription('Riot ID com tag. Exemplo: Faker#KR1')
                 .setRequired(true)
+                .setAutocomplete(true)
         )
         .addStringOption((option) =>
             option
@@ -408,6 +409,22 @@ module.exports = {
     detailedDescription: 'Painel unico de League of Legends com 3 botoes: agora, ultimas 10 partidas e analise do perfil com rank, picks recentes e maestrias.',
     usage: '`/historylol nick:Faker#KR1 servidor:br1`',
     permissions: ['Nenhuma'],
+
+    async autocomplete(interaction) {
+        const focused = interaction.options.getFocused();
+        if (!focused || focused.length < 2) return interaction.respond([]);
+        const { searchKnownPlayers } = require('../../utils/lol-player-index');
+        const players = searchKnownPlayers(focused);
+        const choices = players.slice(0, 25).map((player) => {
+            const elo = player.rankText || 'Unranked';
+            const lvl = player.level ? ` • Nv${player.level}` : '';
+            return {
+                name: `${player.riotId} (${elo}${lvl})`.slice(0, 100),
+                value: player.riotId,
+            };
+        });
+        return interaction.respond(choices);
+    },
 
     async execute(interaction) {
         await interaction.deferReply();
