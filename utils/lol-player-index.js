@@ -275,4 +275,5 @@ module.exports = {
     seedBrTopLadders,
     start,
     searchKnownPlayers,
+    normalizeSearchText,
 };

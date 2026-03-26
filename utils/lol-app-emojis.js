@@ -1,8 +1,13 @@
 const db = require('./db');
+const axios = require('axios');
 const {
     getChampionSquareUrl,
     getRankMiniIconUrl,
     getRoleIconUrl,
+    getItemIconUrl,
+    getSummonerSpellIconUrl,
+    getMasteryIconUrl,
+    getRuneIconMap,
 } = require('./lol-assets');
 
 const EMOJI_CACHE_PREFIX = 'lol_app_emoji_';
@@ -71,6 +76,13 @@ async function resolveCachedEmoji(application, storedId) {
     return application.emojis.fetch(storedId).catch(() => null);
 }
 
+async function fetchImageAsDataUri(url) {
+    const res = await axios.get(url, { responseType: 'arraybuffer', timeout: 8000 });
+    const contentType = res.headers['content-type'] || 'image/png';
+    const base64 = Buffer.from(res.data).toString('base64');
+    return `data:${contentType};base64,${base64}`;
+}
+
 async function ensureEmoji(application, kind, rawName, attachmentUrl) {
     if (!application || !attachmentUrl) {
         return '';
@@ -95,12 +107,13 @@ async function ensureEmoji(application, kind, rawName, attachmentUrl) {
     }
 
     try {
+        const dataUri = await fetchImageAsDataUri(attachmentUrl);
         const created = await application.emojis.create({
-            image: attachmentUrl,
+            image: dataUri,
             name: safeName,
         });
         db.set(key, { id: created.id, name: created.name });
-        APPLICATION_EMOJI_CACHE.delete(application.id); // força refresh do cache na próxima chamada
+        APPLICATION_EMOJI_CACHE.delete(application.id);
         console.log(`[LOL-EMOJI] Criado emoji "${safeName}"`);
         return created.toString();
     } catch (err) {
@@ -137,8 +150,53 @@ async function getChampionEmoji(client, version, championId) {
     return ensureEmoji(application, 'champ', championId, getChampionSquareUrl(version, championId));
 }
 
+async function getItemEmoji(client, itemId) {
+    if (!itemId || itemId === 0) {
+        return '';
+    }
+
+    const application = await ensureApplication(client);
+    return ensureEmoji(application, 'item', String(itemId), getItemIconUrl(itemId));
+}
+
+async function getSummonerSpellEmoji(client, spellId) {
+    if (!spellId) {
+        return '';
+    }
+
+    const application = await ensureApplication(client);
+    return ensureEmoji(application, 'spell', String(spellId), getSummonerSpellIconUrl(spellId));
+}
+
+async function getMasteryLevelEmoji(client, level) {
+    if (!level) {
+        return '';
+    }
+
+    const application = await ensureApplication(client);
+    return ensureEmoji(application, 'mastery', String(level), getMasteryIconUrl(level));
+}
+
+// runeId = perk ID numérico (ex: 8005 = Press the Attack), version = patch DDragon
+async function getRuneEmoji(client, version, runeId) {
+    if (!runeId || !version) {
+        return '';
+    }
+
+    const runeMap = await getRuneIconMap(version);
+    const iconUrl = runeMap.get(runeId);
+    if (!iconUrl) return '';
+
+    const application = await ensureApplication(client);
+    return ensureEmoji(application, 'rune', String(runeId), iconUrl);
+}
+
 module.exports = {
     getTierEmoji,
     getRoleEmoji,
     getChampionEmoji,
+    getItemEmoji,
+    getSummonerSpellEmoji,
+    getMasteryLevelEmoji,
+    getRuneEmoji,
 };
