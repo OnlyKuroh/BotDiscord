@@ -125,7 +125,7 @@ async function callAI(messages, opts = {}) {
  */
 async function callAIVision(imageUrl, prompt, opts = {}) {
     const provider = getProvider();
-    const { maxTokens = 400, temperature = 0.3 } = opts;
+    const { maxTokens = 400, temperature = 0.3, model = null } = opts;
 
     const messages = [
         {
@@ -139,11 +139,11 @@ async function callAIVision(imageUrl, prompt, opts = {}) {
 
     if (provider === 'ollama') {
         try {
-            return await callOllama(messages, {
-                maxTokens,
-                temperature,
-                model: process.env.OLLAMA_VISION_MODEL || 'llava',
-            });
+        return await callOllama(messages, {
+            maxTokens,
+            temperature,
+            model: model || process.env.OLLAMA_VISION_MODEL || 'llava',
+        });
         } catch (err) {
             if (err.code === 'ECONNREFUSED' || err.code === 'ENOTFOUND') {
                 console.warn('[AI CLIENT] Ollama vision não disponível, fazendo fallback para Groq vision...');
@@ -157,7 +157,7 @@ async function callAIVision(imageUrl, prompt, opts = {}) {
     return await callGroq(messages, {
         maxTokens,
         temperature,
-        model: DEFAULT_GROQ_VISION_MODEL,
+        model: model || DEFAULT_GROQ_VISION_MODEL,
     });
 }
 

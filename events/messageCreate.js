@@ -1,6 +1,7 @@
 const { Events, EmbedBuilder } = require('discord.js');
 const { formatResponse } = require('../utils/persona');
 const { maybeHandleItadoriChat } = require('../utils/itadori-chatbot');
+const { maybeHandleMatchupCoach } = require('../utils/lol-matchup-coach');
 const { trackCommandAbuse } = require('../utils/security-monitor');
 const { registerMessageActivity } = require('../utils/jjk-system');
 
@@ -65,6 +66,11 @@ module.exports = {
 
         if (!message.content.startsWith(prefix)) {
             await registerMessageActivity(message).catch(() => null);
+        }
+
+        // --- MATCHUP COACH (sessão ativa por usuário/canal) ---
+        if (await maybeHandleMatchupCoach(message)) {
+            return;
         }
 
         // --- CHATBOT ITADORI (Groq) ---

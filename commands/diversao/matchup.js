@@ -1,11 +1,17 @@
-const { SlashCommandBuilder, EmbedBuilder } = require('discord.js');
-const { formatResponse } = require('../../utils/persona');
+const { SlashCommandBuilder } = require('discord.js');
 const { callAI, callAIVision, getProviderInfo } = require('../../utils/ollama-client');
 const {
     getLatestDataDragonVersion,
     getChampionCatalog,
-    getChampionSquareUrl,
 } = require('../../utils/lol-assets');
+const { collectMatchupSources } = require('../../utils/lol-matchup-sources');
+const {
+    DEFAULT_COACH_MODEL,
+    startMatchupCoachSession,
+    formatInitialCoachText,
+} = require('../../utils/lol-matchup-coach');
+
+const DEFAULT_VISION_MODEL = process.env.GROQ_MATCHUP_VISION_MODEL || 'meta-llama/llama-4-scout-17b-16e-instruct';
 
 function normalizeText(value) {
     return String(value || '')
@@ -187,7 +193,11 @@ Contexto:
 Nick do jogador: ${nick || 'não informado'}
 `.trim();
 
-    const parsed = parseJsonObject(await callAIVision(imageUrl, prompt, { maxTokens: 400, temperature: 0.1 }));
+    const parsed = parseJsonObject(await callAIVision(imageUrl, prompt, {
+        maxTokens: 400,
+        temperature: 0.1,
+        model: DEFAULT_VISION_MODEL,
+    }));
     return {
         myChampion: parsed.myChampion || null,
         enemyChampion: parsed.enemyChampion || null,
@@ -201,7 +211,7 @@ Nick do jogador: ${nick || 'não informado'}
     };
 }
 
-async function buildMatchupAnalysis(scenario, patchVersion) {
+async function buildMatchupAnalysis(scenario, patchVersion, sourceBundle) {
     const prompt = `
 Você é um coach high elo de League of Legends, falando em português do Brasil de forma natural, direta e útil.
 Monte uma recomendação completa de matchup.
@@ -217,6 +227,9 @@ Contexto:
 - observações: ${scenario.notes || 'nenhuma'}
 - aliados detectados: ${scenario.teammates?.join(', ') || 'não informados'}
 - inimigos detectados: ${scenario.enemies?.join(', ') || 'não informados'}
+
+Base factual aberta disponível:
+${sourceBundle?.digest || 'Sem fontes externas abertas adicionais além do patch e do catálogo de campeões.'}
 
 Responda APENAS JSON válido com:
 {
@@ -238,12 +251,14 @@ Regras:
 - não invente dados numéricos de winrate.
 - se faltar certeza, fale isso de forma curta no summary ou coachCall.
 - dê build adaptada, não genérica.
+- use a base factual acima para entender padrões dos campeões, alcance, perfil de dano, utilidade e função.
+- trate qualquer recomendação como consenso prático entre contexto do jogador + base factual disponível, sem fingir fonte que você não recebeu.
 `.trim();
 
     const parsed = parseJsonObject(await callAI([
         { role: 'system', content: 'Você é um especialista em League of Legends e responde apenas JSON válido.' },
         { role: 'user', content: prompt },
-    ], { maxTokens: 900, temperature: 0.35 }));
+    ], { maxTokens: 900, temperature: 0.35, model: DEFAULT_COACH_MODEL }));
 
     return {
         headline: parsed.headline || 'Leitura de matchup pronta',
@@ -262,6 +277,34 @@ Regras:
 
 function joinOrFallback(list, fallback = '`Sem leitura suficiente.`') {
     return list.length ? list.map((item) => `• ${item}`).join('\n') : fallback;
+}
+
+function formatInitialPlanText(scenario, analysis, patchVersion, providerInfo, sourceBundle) {
+    return [
+        `${analysis.headline}`,
+        `${scenario.myChampion} vs ${scenario.enemyChampion}${scenario.role ? ` • ${scenario.role}` : ''}${scenario.enemyRank ? ` • contra ${scenario.enemyRank}` : ''}`,
+        '',
+        `Resumo: ${analysis.summary}`,
+        sourceBundle?.providerNames?.length ? `Fontes abertas: ${sourceBundle.providerNames.join(', ')}` : 'Fontes abertas: Riot/Data Dragon',
+        '',
+        `Runas: ${analysis.runes.join(' | ') || 'sem leitura suficiente'}`,
+        `Feitiços: ${analysis.summoners.join(' | ') || 'sem leitura suficiente'}`,
+        `Start: ${analysis.startItems.join(' | ') || 'sem leitura suficiente'}`,
+        `Core: ${analysis.coreItems.join(' | ') || 'sem leitura suficiente'}`,
+        `Situacionais: ${analysis.situationalItems.join(' | ') || 'sem leitura suficiente'}`,
+        '',
+        'Plano de lane:',
+        joinOrFallback(analysis.lanePlan, '• sem leitura suficiente'),
+        '',
+        'Janelas de perigo:',
+        joinOrFallback(analysis.dangerWindows, '• sem leitura suficiente'),
+        '',
+        `Win condition: ${analysis.winCondition}`,
+        `Call: ${analysis.coachCall}`,
+        '',
+        sourceBundle?.digest ? `Base factual:\n${sourceBundle.digest}\n` : null,
+        `Coach model: ${DEFAULT_COACH_MODEL} • Vision: ${DEFAULT_VISION_MODEL} • Provider: ${providerInfo.provider}`,
+    ].filter(Boolean).join('\n');
 }
 
 module.exports = {
@@ -301,7 +344,7 @@ module.exports = {
 
         if (!texto && !imagem) {
             return interaction.reply({
-                content: formatResponse('❌ Manda um `texto` ou uma `imagem` para eu montar o matchup.'),
+                content: 'Manda um `texto` ou uma `imagem` para eu montar o matchup.',
                 ephemeral: true,
             });
         }
@@ -311,7 +354,7 @@ module.exports = {
         try {
             if (imagem && imagem.contentType && !imagem.contentType.startsWith('image/')) {
                 return interaction.editReply({
-                    content: formatResponse('❌ Esse anexo não parece ser imagem. Me manda um print da loading screen ou da partida.'),
+                    content: 'Esse anexo não parece ser imagem. Me manda um print da loading screen ou da partida.',
                 });
             }
 
@@ -338,76 +381,42 @@ module.exports = {
 
             if (!scenario.myChampion || !scenario.enemyChampion) {
                 return interaction.editReply({
-                    content: formatResponse('❌ Eu ainda não consegui identificar direitinho os dois campeões desse matchup. Me manda no formato `Estou de Campeão X contra Campeão Y` ou uma print mais limpa da loading screen.'),
+                    content: 'Eu ainda não consegui identificar direitinho os dois campeões desse matchup. Me manda no formato `Estou de Campeão X contra Campeão Y` ou uma print mais limpa da loading screen.',
                 });
             }
 
-            const analysis = await buildMatchupAnalysis(scenario, patchVersion);
-            const thumbnail = myChampion ? getChampionSquareUrl(patchVersion, myChampion.id) : null;
+            const sourceBundle = await collectMatchupSources({
+                myChampionId: myChampion?.id,
+                enemyChampionId: enemyChampion?.id,
+            });
+            const analysis = await buildMatchupAnalysis(scenario, patchVersion, sourceBundle);
+            const initialPlan = formatInitialPlanText(scenario, analysis, patchVersion, providerInfo, sourceBundle);
+            const session = startMatchupCoachSession({
+                guildId: interaction.guildId,
+                channelId: interaction.channelId,
+                userId: interaction.user.id,
+                patchVersion,
+                myChampion: scenario.myChampion,
+                enemyChampion: scenario.enemyChampion,
+                role: scenario.role,
+                enemyRank: scenario.enemyRank,
+                concern: scenario.concern,
+                notes: scenario.notes,
+                teammates: scenario.teammates,
+                enemies: scenario.enemies,
+                sourceDigest: sourceBundle?.digest || '',
+                sourceNames: sourceBundle?.providerNames || [],
+                initialPlan,
+                model: DEFAULT_COACH_MODEL,
+            });
 
-            const embed = new EmbedBuilder()
-                .setColor('#C89B3C')
-                .setTitle(`${scenario.myChampion} vs ${scenario.enemyChampion}`)
-                .setDescription(`**${analysis.headline}**\n${analysis.summary}`)
-                .setThumbnail(thumbnail)
-                .addFields(
-                    {
-                        name: 'Leitura da lane',
-                        value: [
-                            `**Role:** ${scenario.role || 'não identificada'}`,
-                            scenario.enemyRank ? `**Rank inimigo:** ${scenario.enemyRank}` : null,
-                            scenario.notes ? `**Observação:** ${scenario.notes}` : null,
-                        ].filter(Boolean).join('\n'),
-                        inline: false,
-                    },
-                    {
-                        name: 'Runas e feitiços',
-                        value: [
-                            `**Runas:**\n${joinOrFallback(analysis.runes)}`,
-                            `**Feitiços:**\n${joinOrFallback(analysis.summoners)}`,
-                        ].join('\n\n'),
-                        inline: true,
-                    },
-                    {
-                        name: 'Build',
-                        value: [
-                            `**Start:**\n${joinOrFallback(analysis.startItems)}`,
-                            `**Core:**\n${joinOrFallback(analysis.coreItems)}`,
-                            `**Situacionais:**\n${joinOrFallback(analysis.situationalItems)}`,
-                        ].join('\n\n'),
-                        inline: true,
-                    },
-                    {
-                        name: 'Plano de lane',
-                        value: joinOrFallback(analysis.lanePlan),
-                        inline: false,
-                    },
-                    {
-                        name: 'Janelas de perigo',
-                        value: joinOrFallback(analysis.dangerWindows),
-                        inline: true,
-                    },
-                    {
-                        name: 'Win condition',
-                        value: analysis.winCondition,
-                        inline: true,
-                    },
-                    {
-                        name: 'Coach call',
-                        value: analysis.coachCall,
-                        inline: false,
-                    },
-                )
-                .setFooter({
-                    text: `Patch ${patchVersion} • Fonte: ${providerInfo.provider}/${providerInfo.model} • Matchup Lab`,
-                })
-                .setTimestamp();
-
-            return interaction.editReply({ embeds: [embed] });
+            return interaction.editReply({
+                content: formatInitialCoachText(session).slice(0, 2000),
+            });
         } catch (error) {
             console.error('[MATCHUP]', error.response?.data || error.message);
             return interaction.editReply({
-                content: formatResponse('❌ Dei uma tropeçada montando essa leitura de matchup. Tenta de novo com mais contexto ou com uma imagem mais limpa da loading screen.'),
+                content: 'Dei uma tropeçada montando essa leitura de matchup. Tenta de novo com mais contexto ou com uma imagem mais limpa da loading screen.',
             });
         }
     },
