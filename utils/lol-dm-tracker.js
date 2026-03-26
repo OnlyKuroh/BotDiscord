@@ -1,6 +1,7 @@
 const { EmbedBuilder } = require('discord.js');
 const axios = require('axios');
 const db = require('./db');
+const { rememberKnownPlayer, indexMatchParticipants } = require('./lol-player-index');
 
 const RIOT_KEY = process.env.RIOT_API_KEY || '';
 const CHECK_INTERVAL_MS = 2 * 60 * 1000;
@@ -140,6 +141,14 @@ function upsertTracker({ userId, riotId, gameName, tagLine, regiao, puuid, summo
     };
 
     saveTracker(tracker);
+    rememberKnownPlayer({
+        gameName,
+        tagLine,
+        regiao,
+        puuid,
+        summonerId,
+        iconUrl: profileIconUrl || null,
+    });
     return tracker;
 }
 
@@ -219,6 +228,7 @@ async function inspectTracker(client, tracker) {
 
                 const participant = matchRes?.data?.info?.participants?.find((entry) => entry.puuid === tracker.puuid);
                 if (matchRes?.data && participant) {
+                    indexMatchParticipants([matchRes.data], tracker.regiao);
                     await sendTrackerDm(
                         client,
                         tracker,

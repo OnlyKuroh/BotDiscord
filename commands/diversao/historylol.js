@@ -13,6 +13,11 @@ const {
     getLatestDataDragonVersion,
     getProfileIconUrl,
 } = require('../../utils/lol-assets');
+const {
+    rememberKnownPlayer,
+    indexMatchParticipants,
+    pickBestRankText,
+} = require('../../utils/lol-player-index');
 
 const RIOT_KEY = process.env.RIOT_API_KEY || '';
 
@@ -448,15 +453,15 @@ module.exports = {
                 ? `${(rankedEntries.reduce((sum, entry) => sum + Number(entry.leaguePoints || 0), 0) / rankedEntries.length).toFixed(1)} LP`
                 : 'Sem LP oficial disponivel';
 
-            db.set(`lol_known_player_${String(`${account.gameName}#${account.tagLine}`).toLowerCase()}`, {
-                riotId: `${account.gameName}#${account.tagLine}`,
+            rememberKnownPlayer({
                 gameName: account.gameName,
                 tagLine: account.tagLine,
                 regiao,
+                puuid,
+                summonerId: summoner.id,
                 level: summoner.summonerLevel,
-                rankText: rankSolo ? getTierLabel(rankSolo) : (rankFlex ? getTierLabel(rankFlex) : 'Sem rank'),
+                rankText: pickBestRankText([rankSolo, rankFlex].filter(Boolean)),
                 iconUrl: profileIconUrl,
-                updatedAt: new Date().toISOString(),
             });
 
             const champsByNumericId = {};
@@ -486,6 +491,8 @@ module.exports = {
                     };
                 })
                 .filter(Boolean);
+
+            indexMatchParticipants(matchDetails.map((entry) => ({ info: entry.info })), regiao);
 
             const liveGame = liveRes.status === 'fulfilled' ? liveRes.value.data : null;
             const liveSummary = liveGame ? buildLiveSummary(liveGame, puuid, champsByNumericId) : null;

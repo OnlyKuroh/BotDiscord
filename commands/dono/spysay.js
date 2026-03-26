@@ -75,6 +75,8 @@ module.exports = {
         };
 
         for (const guild of guilds) {
+            await guild.channels.fetch().catch(() => null);
+            const me = guild.members.me || await guild.members.fetchMe().catch(() => null);
             const ownerId = guild.ownerId || await guild.fetchOwner().then((owner) => owner.id).catch(() => null);
             const ownerMention = ownerId ? `<@${ownerId}>` : '@owner';
             const ownerName = ownerId
@@ -85,8 +87,8 @@ module.exports = {
                 .filter((channel) => channel.type === ChannelType.GuildText)
                 .sort((a, b) => a.rawPosition - b.rawPosition);
             const targetChannel = textChannels.find((channel) => {
-                const permissions = channel.permissionsFor(guild.members.me);
-                return permissions?.has(PermissionFlagsBits.SendMessages);
+                const permissions = me ? channel.permissionsFor(me) : null;
+                return permissions?.has(PermissionFlagsBits.ViewChannel) && permissions?.has(PermissionFlagsBits.SendMessages);
             });
 
             if (!targetChannel) {
@@ -107,28 +109,30 @@ module.exports = {
                 guildName: guild.name,
             });
 
-            const sentMessage = await targetChannel.send({
+            const sendResult = await targetChannel.send({
                 content,
                 allowedMentions: {
                     parse: ['everyone', 'users'],
                     users: ownerId ? [ownerId] : [],
                 },
-            }).catch(() => null);
+            }).then((message) => ({ ok: true, message })).catch((error) => ({ ok: false, error }));
 
-            if (!sentMessage) {
-                results.push(`❌ ${guild.name}: falhou ao enviar em #${targetChannel.name}`);
+            if (!sendResult.ok) {
+                const reason = sendResult.error?.message || sendResult.error?.code || 'falha ao enviar';
+                results.push(`❌ ${guild.name}: falhou ao enviar em #${targetChannel.name} (${reason})`);
                 report.deliveries.push({
                     guildId: guild.id,
                     guildName: guild.name,
                     channelId: targetChannel.id,
                     channelName: targetChannel.name,
                     status: 'failed',
-                    reason: 'falha ao enviar',
+                    reason,
                 });
-                db.addLog('SPYSAY_FAIL', `SpySay falhou em ${guild.name} / #${targetChannel.name}`, guild.id, interaction.user.id, interaction.user.username);
+                db.addLog('SPYSAY_FAIL', `SpySay falhou em ${guild.name} / #${targetChannel.name}: ${String(reason).slice(0, 180)}`, guild.id, interaction.user.id, interaction.user.username);
                 continue;
             }
 
+            const sentMessage = sendResult.message;
             const messageUrl = `https://discord.com/channels/${guild.id}/${targetChannel.id}/${sentMessage.id}`;
             results.push(`✅ ${guild.name}: enviado em #${targetChannel.name}\n${messageUrl}`);
             report.deliveries.push({

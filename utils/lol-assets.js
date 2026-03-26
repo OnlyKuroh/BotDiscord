@@ -62,15 +62,17 @@ function getRankEmblemUrl(tier) {
 }
 
 function getRankMiniIconUrl(tier) {
-    return `https://raw.communitydragon.org/latest/plugins/rcp-fe-lol-static-assets/global/default/images/ranked-mini-crests/${String(tier || 'unranked').toLowerCase()}.svg`;
+    return `https://raw.communitydragon.org/latest/plugins/rcp-fe-lol-static-assets/global/default/ranked-mini-crests/${String(tier || 'unranked').toLowerCase()}.png`;
 }
 
 function getRoleIconUrl(role) {
     const normalized = String(role || '')
         .toLowerCase()
-        .replace('utility', 'support')
-        .replace('middle', 'mid');
-    return `https://raw.communitydragon.org/latest/plugins/rcp-fe-lol-static-assets/global/default/images/position-picker/${normalized}.png`;
+        .replace('support', 'utility')
+        .replace('mid', 'middle')
+        .replace('adc', 'bottom')
+        .replace('fill', 'unselected');
+    return `https://raw.communitydragon.org/latest/plugins/rcp-fe-lol-clash/global/default/assets/images/position-selector/positions/icon-position-${normalized}.png`;
 }
 
 module.exports = {

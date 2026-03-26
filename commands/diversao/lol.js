@@ -11,7 +11,14 @@ const {
     getChampionSplashUrl,
     getChampionSquareUrl,
     getRankEmblemUrl,
+    getRankMiniIconUrl,
+    getRoleIconUrl,
 } = require('../../utils/lol-assets');
+const {
+    rememberKnownPlayer,
+    indexMatchParticipants,
+    pickBestRankText,
+} = require('../../utils/lol-player-index');
 
 const RIOT_KEY = process.env.RIOT_API_KEY || '';
 
@@ -106,19 +113,6 @@ function normalizeSearchText(value) {
         .trim();
 }
 
-function rememberKnownPlayer({ riotId, gameName, tagLine, regiao, level, rankText, iconUrl }) {
-    db.set(`lol_known_player_${String(riotId).toLowerCase()}`, {
-        riotId,
-        gameName,
-        tagLine,
-        regiao,
-        level,
-        rankText,
-        iconUrl,
-        updatedAt: new Date().toISOString(),
-    });
-}
-
 function searchKnownPlayers(prefix) {
     const normalized = normalizeSearchText(prefix);
     if (!normalized) return [];
@@ -189,6 +183,14 @@ function buildKnownPlayersReply(query, players) {
         '',
         'Manda de novo no formato completo `Nome#TAG` que eu puxo o perfil bonito.',
     ].join('\n');
+}
+
+function normalizeRole(role) {
+    const value = String(role || '').toUpperCase();
+    if (value === 'UTILITY') return 'SUPPORT';
+    if (value === 'MIDDLE') return 'MID';
+    if (value === 'BOTTOM') return 'ADC';
+    return value || 'FILL';
 }
 
 // URLs oficiais
@@ -527,12 +529,13 @@ module.exports = {
             const mainChampDisplayName = champsMap[topChampId]?.name || 'N/A';
 
             rememberKnownPlayer({
-                riotId: `${account.gameName}#${account.tagLine}`,
                 gameName: account.gameName,
                 tagLine: account.tagLine,
                 regiao,
+                puuid,
+                summonerId: summoner.id,
                 level: summoner.summonerLevel,
-                rankText: mainRank ? `${TIER_DATA[mainRank.tier]?.name || mainRank.tier} ${mainRank.rank} - ${mainRank.leaguePoints}LP` : 'Sem rank',
+                rankText: pickBestRankText([rankSolo, rankFlex, rankArena].filter(Boolean)),
                 iconUrl: profileIconUrl,
             });
 
@@ -540,6 +543,7 @@ module.exports = {
             let matchDetails = [];
             let stats = { games: 0, wins: 0, kills: 0, deaths: 0, assists: 0, cs: 0, damage: 0, gold: 0, vision: 0, duration: 0 };
             let champStats = {};
+            let roleStats = {};
 
             if (matchIdsRes.status === 'fulfilled' && matchIdsRes.value.data.length) {
                 const matchIds = matchIdsRes.value.data;
@@ -555,6 +559,8 @@ module.exports = {
                     if (!participant) continue;
 
                     matchDetails.push({ match, participant });
+                    const roleKey = normalizeRole(participant.teamPosition || participant.individualPosition || participant.lane || 'FILL');
+                    roleStats[roleKey] = (roleStats[roleKey] || 0) + 1;
 
                     stats.games++;
                     if (participant.win) stats.wins++;
@@ -577,6 +583,8 @@ module.exports = {
                     champStats[champName].deaths += participant.deaths;
                     champStats[champName].assists += participant.assists;
                 }
+
+                indexMatchParticipants(matchDetails.map((entry) => entry.match), regiao);
             }
 
             const g = stats.games || 1;
@@ -587,10 +595,14 @@ module.exports = {
             const avgVision = (stats.vision / g).toFixed(1);
             const avgDuration = Math.round(stats.duration / g / 60);
             const wrRecent = stats.games ? `${((stats.wins / stats.games) * 100).toFixed(0)}%` : 'N/A';
+            const primaryRole = Object.entries(roleStats).sort((a, b) => b[1] - a[1])[0]?.[0] || null;
+            const mainChampSquareUrl = topChampName ? getChampionSquareUrl(patchVersion, topChampName) : profileIconUrl;
+            const primaryRoleIconUrl = primaryRole ? getRoleIconUrl(primaryRole) : null;
+            const rankMiniIconUrl = tierPrincipal !== 'UNRANKED' ? getRankMiniIconUrl(tierPrincipal) : profileIconUrl;
 
             const topChampionsText = Object.entries(champStats)
                 .sort((a, b) => b[1].games - a[1].games)
-                .slice(0, 5)
+                .slice(0, 3)
                 .map(([name, s]) => {
                     const wr = ((s.wins / s.games) * 100).toFixed(0);
                     return `**${name}** — ${s.games}p • ${wr}% WR`;
@@ -598,6 +610,18 @@ module.exports = {
                 .join('\n') || '`Sem dados suficientes.`';
 
             const bestQueue = rankSolo || rankFlex || rankArena || null;
+            const identityIconUrl = bestQueue ? (rankMiniIconUrl || profileIconUrl) : (primaryRoleIconUrl || profileIconUrl);
+            const recentRecordText = stats.games > 0 ? `${stats.wins}V/${stats.games - stats.wins}D em ${stats.games} partidas` : 'Sem recorte recente';
+            const masteryShortText = [
+                `Score: **${formatNumber(totalMasteryPoints)}**`,
+                `Campeoes: **${totalMasteryScore}**`,
+                `Main: **${mainChampDisplayName}**`,
+            ].join('\n');
+            const profileSnapshotText = [
+                `Nivel **${summoner.summonerLevel}**`,
+                primaryRole ? `Funcao **${primaryRole}**` : 'Funcao em leitura',
+                bestQueue ? `Fila **${formatRankCompact(bestQueue)}**` : 'Sem rank principal',
+            ].join('\n');
 
             // ══════════════════════════════════════════════════════════════════
             // PÁGINA 1: PERFIL REWORKADO
@@ -605,44 +629,35 @@ module.exports = {
             const embed1 = new EmbedBuilder()
                 .setAuthor({
                     name: `${account.gameName}#${account.tagLine} • ${regiao.toUpperCase()}`,
-                    iconURL: profileIconUrl
+                    iconURL: identityIconUrl
                 })
                 .setColor(corTier)
                 .setTitle(`${account.gameName}'s Profile`)
                 .setDescription([
-                    titleText ? `**Status:** ${titleText}` : '**Status:** Sem titulo equipado no momento.',
-                    `**Conta:** nivel **${summoner.summonerLevel}** no shard **${regiao.toUpperCase()}**.`,
-                    `**Rank principal:** ${bestQueue ? formatRankCompact(bestQueue) : 'Sem fila ranqueada registrada.'}`,
-                    `**Main do momento:** **${mainChampDisplayName}**.`,
-                    `**Top recente:** ${stats.wins}V/${stats.games - stats.wins}D nas ultimas ${stats.games || 0} partidas.`,
+                    titleText ? `**Status:** ${titleText}` : '**Status:** sem titulo equipado.',
+                    `**Shard:** ${regiao.toUpperCase()} • **Recorte:** ${recentRecordText}`,
                 ].join('\n'))
-                .setThumbnail(profileIconUrl)
-                .setImage(mainSplashUrl)
+                .setThumbnail(mainChampSquareUrl)
                 .addFields(
+                    { name: 'Conta', value: profileSnapshotText, inline: true },
+                    { name: 'Main', value: `Campeao: **${mainChampDisplayName}**\nIcone e splash oficiais carregados`, inline: true },
+                    { name: 'Maestria', value: masteryShortText, inline: true },
                     { name: 'Solo/Duo', value: formatRankFull(rankSolo), inline: true },
-                    { name: 'Flex 5v5', value: formatRankFull(rankFlex), inline: true },
+                    { name: 'Flex', value: formatRankFull(rankFlex), inline: true },
                     { name: 'Arena', value: formatRankFull(rankArena), inline: true },
-                    { name: 'Champions do momento', value: topChampionsText, inline: true },
+                    { name: 'Pool recente', value: topChampionsText, inline: false },
                     {
-                        name: 'Recente',
+                        name: 'Snapshot recente',
                         value: [
                             `**KDA medio:** ${avgKDA}`,
                             `**CS medio:** ${avgCS}`,
                             `**Dano medio:** ${avgDamage}`,
+                            `**Visao media:** ${avgVision}`,
                         ].join('\n'),
-                        inline: true,
-                    },
-                    {
-                        name: 'Maestria',
-                        value: [
-                            `**Score total:** ${formatNumber(totalMasteryPoints)} pts`,
-                            `**Campeoes com maestria:** ${totalMasteryScore}`,
-                            `**Main:** ${mainChampDisplayName}`,
-                        ].join('\n'),
-                        inline: true,
+                        inline: false,
                     },
                 )
-                .setFooter({ text: `Perfil 1/5 • Main: ${mainChampDisplayName}` })
+                .setFooter({ text: `Perfil 1/5 • ${mainChampDisplayName}`, iconURL: primaryRoleIconUrl || profileIconUrl })
                 .setTimestamp();
 
             // ══════════════════════════════════════════════════════════════════
@@ -653,10 +668,10 @@ module.exports = {
             const wrFlex = rankFlex ? getWinRate(rankFlex.wins, rankFlex.losses) : { wr: 0, text: 'N/A' };
 
             const embed2 = new EmbedBuilder()
-                .setAuthor({ name: `${account.gameName}#${account.tagLine}`, iconURL: profileIconUrl })
+                .setAuthor({ name: `${account.gameName}#${account.tagLine}`, iconURL: rankMiniIconUrl || profileIconUrl })
                 .setTitle('Estatísticas Detalhadas')
                 .setColor(corTier)
-                .setThumbnail(profileIconUrl)
+                .setThumbnail(getRankEmblemUrl(tierPrincipal))
                 .addFields(
                     {
                         name: 'Ranqueada Solo/Duo',
@@ -690,7 +705,7 @@ module.exports = {
                     { name: 'Maestria Total', value: `**${formatNumber(totalMasteryPoints)}** pts`, inline: true },
                 )
                 .setImage(mainSplashUrl)
-                .setFooter({ text: 'Página 2/5 • Estatísticas' });
+                .setFooter({ text: 'Página 2/5 • Estatísticas', iconURL: primaryRoleIconUrl || profileIconUrl });
 
             // ══════════════════════════════════════════════════════════════════
             // PÁGINA 3: TOP CAMPEÕES (MAESTRIA)
@@ -711,11 +726,11 @@ module.exports = {
             }
 
             const embed3 = new EmbedBuilder()
-                .setAuthor({ name: `${account.gameName}#${account.tagLine}`, iconURL: profileIconUrl })
+                .setAuthor({ name: `${account.gameName}#${account.tagLine}`, iconURL: mainChampSquareUrl })
                 .setTitle('Top 10 Campeoes — Maestria')
                 .setDescription(`> **${totalMasteryScore}** campeoes com maestria • **${formatNumber(totalMasteryPoints)}** pontos totais\n> Bau disponivel aparece descrito na linha do campeao`)
                 .setColor(corTier)
-                .setThumbnail(profileIconUrl)
+                .setThumbnail(mainChampSquareUrl)
                 .addFields(
                     { name: 'Top 1-5', value: formatMasteryCol(col1, 0), inline: true },
                     { name: 'Top 6-10', value: formatMasteryCol(col2, 5), inline: true },
@@ -766,11 +781,11 @@ module.exports = {
                 .join('\n') || '`N/A`';
 
             const embed4 = new EmbedBuilder()
-                .setAuthor({ name: `${account.gameName}#${account.tagLine}`, iconURL: profileIconUrl })
+                .setAuthor({ name: `${account.gameName}#${account.tagLine}`, iconURL: mainChampSquareUrl })
                 .setTitle('Historico de Partidas')
                 .setDescription(matchHistoryText)
                 .setColor(corTier)
-                .setThumbnail(profileIconUrl)
+                .setThumbnail(mainChampSquareUrl)
                 .addFields(
                     { name: 'Mais Jogados (Recente)', value: topPlayedChamps, inline: false },
                 )
@@ -799,16 +814,16 @@ module.exports = {
             const totalChallengePoints = challengesData?.totalPoints?.current || 0;
 
             const embed5 = new EmbedBuilder()
-                .setAuthor({ name: `${account.gameName}#${account.tagLine}`, iconURL: profileIconUrl })
+                .setAuthor({ name: `${account.gameName}#${account.tagLine}`, iconURL: rankMiniIconUrl || profileIconUrl })
                 .setTitle('Desafios & Conquistas')
                 .setColor(corTier)
-                .setThumbnail(profileIconUrl)
+                .setThumbnail(getRankEmblemUrl(tierPrincipal))
                 .addFields(
                     { name: 'Pontuacao Total', value: `**${formatNumber(totalChallengePoints)}** pontos`, inline: true },
                     { name: 'Categorias', value: categoryText || '`Sem dados`', inline: true },
                 )
                 .setImage(mainSplashUrl)
-                .setFooter({ text: 'Página 5/5 • Desafios' });
+                .setFooter({ text: 'Página 5/5 • Desafios', iconURL: primaryRoleIconUrl || profileIconUrl });
 
             // ══════════════════════════════════════════════════════════════════
             // NAVEGAÇÃO POR BOTÕES DE FUNÇÃO
