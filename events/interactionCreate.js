@@ -2,6 +2,7 @@ const { Events } = require('discord.js');
 const { formatResponse } = require('../utils/persona');
 const { buildCommandLogEmbed } = require('../utils/system-embeds');
 const { trackCommandAbuse } = require('../utils/security-monitor');
+const { registerCommandActivity } = require('../utils/jjk-system');
 
 module.exports = {
     name: Events.InteractionCreate,
@@ -36,6 +37,10 @@ module.exports = {
                     const db = require('../utils/db');
                     db.incrementStat('slash_commands_used');
                     db.addLog('COMMAND', `/${interaction.commandName} usado por ${interaction.user.username}`, interaction.guildId, interaction.user.id, interaction.user.username);
+                    await registerCommandActivity({
+                        guild: interaction.guild,
+                        userId: interaction.user.id,
+                    }).catch(() => null);
                     trackCommandAbuse({
                         guild: interaction.guild,
                         user: interaction.user,

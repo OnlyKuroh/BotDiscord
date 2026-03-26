@@ -6,7 +6,7 @@ module.exports = {
         .setName('userinfo')
         .setDescription('Inspeciona os registros e o peso de um indivíduo.')
         .addUserOption(option => option.setName('alvo').setDescription('Aquele que será inspecionado.')),
-    aliases: ['user', 'perfil'],
+    aliases: ['user'],
     detailedDescription: 'Veja quando um usuário decidiu entrar neste ciclo de dor, de sua criação ao ingresso no servidor.',
     usage: '`/userinfo` ou `-userinfo [@usuario]`',
     permissions: ['Nenhuma'],

@@ -2,6 +2,7 @@ const { Events, EmbedBuilder } = require('discord.js');
 const { formatResponse } = require('../utils/persona');
 const { maybeHandleItadoriChat } = require('../utils/itadori-chatbot');
 const { trackCommandAbuse } = require('../utils/security-monitor');
+const { registerMessageActivity } = require('../utils/jjk-system');
 
 const MENTION_RESPONSES = [
     'Oi! Precisando de ajuda? Use `/help` pra ver o que eu consigo fazer. Eu tô aqui, assim como fiquei quando Gojo me disse que eu seria o receptáculo... exceto que dessa vez é só um bot.',
@@ -15,6 +16,7 @@ module.exports = {
     name: Events.MessageCreate,
     async execute(message, client) {
         const db = require('../utils/db');
+        const prefix = client.prefix;
         if (message.author.bot) return;
 
         if (!message.guild) {
@@ -61,6 +63,10 @@ module.exports = {
         // --- BLACKLIST DE SERVIDOR ---
         if (db.isGuildBlacklisted(message.guild.id)) return;
 
+        if (!message.content.startsWith(prefix)) {
+            await registerMessageActivity(message).catch(() => null);
+        }
+
         // --- CHATBOT ITADORI (Groq) ---
         if (await maybeHandleItadoriChat(message, client)) {
             return;
@@ -105,7 +111,6 @@ module.exports = {
             }
         }
 
-        const prefix = client.prefix;
         if (!message.content.startsWith(prefix)) return;
 
         const args = message.content.slice(prefix.length).trim().split(/ +/);

@@ -351,7 +351,7 @@ async function publishUpdateToGuild(client, guild, payload, options = {}) {
     }
 
     try {
-        await channel.send({ embeds: [buildDiscordEmbed(client, payload)] });
+        await channel.send({ embeds: buildDiscordEmbeds(client, payload) });
         const roleId = db.get(`novidades_role_${guild.id}`);
         if (roleId) {
             await channel.send({ content: `<@&${roleId}>` });
@@ -421,43 +421,174 @@ function clearPendingDelivery(guildId, fingerprint) {
     db.delete(key);
 }
 
-function buildDiscordEmbed(client, payload) {
-    const descriptionSections = payload.sections.map((section) => {
-        const lines = [
-            `${section.icon} **${section.title}**`,
-            `**${section.subtitle}**`,
-            section.body,
-        ];
+function buildDiscordEmbeds(client, payload) {
+    // ─── Capa do Jornal do Deploy ───────────────────────────────────────────
+    const statusBlocks = deriveStatusBlocks(payload);
+    const createdAt = new Date(payload.createdAt || Date.now());
+    const commits = Array.isArray(payload.commits) ? payload.commits : [];
+    const changedRepos = [...new Set(commits.map((commit) => commit.label).filter(Boolean))];
 
-        if (section.calloutText) {
-            lines.push(`> **${section.calloutLabel || 'Como funciona'}:** ${section.calloutText}`);
-        }
-
-        return lines.filter(Boolean).join('\n');
-    }).join('\n\n');
-
-    const description = [
-        '## Jornal do Deploy',
-        payload.lead,
-        '',
-        'Segura o resumao do que bateu nessa rodada:',
-        '',
-        descriptionSections,
-        '',
-        `*${payload.closingText}*`,
-    ].filter(Boolean).join('\n');
-
-    return new EmbedBuilder()
-        .setColor('#2ecc71')
-        .setAuthor({ name: 'Jornal do Itadori • Plantao das Atualizacoes', iconURL: client.user?.displayAvatarURL() || undefined })
+    const coverEmbed = new EmbedBuilder()
+        .setColor('#f39c12')
+        .setAuthor({ name: 'Jornal do Itadori • Plantão das Atualizações', iconURL: client.user?.displayAvatarURL() || undefined })
         .setTitle(payload.title)
-        .setDescription(description.slice(0, 4096))
-        .addFields({
-            name: '🧾 Quadro da Rodada',
-            value: buildAnsiSummary(payload.summaryLines),
-        })
-        .setFooter({ text: `Saiu do forno em ${formatUpdateDate(payload.createdAt || new Date().toISOString())} • Itadori no plantao` })
-        .setTimestamp(new Date(payload.createdAt || Date.now()));
+        .setDescription([
+            '## Jornal do Deploy',
+            payload.lead,
+            '',
+            `**Repositórios mexidos:** ${changedRepos.length ? changedRepos.map((label) => `\`${label}\``).join(', ') : '`Bot`'}`,
+            `**Rodada rastreada:** ${commits.length} commit${commits.length === 1 ? '' : 's'}`,
+            '',
+            '*Abaixo está tudo separado por etapa da rodada, pra leitura ficar limpa e direta.*',
+        ].join('\n').slice(0, 4096))
+        .setFooter({ text: `Resumo automático do deploy • ${formatUpdateDate(payload.createdAt || new Date().toISOString())}` })
+        .setTimestamp(createdAt);
+
+    // ─── Blocos visuais por status da rodada ────────────────────────────────
+    const sectionEmbeds = statusBlocks.map((block) => new EmbedBuilder()
+        .setColor(block.color)
+        .setAuthor({ name: block.author, iconURL: client.user?.displayAvatarURL() || undefined })
+        .setTitle(block.title)
+        .setDescription(block.description.slice(0, 4096))
+        .setFooter({ text: block.footer || `Deploy em ${formatUpdateDate(payload.createdAt || new Date().toISOString())}` })
+        .setTimestamp(createdAt));
+
+    return [coverEmbed, ...sectionEmbeds];
+}
+
+function deriveStatusBlocks(payload) {
+    const commits = Array.isArray(payload.commits) ? payload.commits : [];
+    const commandChanges = extractCommandChanges(commits);
+    const featureCommits = commits.filter((commit) => commit.category === 'feature');
+    const fixCommits = commits.filter((commit) => commit.category === 'fix');
+    const productionCommits = commits.filter((commit) => commit.category !== 'fix');
+    const removedCommits = commits.filter((commit) => /(delete|remove|drop|cleanup|apaga|apagou|removeu|retira|retirado)/i.test(commit.message));
+
+    return [
+        {
+            key: 'new',
+            color: '#2ecc71',
+            author: '🟢 Verde • Novo',
+            title: 'Novidades que entraram',
+            description: buildStatusDescription({
+                intro: 'Aqui fica o que entrou de novidade mesmo: comando novo, fluxo novo ou melhoria que abriu caminho novo no bot.',
+                commits: featureCommits,
+                emptyText: 'Nenhuma novidade grande entrou nesta rodada. Foi mais ajuste de casa mesmo.',
+            }),
+            footer: 'Bloco de novidades rastreadas nesta rodada',
+        },
+        {
+            key: 'fixed',
+            color: '#f1c40f',
+            author: '🟡 Amarelo • Corrigido',
+            title: 'Correções e blindagens',
+            description: buildFixedStatusDescription(fixCommits, payload),
+            footer: 'Bloco de correções, ajustes e estabilidade',
+        },
+        {
+            key: 'production',
+            color: '#e67e22',
+            author: '🟠 Laranja • Em Produção',
+            title: 'O que bateu em produção',
+            description: buildProductionStatusDescription(productionCommits, commandChanges, payload),
+            footer: 'Bloco do que mexeu no fluxo vivo do bot',
+        },
+        {
+            key: 'removed',
+            color: '#e74c3c',
+            author: '🔴 Vermelho • Apagado',
+            title: 'O que saiu do caminho',
+            description: buildRemovedStatusDescription(removedCommits),
+            footer: 'Bloco de remoções, limpezas e aposentadorias',
+        },
+    ];
+}
+
+function buildStatusDescription({ intro, commits, emptyText }) {
+    const lines = [intro, ''];
+
+    if (!commits.length) {
+        lines.push(emptyText);
+        return lines.join('\n');
+    }
+
+    lines.push(...commits.slice(0, 6).map((commit) => formatUpdateBullet(commit)));
+    return lines.join('\n');
+}
+
+function buildFixedStatusDescription(fixCommits, payload) {
+    const lines = ['Aqui entra o que foi corrigido, estabilizado ou ficou menos sujeito a dar dor de cabeça.', ''];
+
+    if (fixCommits.length) {
+        lines.push(...fixCommits.slice(0, 6).map((commit) => formatUpdateBullet(commit)));
+    } else {
+        const fixLine = (payload.summaryLines || []).find((line) => line.kind === 'fix');
+        lines.push(fixLine?.text || 'Nenhum commit veio marcado como correção nesta rodada, então essa parte ficou mais calma dessa vez.');
+    }
+
+    return lines.join('\n');
+}
+
+function buildRemovedStatusDescription(removedCommits) {
+    const lines = ['Esse bloco é só para o que saiu do caminho, foi limpo ou acabou aposentado no deploy.', ''];
+
+    if (!removedCommits.length) {
+        lines.push('Nada foi apagado nesta rodada. O vermelho ficou quieto dessa vez.');
+        return lines.join('\n');
+    }
+
+    lines.push(...removedCommits.slice(0, 6).map((commit) => formatUpdateBullet(commit)));
+    return lines.join('\n');
+}
+
+function buildProductionStatusDescription(productionCommits, commandChanges, payload) {
+    const lines = ['Aqui fica o que mexeu no fluxo real do bot, no deploy ou no que já está rodando em produção.', ''];
+    const productionHighlights = [];
+
+    if (commandChanges.length) {
+        productionHighlights.push(`Comandos mexidos na rodada: ${commandChanges.map((command) => `\`${command}\``).join(', ')}.`);
+    }
+
+    const deployCommit = productionCommits.find((commit) => /(deploy|prod|ready|scheduler|notifier|reaction|welcome|verify)/i.test(commit.message) || (commit.files || []).some((file) => /(deploy|events\/ready|messageReaction|setwelcome|setverificar|setnoticias)/i.test(file)));
+    if (deployCommit) {
+        productionHighlights.push(`Teve mexida direta no fluxo vivo: ${formatCommitHeadline(deployCommit)}.`);
+    }
+
+    const improvementLine = (payload.summaryLines || []).find((line) => line.kind === 'improvement');
+    if (improvementLine) {
+        productionHighlights.push(improvementLine.text);
+    }
+
+    if (!productionHighlights.length) {
+        lines.push('Nenhuma mudança de rollout chamou tanta atenção aqui. Foi mais o fluxo normal da rodada.');
+        return lines.join('\n');
+    }
+
+    lines.push(...productionHighlights.map((line) => `• ${line}`));
+    return lines.join('\n');
+}
+
+function formatUpdateBullet(commit) {
+    const files = Array.isArray(commit.files) && commit.files.length
+        ? `Arquivos: ${commit.files.slice(0, 3).map((file) => `\`${shortFileName(file)}\``).join(', ')}.`
+        : 'Sem lista de arquivos salva nessa rodada.';
+
+    return `• **${commit.label || 'Bot'}** • ${formatCommitHeadline(commit)}\n${files}`;
+}
+
+function formatCommitHeadline(commit) {
+    return `\`${commit.shortSha || 'sem-sha'}\` ${String(commit.message || 'Mudanca aplicada').trim()}`;
+}
+
+function shortFileName(filePath) {
+    const normalized = String(filePath || '');
+    const parts = normalized.split('/');
+    if (parts.length <= 2) return normalized;
+    return parts.slice(-2).join('/');
+}
+
+function buildDiscordEmbed(client, payload) {
+    return buildDiscordEmbeds(client, payload)[0];
 }
 
 function buildAnsiSummary(summaryLines) {
@@ -699,6 +830,7 @@ function formatUpdateDate(isoDate) {
 module.exports = {
     start,
     syncUpdates,
+    buildDiscordEmbeds,
     buildDiscordEmbed,
     publishUpdateToGuild,
     forceDeliverPendingUpdate,
