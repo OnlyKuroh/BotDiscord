@@ -105,6 +105,83 @@ function getCommandDescription(command) {
         || 'Sem descricao registrada.';
 }
 
+function formatCommandTitle(command) {
+    return getCommandName(command)
+        .split(/[-_ ]+/)
+        .filter(Boolean)
+        .map((piece) => piece.charAt(0).toUpperCase() + piece.slice(1))
+        .join(' ');
+}
+
+function getFriendlyUsage(command) {
+    if (command.helpTrigger) return command.helpTrigger;
+    return command.data?.name
+        ? `/${getCommandName(command)}`
+        : `-${getCommandName(command)}`;
+}
+
+function getSecurityProfile(command) {
+    const permissionText = (command.permissions || []).filter(Boolean).join(' ').toLowerCase();
+
+    if (command.category === 'dono' || permissionText.includes('dono')) {
+        return {
+            emoji: '👑',
+            label: 'Unicos',
+            text: 'So o dono do bot mexe nisso aqui. E comando de bastidor pesado, de manutencao, inspecao ou controle total.',
+        };
+    }
+
+    if (permissionText.includes('administrador') || permissionText.includes('gerenciar servidor')) {
+        return {
+            emoji: '🛡️',
+            label: 'Administracao',
+            text: 'Voltado para quem organiza a casa. Ideal para config, automacao e controle estrutural do servidor.',
+        };
+    }
+
+    if (permissionText.includes('banir') || permissionText.includes('expulsar') || permissionText.includes('gerenciar')) {
+        return {
+            emoji: '⚙️',
+            label: 'Moderado',
+            text: 'Pede permissao especifica porque pode mexer em mensagens, cargos, canais ou membros.',
+        };
+    }
+
+    return {
+        emoji: '🟢',
+        label: 'Livre',
+        text: 'Qualquer pessoa pode usar sem drama. E comando aberto para consulta, utilidade ou diversao.',
+    };
+}
+
+function buildUsageBlock(command) {
+    const lines = [`**Gatilho:** \`${getFriendlyUsage(command)}\`.`];
+
+    if (command.usage) {
+        lines.push(`**Jeito de usar:** ${command.usage}`);
+    }
+
+    const directOptions = getDirectOptions(command);
+    if (directOptions.length > 0) {
+        lines.push(`**Opcoes:** ${directOptions.map((option) => `\`${option.name}\``).join(', ')}.`);
+    }
+
+    const subcommands = getSubcommands(command);
+    if (subcommands.length > 0) {
+        lines.push(`**Subcomandos:** ${subcommands.map((sub) => `\`${sub.name}\``).join(', ')}.`);
+    }
+
+    return lines.join('\n');
+}
+
+function buildAliasBlock(command) {
+    if (!command.aliases?.length) {
+        return 'Sem variacoes registradas alem do nome principal.';
+    }
+
+    return command.aliases.map((alias) => `\`${alias}\``).join(', ');
+}
+
 function getCommandOptions(command) {
     if (!command.data?.options) return [];
     return command.data.options.map((option) => option.toJSON?.() || option).filter(Boolean);
@@ -253,15 +330,8 @@ function buildCategoryEmbed(client, categoryKey, viewerId = null) {
         ? commands
         : commands;
 
-    const lines = visibleCommands.map((command) => {
-        const invoke = getCommandInvoke(command);
-        const desc = getCommandDescription(command);
-        const badges = getCommandBadges(command);
-        const badgeText = badges.length ? ` [${badges.join(' • ')}]` : '';
-        return `• \`${invoke}\`${badgeText}\n${desc}`;
-    });
-
-    const chunks = chunk(lines, 6);
+    const names = visibleCommands.map((command) => `\`${getCommandInvoke(command)}\``);
+    const chunks = chunk(names, 12);
 
     const embed = new EmbedBuilder()
         .setColor(category.color)
@@ -281,7 +351,7 @@ function buildCategoryEmbed(client, categoryKey, viewerId = null) {
             '',
             isOwnerCategory
                 ? 'Categoria sensivel. Os comandos abaixo sao voltados para manutencao, auditoria, testes e operacao do bot.'
-                : 'Lista refinada para leitura rapida. Cada entrada mostra o gatilho principal e um resumo da funcao.',
+                : 'Lista limpinha para bater o olho rapido e achar o que voce quer sem poluicao visual.',
         ].join('\n'))
 
         // ─── Thumbnail / Icone do embed ──────────────────────────────────────
@@ -289,7 +359,7 @@ function buildCategoryEmbed(client, categoryKey, viewerId = null) {
 
         // ─── Footer / Metadados finais ───────────────────────────────────────
         .setFooter({
-            text: `${commands.length} comando${commands.length !== 1 ? 's' : ''} nesta categoria • Use /help nome para abrir detalhes`,
+            text: `${commands.length} comando${commands.length !== 1 ? 's' : ''} nesta categoria • Se quiser os detalhes, manda /help nome-do-comando`,
             iconURL: client.user?.displayAvatarURL() || undefined,
         })
         .setTimestamp();
@@ -306,7 +376,7 @@ function buildCategoryEmbed(client, categoryKey, viewerId = null) {
     for (let index = 0; index < chunks.length; index += 1) {
         embed.addFields({
             name: `Bloco ${index + 1}`,
-            value: chunks[index].join('\n\n').slice(0, 1024),
+            value: `${chunks[index].join(', ')}.\n\nSe quiser saber os detalhes de algum deles, manda \`/help nome-do-comando\`.`,
             inline: false,
         });
     }
@@ -320,7 +390,10 @@ function buildCommandEmbed(command) {
     const subcommands = getSubcommands(command);
     const options = getDirectOptions(command);
     const category = CATEGORIES[command.category];
-    const badges = getCommandBadges(command);
+    const security = getSecurityProfile(command);
+    const description = command.detailedDescription
+        || command.data?.description
+        || getCommandDescription(command);
 
     const embed = new EmbedBuilder()
         .setColor(category?.color || '#C41230')
@@ -331,29 +404,35 @@ function buildCommandEmbed(command) {
         })
 
         // ─── Titulo principal ────────────────────────────────────────────────
-        .setTitle(invoke)
+        .setTitle(formatCommandTitle(command))
 
         // ─── Descricao principal ─────────────────────────────────────────────
-        .setDescription(
-            command.detailedDescription
-            || command.data?.description
-            || getCommandDescription(command)
-        )
+        .setDescription(description)
 
         // ─── Campos do embed ─────────────────────────────────────────────────
         .addFields(
             {
-                name: 'Resumo',
+                name: 'Leitura Rapida',
                 value: [
-                    `**Gatilho principal:** \`${invoke}\``,
-                    `**Tipo:** ${badges.join(' • ') || 'Nao identificado'}`,
+                    `**Nome tecnico:** \`${name}\``,
                     `**Categoria:** ${category?.label || command.category || 'Geral'}`,
+                    `**Tipo:** ${getCommandBadges(command).join(' • ') || 'Nao identificado'}`,
                 ].join('\n'),
                 inline: false,
             },
             {
-                name: 'Como Usar',
-                value: command.usage || `\`${invoke}\``,
+                name: 'Como Usar Na Pratica',
+                value: buildUsageBlock(command),
+                inline: false,
+            },
+            {
+                name: 'Nivel de Seguranca',
+                value: `${security.emoji} **${security.label}**\n${security.text}`,
+                inline: false,
+            },
+            {
+                name: 'Variacoes',
+                value: buildAliasBlock(command),
                 inline: false,
             },
         );
@@ -383,25 +462,17 @@ function buildCommandEmbed(command) {
         });
     }
 
-    if (command.aliases?.length) {
-        embed.addFields({
-            name: 'Aliases',
-            value: command.aliases.map((alias) => `\`-${alias}\``).join(' '),
-            inline: true,
-        });
-    }
-
     if (command.permissions?.length && command.permissions.some(Boolean)) {
         embed.addFields({
-            name: 'Permissoes',
+            name: 'Permissoes Tecnicas',
             value: command.permissions.filter(Boolean).join(', '),
-            inline: true,
+            inline: false,
         });
     }
 
     embed
         .setFooter({
-            text: 'Detalhe individual do comando',
+            text: 'Se ainda bater duvida, me chama no /help de novo que a gente desenrola',
         })
         .setTimestamp();
 

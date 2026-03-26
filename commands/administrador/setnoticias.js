@@ -1,6 +1,7 @@
-const { SlashCommandBuilder, EmbedBuilder, PermissionsBitField } = require('discord.js');
+const { SlashCommandBuilder, PermissionsBitField } = require('discord.js');
 const db = require('../../utils/db');
 const { formatResponse } = require('../../utils/persona');
+const { ensureNewsPanel } = require('../../utils/persistent-panels');
 
 // ─── Mapa de eventos → emoji + label ────────────────────────────────────────
 // Cada reação usa um emoji específico para adicionar/remover cargo
@@ -42,25 +43,7 @@ module.exports = {
             });
         }
 
-        // Gera descrição com os cargos
-        const descLines = activeReactions.map(btn => {
-            const conf = eventsConfig[btn.key];
-            return `${btn.emoji} **${btn.label}** → <@&${conf.roleId}>`;
-        });
-
-        const embed = new EmbedBuilder()
-            .setColor('#2b2d31')
-            .setAuthor({ name: 'Central de Notícias', iconURL: client.user.displayAvatarURL() })
-            .setTitle('📢 Inscreva-se nas Notícias')
-            .setDescription(
-                'Reaja com os emojis abaixo para **receber ou remover** notificações de cada categoria.\n' +
-                'Ao reagir, você receberá o cargo correspondente e será mencionado quando houver novidades.\n\n' +
-                descLines.join('\n')
-            )
-            .setThumbnail(client.user.displayAvatarURL())
-            .setFooter({ text: 'Reaja novamente para remover • Engrenagem Itadori' });
-
-        // Salva referência do canal
+        db.set(`news_panel_config_${guildId}`, { customTitle: null, customDesc: null, customColor: null });
         db.set(`news_panel_channel_${guildId}`, interaction.channelId);
 
         await interaction.reply({
@@ -68,16 +51,6 @@ module.exports = {
             flags: ['Ephemeral'],
         });
 
-        // Envia o embed
-        const message = await interaction.channel.send({ embeds: [embed] });
-
-        // Adiciona todas as reações ao embed
-        for (const btn of activeReactions) {
-            try {
-                await message.react(btn.emoji);
-            } catch (err) {
-                console.error(`[SETNOTICIAS] Erro ao adicionar reação ${btn.emoji}:`, err);
-            }
-        }
+        await ensureNewsPanel(client, guildId);
     },
 };

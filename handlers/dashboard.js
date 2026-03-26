@@ -11,6 +11,12 @@ const http = require('http');
 const { Server } = require('socket.io');
 const jwt = require('jsonwebtoken');
 const axios = require('axios');
+const {
+    normalizeManagedImageUrl,
+    prepareWelcomeBannerUrl,
+    ensureVerificationPanel,
+    ensureNewsPanel,
+} = require('../utils/persistent-panels');
 
 // ─── Auth Config ──────────────────────────────────────────────────────────────
 const JWT_SECRET = process.env.SESSION_SECRET || 'itadori_secret_change_me_in_env';
@@ -251,10 +257,13 @@ function startDashboard(client) {
     });
 
     // API: Welcome Config POST
-    app.post('/api/welcome-config', requireGuildAdmin, (req, res) => {
+    app.post('/api/welcome-config', requireGuildAdmin, async (req, res) => {
         const { guildId, channelId, text, bannerUrl } = req.body;
         if (!guildId || !channelId || !text) return res.status(400).json({ error: 'Dados incompletos.' });
-        db.set(`welcome_${guildId}`, { channelId, text, bannerUrl: bannerUrl || null });
+        const stableBannerUrl = bannerUrl
+            ? await prepareWelcomeBannerUrl(normalizeManagedImageUrl(bannerUrl), guildId).catch(() => normalizeManagedImageUrl(bannerUrl))
+            : null;
+        db.set(`welcome_${guildId}`, { channelId, text, bannerUrl: stableBannerUrl || null });
         res.json({ success: true });
     });
 
@@ -361,43 +370,8 @@ function startDashboard(client) {
             db.set(`verify_role2_${guildId}`, roleId2 || null);
             db.set(`verify_config_${guildId}`, { message: message || '', keyword: keyword || 'verificar' });
 
-            // Buscar o canal
-            const channel = await client.channels.fetch(channelId);
-            if (channel) {
-                // Limpar mensagens antigas do canal (até 100)
-                try {
-                    const messages = await channel.messages.fetch({ limit: 100 });
-                    if (messages.size > 0) {
-                        await channel.bulkDelete(messages, true).catch(() => {
-                            // Se bulkDelete falhar (msgs > 14 dias), deletar uma por uma
-                            messages.forEach(m => m.delete().catch(() => null));
-                        });
-                    }
-                } catch (e) {
-                    console.log('[VERIFY] Não foi possível limpar mensagens:', e.message);
-                }
-
-                // Criar e enviar embed de verificação
-                const guild = client.guilds.cache.get(guildId);
-                const role = guild?.roles.cache.get(roleId);
-                const verifyEmbed = new EmbedBuilder()
-                    .setColor('#C41230')
-                    .setTitle('🔐 Verificação Necessária')
-                    .setDescription(message || `Bem-vindo ao servidor! Para ter acesso aos canais, digite **${keyword || 'verificar'}** neste chat.`)
-                    .addFields(
-                        { name: '📝 Palavra-chave', value: `\`${keyword || 'verificar'}\``, inline: true },
-                        { name: '🎭 Cargo', value: role ? `<@&${roleId}>` : 'Cargo configurado', inline: true }
-                    )
-                    .setFooter({ text: 'Digite a palavra-chave abaixo para ser verificado' })
-                    .setTimestamp();
-
-                if (client.user) {
-                    verifyEmbed.setThumbnail(client.user.displayAvatarURL());
-                }
-
-                await channel.send({ embeds: [verifyEmbed] });
-                db.addLog('VERIFY_SETUP', `Sistema de verificação configurado em <#${channelId}>`, guildId, null, 'Dashboard');
-            }
+            await ensureVerificationPanel(client, guildId);
+            db.addLog('VERIFY_SETUP', `Sistema de verificação configurado em <#${channelId}>`, guildId, null, 'Dashboard');
 
             res.json({ success: true });
         } catch (error) {
@@ -505,8 +479,7 @@ function startDashboard(client) {
     // API: Upload Image
     app.post('/api/upload', upload.single('file'), (req, res) => {
         if (!req.file) return res.status(400).json({ error: 'Nenhuma imagem enviada.' });
-        const inferredBaseUrl = `${req.protocol}://${req.get('host')}`;
-        const fileUrl = `${inferredBaseUrl}/uploads/${req.file.filename}`;
+        const fileUrl = normalizeManagedImageUrl(`/uploads/${req.file.filename}`);
         res.json({ url: fileUrl });
     });
 
@@ -690,39 +663,13 @@ function startDashboard(client) {
                 return res.status(400).json({ error: 'Nenhuma categoria está habilitada com cargo configurado.' });
             }
 
-            // Gera descrição com os cargos
-            const descLines = activeReactions.map(btn => {
-                const conf = eventsConfig[btn.key];
-                return `${btn.emoji} **${btn.label}** → <@&${conf.roleId}>`;
+            db.set(`news_panel_config_${guildId}`, {
+                customTitle: customTitle || null,
+                customDesc: customDesc || null,
+                customColor: customColor || null,
             });
-
-            const embed = new EmbedBuilder()
-                .setColor(customColor || '#2b2d31')
-                .setAuthor({ name: 'Central de Notícias', iconURL: client.user.displayAvatarURL() })
-                .setTitle(customTitle || '📢 Inscreva-se nas Notícias')
-                .setDescription(
-                    (customDesc || 'Reaja com os emojis abaixo para **receber ou remover** notificações de cada categoria.\nAo reagir, você receberá o cargo correspondente e será mencionado quando houver novidades.') +
-                    '\n\n' +
-                    descLines.join('\n')
-                )
-                .setThumbnail(client.user.displayAvatarURL())
-                .setFooter({ text: 'Reaja novamente para remover • Engrenagem Itadori' });
-
-            // Envia embed
-            const message = await channel.send({ embeds: [embed] });
-
-            // Adiciona reações
-            for (const btn of activeReactions) {
-                try {
-                    await message.react(btn.emoji);
-                } catch (err) {
-                    console.error(`[NEWS PANEL] Erro ao adicionar reação ${btn.emoji}:`, err);
-                }
-            }
-
-            // Salva referência
             db.set(`news_panel_channel_${guildId}`, channelId);
-            db.set(`news_panel_message_${guildId}`, message.id);
+            await ensureNewsPanel(client, guildId);
 
             res.json({ success: true, message: 'Painel criado com sucesso!' });
         } catch (err) {
@@ -742,6 +689,7 @@ function startDashboard(client) {
         try {
             db.delete(`news_panel_channel_${guildId}`);
             db.delete(`news_panel_message_${guildId}`);
+            db.delete(`news_panel_config_${guildId}`);
 
             res.json({ success: true, message: 'Painel removido!' });
         } catch (err) {

@@ -135,9 +135,10 @@ module.exports = {
         ),
     aliases: ['ev'],
     category: 'dono',
-    detailedDescription: 'Executa JavaScript diretamente no processo do bot. Restrito ao dono do bot.',
-    usage: '`/eval [codigo]` ou `-eval <codigo>`',
+    detailedDescription: 'Esse comando existe para manutencao real do bot em tempo de guerra. Com ele voce roda JavaScript direto no processo vivo, inspeciona cache, testa funcoes, corrige rota de debug e entende na hora o que esta pegando sem precisar criar comando temporario para tudo.',
+    usage: '`/eval codigo:<javascript>` ou `-eval <javascript>`',
     permissions: ['Dono do bot'],
+    helpTrigger: '/eval + codigo',
 
     async execute(interaction, client) {
         if (await requireOwner(interaction)) return;

@@ -1,6 +1,7 @@
 const { SlashCommandBuilder, PermissionsBitField, AttachmentBuilder, EmbedBuilder } = require('discord.js');
 const db = require('../../utils/db');
 const { formatResponse } = require('../../utils/persona');
+const { prepareWelcomeBannerUrl } = require('../../utils/persistent-panels');
 
 module.exports = {
     data: new SlashCommandBuilder()
@@ -33,7 +34,7 @@ module.exports = {
         const text = interaction.options.getString('mensagem');
         const banner = interaction.options.getAttachment('banner');
         
-        const bannerUrl = banner ? banner.url : null;
+        const bannerUrl = banner ? await prepareWelcomeBannerUrl(banner.url, interaction.guildId) : null;
         
         db.set(`welcome_${interaction.guildId}`, {
             channelId: channel.id,
@@ -56,7 +57,7 @@ module.exports = {
         if (!fullMsg) return message.reply(formatResponse('Escreva o conteúdo. Exemplo: Título | Descrição com @USER'));
 
         const attachment = message.attachments.first();
-        const bannerUrl = attachment ? attachment.url : null;
+        const bannerUrl = attachment ? await prepareWelcomeBannerUrl(attachment.url, message.guild.id) : null;
         
         db.set(`welcome_${message.guild.id}`, {
             channelId: channel.id,

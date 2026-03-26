@@ -24,6 +24,8 @@ module.exports = {
         // Verifica se é o canal de painel de notícias
         const newsPanelChannel = db.get(`news_panel_channel_${guildId}`);
         if (!newsPanelChannel || message.channelId !== newsPanelChannel) return;
+        const newsPanelMessage = db.get(`news_panel_message_${guildId}`);
+        if (newsPanelMessage && message.id !== newsPanelMessage) return;
 
         // Verifica se a mensagem é do bot
         if (message.author.id !== message.client.user.id) return;

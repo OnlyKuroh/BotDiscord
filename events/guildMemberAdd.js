@@ -3,6 +3,7 @@ const db = require('../utils/db');
 const updateMemberCounter = require('../utils/updateMemberCounter');
 const { buildMemberJoinLogEmbed } = require('../utils/system-embeds');
 const { evaluatePlatformMilestones } = require('../utils/milestone-announcer');
+const { resolveWelcomeBannerForGuild } = require('../utils/persistent-panels');
 
 module.exports = {
     name: Events.GuildMemberAdd,
@@ -55,8 +56,9 @@ module.exports = {
             .setDescription(desc || 'Alguém acabou de entrar neste campo de batalha.')
             .setFooter({ text: `${member.user.globalName || member.user.username} | ID: ${member.user.id} | ${new Date().toLocaleString('pt-BR')}` });
 
-        if (welcomeData.bannerUrl) {
-            embed.setImage(welcomeData.bannerUrl);
+        const bannerUrl = await resolveWelcomeBannerForGuild(member.guild, welcomeData);
+        if (bannerUrl) {
+            embed.setImage(bannerUrl);
         }
 
         try {
