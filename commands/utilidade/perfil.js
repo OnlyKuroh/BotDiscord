@@ -11,8 +11,8 @@ function buildPerfilEmbed(member, view) {
     const { profile, progress, progressBar, grace, bonusPct, badges, freezePrice } = view;
     const flames = profile.streak > 0 ? '🔥'.repeat(Math.min(profile.streak, 5)) : '🪫';
     const graceLine = grace?.active
-        ? `⚠️ **| Refrescagem aberta:** mais ${formatRelativeDuration(grace.remainingMs)} para segurar a chama com \`${freezePrice}\` Ryō.`
-        : '✅ **| Chama estável:** sem janela de risco aberta agora.';
+        ? `⚠️ ** •  Refrescagem aberta:** mais ${formatRelativeDuration(grace.remainingMs)} para segurar a chama com \`${freezePrice}\` Ryō.`
+        : '✅ ** •  Chama estável:** sem janela de risco aberta agora.';
 
     return new EmbedBuilder()
         .setColor('#c1121f')
@@ -24,8 +24,8 @@ function buildPerfilEmbed(member, view) {
             `**Energia Amaldiçoada:** \`${profile.xp}\` XP`,
             `${progressBar} \`${progress.currentLevelXp}/${progress.nextLevelXp}\` para o próximo grau`,
             '',
-            `**${flames} | Foguinhos:** Sequência atual de **${profile.streak}** dia${profile.streak === 1 ? '' : 's'}`,
-            `** 🪔 | Bônus da chama:** +${bonusPct}%`,
+            `**${flames}  •  Foguinhos:** Sequência atual de **${profile.streak}** dia${profile.streak === 1 ? '' : 's'}`,
+            `** 🪔  •  Bônus da chama:** +${bonusPct}%`,
             graceLine,
         ].join('\n'))
         .addFields(

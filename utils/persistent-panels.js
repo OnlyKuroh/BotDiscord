@@ -19,6 +19,7 @@ const NEWS_REACTIONS = [
     { key: 'google_news', emoji: '🔍', label: 'Google News' },
     { key: 'horoscopo', emoji: '♈', label: 'Horoscopo' },
     { key: 'steam', emoji: '🎮', label: 'Steam' },
+    { key: 'esports_lol', emoji: '🏆', label: 'E-sports LoL' },
     { key: 'eleicao', emoji: '🗳️', label: 'Eleicoes' },
 ];
 

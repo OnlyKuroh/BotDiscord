@@ -1,26 +1,19 @@
 const {
-    SlashCommandBuilder, EmbedBuilder, AttachmentBuilder,
+    SlashCommandBuilder, EmbedBuilder,
     ActionRowBuilder, ButtonBuilder, ButtonStyle
 } = require('discord.js');
 const axios = require('axios');
-const { Profile } = require('discord-arts');
 const { formatResponse } = require('../../utils/persona');
-
-// Tenta importar djs-forge (instale com: npm install djs-forge)
-let Paginator, Timestamp, EmbedPresets;
-try {
-    const forge = require('djs-forge');
-    Paginator = forge.Paginator;
-    Timestamp = forge.Timestamp;
-    EmbedPresets = forge.EmbedPresets;
-} catch {
-    Paginator = null;
-    Timestamp = null;
-    EmbedPresets = null;
-}
+const db = require('../../utils/db');
+const {
+    getLatestDataDragonVersion,
+    getProfileIconUrl,
+    getChampionSplashUrl,
+    getChampionSquareUrl,
+    getRankEmblemUrl,
+} = require('../../utils/lol-assets');
 
 const RIOT_KEY = process.env.RIOT_API_KEY || '';
-const DD_VERSION = '14.24.1';
 
 // ─── Rank Data ───────────────────────────────────────────────────────────────
 const TIER_DATA = {
@@ -35,12 +28,6 @@ const TIER_DATA = {
     'GRANDMASTER': { hex: '#CD4545', name: 'Grão-Mestre', order: 8  },
     'CHALLENGER':  { hex: '#F4C874', name: 'Desafiante',  order: 9  },
     'UNRANKED':    { hex: '#3C3C41', name: 'Sem Rank',    order: -1 },
-};
-
-const TIER_EMOJI = {
-    'IRON': '🔩', 'BRONZE': '🥉', 'SILVER': '🥈', 'GOLD': '🥇',
-    'PLATINUM': '💎', 'EMERALD': '💚', 'DIAMOND': '💠', 'MASTER': '👑',
-    'GRANDMASTER': '🔥', 'CHALLENGER': '🏆', 'UNRANKED': '❓'
 };
 
 const TIER_BAR_COLORS = {
@@ -89,21 +76,18 @@ function getWinRate(wins, losses) {
 
 function formatRankFull(r, showLP = true) {
     if (!r) return '`Unranked`';
-    const emoji = TIER_EMOJI[r.tier] || '❓';
     const { text: wrText } = getWinRate(r.wins, r.losses);
     const lpText = showLP ? ` • **${r.leaguePoints} LP**` : '';
-    return `${emoji} **${TIER_DATA[r.tier]?.name || r.tier} ${r.rank}**${lpText}\n` +
-           `> 📊 ${r.wins}V / ${r.losses}D (${wrText})`;
+    return `**${TIER_DATA[r.tier]?.name || r.tier} ${r.rank}**${lpText}\n` +
+           `> ${r.wins}V / ${r.losses}D (${wrText})`;
 }
 
 function formatRankCompact(r) {
     if (!r) return 'Unranked';
-    const emoji = TIER_EMOJI[r.tier] || '❓';
-    return `${emoji} ${TIER_DATA[r.tier]?.name || r.tier} ${r.rank} ${r.leaguePoints}LP`;
+    return `${TIER_DATA[r.tier]?.name || r.tier} ${r.rank} ${r.leaguePoints}LP`;
 }
 
 function timeAgo(timestamp) {
-    if (Timestamp) return Timestamp.relative(new Date(timestamp));
     const diff = Date.now() - timestamp;
     const mins = Math.floor(diff / 60000);
     if (mins < 60) return `${mins}min atrás`;
@@ -112,16 +96,102 @@ function timeAgo(timestamp) {
     return `${Math.floor(hours / 24)}d atrás`;
 }
 
-// URLs oficiais
-const PROFILE_ICON_URL = (iconId) =>
-    `https://ddragon.leagueoflegends.com/cdn/${DD_VERSION}/img/profileicon/${iconId}.png`;
-const CHAMP_SPLASH_URL = (champId, skinNum = 0) =>
-    `https://ddragon.leagueoflegends.com/cdn/img/champion/splash/${champId}_${skinNum}.jpg`;
-const CHAMP_SQUARE_URL = (champId) =>
-    `https://ddragon.leagueoflegends.com/cdn/${DD_VERSION}/img/champion/${champId}.png`;
-const RANK_EMBLEM_URL = (tier) =>
-    `https://raw.communitydragon.org/latest/plugins/rcp-fe-lol-static-assets/global/default/images/ranked-emblem/emblem-${tier.toLowerCase()}.png`;
+function normalizeSearchText(value) {
+    return String(value || '')
+        .toLowerCase()
+        .normalize('NFD')
+        .replace(/[\u0300-\u036f]/g, '')
+        .replace(/[^a-z0-9#\s_-]/g, ' ')
+        .replace(/\s+/g, ' ')
+        .trim();
+}
 
+function rememberKnownPlayer({ riotId, gameName, tagLine, regiao, level, rankText, iconUrl }) {
+    db.set(`lol_known_player_${String(riotId).toLowerCase()}`, {
+        riotId,
+        gameName,
+        tagLine,
+        regiao,
+        level,
+        rankText,
+        iconUrl,
+        updatedAt: new Date().toISOString(),
+    });
+}
+
+function searchKnownPlayers(prefix) {
+    const normalized = normalizeSearchText(prefix);
+    if (!normalized) return [];
+
+    const knownPlayers = db.getEntriesByPrefix('lol_known_player_')
+        .map((entry) => entry.value);
+
+    const trackedPlayers = db.getEntriesByPrefix('lol_dm_tracker_')
+        .map((entry) => entry.value)
+        .map((tracker) => ({
+            riotId: tracker?.riotId,
+            gameName: tracker?.gameName,
+            tagLine: tracker?.tagLine,
+            regiao: tracker?.regiao,
+            level: tracker?.level || null,
+            rankText: tracker?.rankText || null,
+            iconUrl: tracker?.profileIconUrl || null,
+            updatedAt: tracker?.updatedAt || tracker?.createdAt || null,
+        }));
+
+    const deduped = new Map();
+    for (const player of [...knownPlayers, ...trackedPlayers]) {
+        if (!player?.riotId) continue;
+        deduped.set(String(player.riotId).toLowerCase(), player);
+    }
+
+    const queryParts = normalized.split(' ').filter(Boolean);
+
+    return [...deduped.values()]
+        .map((player) => {
+            const gameName = normalizeSearchText(player?.gameName);
+            const riotId = normalizeSearchText(player?.riotId);
+            const tagLine = normalizeSearchText(player?.tagLine);
+            const combined = [gameName, riotId, tagLine].filter(Boolean).join(' ');
+            const words = combined.split(' ').filter(Boolean);
+
+            let score = 0;
+            if (gameName.startsWith(normalized) || riotId.startsWith(normalized)) score += 100;
+            if (words.some((word) => word.startsWith(normalized))) score += 60;
+            if (combined.includes(normalized)) score += 30;
+            if (queryParts.every((part) => combined.includes(part))) score += 15;
+
+            return { player, score };
+        })
+        .filter((entry) => entry.score > 0)
+        .sort((a, b) => {
+            if (b.score !== a.score) return b.score - a.score;
+            return String(b.player.updatedAt || '').localeCompare(String(a.player.updatedAt || ''));
+        })
+        .map((entry) => entry.player)
+        .slice(0, 10);
+}
+
+function buildKnownPlayersReply(query, players) {
+    if (!players.length) {
+        return [
+            `Nao achei **${query}** porque faltou a hashtag do Riot ID.`,
+            'Ainda nao tenho perfis parecidos salvos no cache para te sugerir agora.',
+            'Tenta no formato `Nome#TAG`, por exemplo: `Velho#BR1`.',
+        ].join('\n');
+    }
+
+    return [
+        `Nao consegui buscar **${query}** porque faltou a hashtag do Riot ID.`,
+        'Os perfis conhecidos que batem com esse comeco de nick sao:',
+        '',
+        ...players.map((player) => `${player.riotId} - Elo: ${player.rankText || 'Sem rank'} Level: ${player.level || '?'}`),
+        '',
+        'Manda de novo no formato completo `Nome#TAG` que eu puxo o perfil bonito.',
+    ].join('\n');
+}
+
+// URLs oficiais
 // ─── Module ──────────────────────────────────────────────────────────────────
 module.exports = {
     data: new SlashCommandBuilder()
@@ -200,6 +270,7 @@ module.exports = {
 
         const sub = interaction.options.getSubcommand();
         const riotHeaders = { headers: { 'X-Riot-Token': RIOT_KEY } };
+        const patchVersion = await getLatestDataDragonVersion();
 
         // ══════════════════════════════════════════════════════════════════════
         // SUBCOMANDO: ROTAÇÃO GRATUITA
@@ -208,7 +279,7 @@ module.exports = {
             try {
                 const [rotationRes, ddRes] = await Promise.all([
                     axios.get('https://br1.api.riotgames.com/lol/platform/v3/champion-rotations', riotHeaders),
-                    axios.get(`https://ddragon.leagueoflegends.com/cdn/${DD_VERSION}/data/pt_BR/champion.json`)
+                    axios.get(`https://ddragon.leagueoflegends.com/cdn/${patchVersion}/data/pt_BR/champion.json`)
                 ]);
 
                 const rotation = rotationRes.data;
@@ -246,8 +317,8 @@ module.exports = {
                     .setTimestamp();
 
                 if (splashChamp) {
-                    embed.setImage(CHAMP_SPLASH_URL(splashChamp.id));
-                    embed.setThumbnail(CHAMP_SQUARE_URL(splashChamp.id));
+                    embed.setImage(getChampionSplashUrl(splashChamp.id));
+                    embed.setThumbnail(getChampionSquareUrl(patchVersion, splashChamp.id));
                 }
 
                 return interaction.editReply({ embeds: [embed] });
@@ -266,6 +337,13 @@ module.exports = {
                       : ['kr', 'jp1'].includes(regiao) ? 'asia'
                       : ['ph2', 'sg2', 'th2', 'tw2', 'vn2'].includes(regiao) ? 'sea'
                       : 'europe';
+
+        if (!nomeInput.includes('#')) {
+            const knownPlayers = searchKnownPlayers(nomeInput);
+            return interaction.editReply({
+                content: buildKnownPlayersReply(nomeInput, knownPlayers),
+            });
+        }
 
         const [gameName, tagLine] = nomeInput.includes('#')
             ? nomeInput.split('#')
@@ -286,7 +364,7 @@ module.exports = {
                 riotHeaders
             );
             const summoner = summonerRes.data;
-            const profileIconUrl = PROFILE_ICON_URL(summoner.profileIconId);
+            const profileIconUrl = getProfileIconUrl(patchVersion, summoner.profileIconId);
 
             // ══════════════════════════════════════════════════════════════════
             // SUBCOMANDO: AO VIVO
@@ -301,7 +379,7 @@ module.exports = {
 
                     let champsMap = {};
                     try {
-                        const dd = await axios.get(`https://ddragon.leagueoflegends.com/cdn/${DD_VERSION}/data/pt_BR/champion.json`);
+                        const dd = await axios.get(`https://ddragon.leagueoflegends.com/cdn/${patchVersion}/data/pt_BR/champion.json`);
                         Object.values(dd.data.data).forEach(c => { champsMap[c.key] = c; });
                     } catch { }
 
@@ -361,7 +439,7 @@ module.exports = {
 
                     if (mePlayer) {
                         const myChampData = champsMap[mePlayer.championId];
-                        if (myChampData) embed.setImage(CHAMP_SPLASH_URL(myChampData.id));
+                        if (myChampData) embed.setImage(getChampionSplashUrl(myChampData.id));
                     }
 
                     const row = new ActionRowBuilder().addComponents(
@@ -395,7 +473,7 @@ module.exports = {
                 axios.get(`https://${regiao}.api.riotgames.com/lol/champion-mastery/v4/champion-masteries/by-puuid/${puuid}/top?count=10`, riotHeaders),
                 axios.get(`https://${routing}.api.riotgames.com/lol/match/v5/matches/by-puuid/${puuid}/ids?start=0&count=10`, riotHeaders),
                 axios.get(`https://${regiao}.api.riotgames.com/lol/challenges/v1/player-data/${puuid}`, riotHeaders),
-                axios.get(`https://ddragon.leagueoflegends.com/cdn/${DD_VERSION}/data/pt_BR/champion.json`),
+                axios.get(`https://ddragon.leagueoflegends.com/cdn/${patchVersion}/data/pt_BR/champion.json`),
                 axios.get(`https://${regiao}.api.riotgames.com/lol/champion-mastery/v4/scores/by-puuid/${puuid}`, riotHeaders),
             ]);
 
@@ -445,44 +523,18 @@ module.exports = {
             }
 
             // Splash do main champion
-            const mainSplashUrl = topChampName ? CHAMP_SPLASH_URL(topChampName) : CHAMP_SPLASH_URL('Jinx');
+            const mainSplashUrl = topChampName ? getChampionSplashUrl(topChampName) : getChampionSplashUrl('Jinx');
             const mainChampDisplayName = champsMap[topChampId]?.name || 'N/A';
 
-            // ── discord-arts Profile Card (Página 1) ─────────────────────────
-            let profileCardAttachment = null;
-            try {
-                const rankTierForBar = mainRank?.tier || 'UNRANKED';
-                const barColors = TIER_BAR_COLORS[rankTierForBar] || ['#fff'];
-                const totalGamesRank = mainRank ? (mainRank.wins + mainRank.losses) : 0;
-
-                const profileBuffer = await Profile(interaction.user.id, {
-                    customUsername: `${account.gameName}`,
-                    customTag: `#${account.tagLine} • ${TIER_DATA[tierPrincipal]?.name || 'Sem Rank'} • ${regiao.toUpperCase()}`,
-                    customBackground: mainSplashUrl,
-                    borderColor: barColors,
-                    borderAllign: 'horizontal',
-                    badgesFrame: true,
-                    disableBackgroundBlur: true,
-                    backgroundBrightness: -30,
-                    customDate: `Lvl ${summoner.summonerLevel} • ${totalMasteryScore} champs`,
-                    localDateType: 'pt-BR',
-                    rankData: {
-                        currentXp: mainRank?.leaguePoints || 0,
-                        requiredXp: 100,
-                        level: summoner.summonerLevel,
-                        rank: totalGamesRank > 0 ? totalGamesRank : undefined,
-                        barColor: barColors,
-                        levelColor: corTier,
-                        autoColorRank: true,
-                    },
-                    presenceStatus: interaction.member?.presence?.status || 'online',
-                    squareAvatar: false,
-                });
-
-                profileCardAttachment = new AttachmentBuilder(profileBuffer, { name: 'lol-profile.png' });
-            } catch (err) {
-                console.error('[LOL] discord-arts erro:', err.message);
-            }
+            rememberKnownPlayer({
+                riotId: `${account.gameName}#${account.tagLine}`,
+                gameName: account.gameName,
+                tagLine: account.tagLine,
+                regiao,
+                level: summoner.summonerLevel,
+                rankText: mainRank ? `${TIER_DATA[mainRank.tier]?.name || mainRank.tier} ${mainRank.rank} - ${mainRank.leaguePoints}LP` : 'Sem rank',
+                iconUrl: profileIconUrl,
+            });
 
             // ── Buscar detalhes das partidas ─────────────────────────────────
             let matchDetails = [];
@@ -536,8 +588,19 @@ module.exports = {
             const avgDuration = Math.round(stats.duration / g / 60);
             const wrRecent = stats.games ? `${((stats.wins / stats.games) * 100).toFixed(0)}%` : 'N/A';
 
+            const topChampionsText = Object.entries(champStats)
+                .sort((a, b) => b[1].games - a[1].games)
+                .slice(0, 5)
+                .map(([name, s]) => {
+                    const wr = ((s.wins / s.games) * 100).toFixed(0);
+                    return `**${name}** — ${s.games}p • ${wr}% WR`;
+                })
+                .join('\n') || '`Sem dados suficientes.`';
+
+            const bestQueue = rankSolo || rankFlex || rankArena || null;
+
             // ══════════════════════════════════════════════════════════════════
-            // PÁGINA 1: PERFIL + RANK (com discord-arts card)
+            // PÁGINA 1: PERFIL REWORKADO
             // ══════════════════════════════════════════════════════════════════
             const embed1 = new EmbedBuilder()
                 .setAuthor({
@@ -545,25 +608,42 @@ module.exports = {
                     iconURL: profileIconUrl
                 })
                 .setColor(corTier)
-                .setThumbnail(tierPrincipal !== 'UNRANKED' ? RANK_EMBLEM_URL(tierPrincipal) : profileIconUrl)
+                .setTitle(`${account.gameName}'s Profile`)
+                .setDescription([
+                    titleText ? `**Status:** ${titleText}` : '**Status:** Sem titulo equipado no momento.',
+                    `**Conta:** nivel **${summoner.summonerLevel}** no shard **${regiao.toUpperCase()}**.`,
+                    `**Rank principal:** ${bestQueue ? formatRankCompact(bestQueue) : 'Sem fila ranqueada registrada.'}`,
+                    `**Main do momento:** **${mainChampDisplayName}**.`,
+                    `**Top recente:** ${stats.wins}V/${stats.games - stats.wins}D nas ultimas ${stats.games || 0} partidas.`,
+                ].join('\n'))
+                .setThumbnail(profileIconUrl)
+                .setImage(mainSplashUrl)
                 .addFields(
-                    { name: '🏆 Solo/Duo', value: formatRankFull(rankSolo), inline: true },
-                    { name: '👥 Flex 5v5', value: formatRankFull(rankFlex), inline: true },
-                    ...(rankArena ? [{ name: '🎯 Arena', value: formatRankFull(rankArena), inline: true }] : []),
+                    { name: 'Solo/Duo', value: formatRankFull(rankSolo), inline: true },
+                    { name: 'Flex 5v5', value: formatRankFull(rankFlex), inline: true },
+                    { name: 'Arena', value: formatRankFull(rankArena), inline: true },
+                    { name: 'Champions do momento', value: topChampionsText, inline: true },
+                    {
+                        name: 'Recente',
+                        value: [
+                            `**KDA medio:** ${avgKDA}`,
+                            `**CS medio:** ${avgCS}`,
+                            `**Dano medio:** ${avgDamage}`,
+                        ].join('\n'),
+                        inline: true,
+                    },
+                    {
+                        name: 'Maestria',
+                        value: [
+                            `**Score total:** ${formatNumber(totalMasteryPoints)} pts`,
+                            `**Campeoes com maestria:** ${totalMasteryScore}`,
+                            `**Main:** ${mainChampDisplayName}`,
+                        ].join('\n'),
+                        inline: true,
+                    },
                 )
-                .setFooter({ text: `Página 1/5 • Perfil │ Main: ${mainChampDisplayName}` })
+                .setFooter({ text: `Perfil 1/5 • Main: ${mainChampDisplayName}` })
                 .setTimestamp();
-
-            if (profileCardAttachment) {
-                embed1.setImage('attachment://lol-profile.png');
-            } else {
-                embed1.setImage(mainSplashUrl);
-                embed1.setDescription(
-                    (titleText ? `> 🏅 *"${titleText}"*\n` : '') +
-                    `> 🌍 **${regiao.toUpperCase()}** • Nível **${summoner.summonerLevel}**\n` +
-                    `> 🏆 **${totalMasteryScore}** campeões com maestria`
-                );
-            }
 
             // ══════════════════════════════════════════════════════════════════
             // PÁGINA 2: ESTATÍSTICAS
@@ -574,12 +654,12 @@ module.exports = {
 
             const embed2 = new EmbedBuilder()
                 .setAuthor({ name: `${account.gameName}#${account.tagLine}`, iconURL: profileIconUrl })
-                .setTitle('📊 Estatísticas Detalhadas')
+                .setTitle('Estatísticas Detalhadas')
                 .setColor(corTier)
                 .setThumbnail(profileIconUrl)
                 .addFields(
                     {
-                        name: '⚔️ Ranqueada Solo/Duo',
+                        name: 'Ranqueada Solo/Duo',
                         value: rankSolo
                             ? `${formatRankCompact(rankSolo)}\n` +
                               `LP: \`${lpProgress}\` **${rankSolo.leaguePoints}**/100\n` +
@@ -588,36 +668,33 @@ module.exports = {
                         inline: false
                     },
                     {
-                        name: '👥 Ranqueada Flex',
+                        name: 'Ranqueada Flex',
                         value: rankFlex
                             ? `${formatRankCompact(rankFlex)}\n**${rankFlex.wins + rankFlex.losses}** partidas • **${wrFlex.text}** WR`
                             : '`Sem dados de flex`',
                         inline: true
                     },
                     {
-                        name: `📈 Últimas ${stats.games} Partidas`,
+                        name: `Ultimas ${stats.games} Partidas`,
                         value: stats.games > 0
                             ? `**${stats.wins}V/${stats.games - stats.wins}D** (${wrRecent})\nKDA: **${avgKDA}**`
                             : '`Sem partidas recentes`',
                         inline: true
                     },
                     { name: '\u200b', value: '─'.repeat(25), inline: false },
-                    { name: '🌾 CS/Game', value: `**${avgCS}**`, inline: true },
-                    { name: '🗡️ Dano/Game', value: `**${avgDamage}**`, inline: true },
-                    { name: '💰 Ouro/Game', value: `**${avgGold}**`, inline: true },
-                    { name: '👁️ Visão/Game', value: `**${avgVision}**`, inline: true },
-                    { name: '⏱️ Duração Média', value: `**${avgDuration}** min`, inline: true },
-                    { name: '🎭 Maestria Total', value: `**${formatNumber(totalMasteryPoints)}** pts`, inline: true },
+                    { name: 'CS/Game', value: `**${avgCS}**`, inline: true },
+                    { name: 'Dano/Game', value: `**${avgDamage}**`, inline: true },
+                    { name: 'Ouro/Game', value: `**${avgGold}**`, inline: true },
+                    { name: 'Visao/Game', value: `**${avgVision}**`, inline: true },
+                    { name: 'Duracao Media', value: `**${avgDuration}** min`, inline: true },
+                    { name: 'Maestria Total', value: `**${formatNumber(totalMasteryPoints)}** pts`, inline: true },
                 )
                 .setImage(mainSplashUrl)
                 .setFooter({ text: 'Página 2/5 • Estatísticas' });
 
             // ══════════════════════════════════════════════════════════════════
-            // PÁGINA 3: TOP CAMPEÕES (MAESTRIA) — com discord-arts card
+            // PÁGINA 3: TOP CAMPEÕES (MAESTRIA)
             // ══════════════════════════════════════════════════════════════════
-            const masteryEmojis = ['🥇', '🥈', '🥉', '4️⃣', '5️⃣', '6️⃣', '7️⃣', '8️⃣', '9️⃣', '🔟'];
-            const levelEmojis = { 1: '⬜', 2: '⬜', 3: '⬜', 4: '🟦', 5: '🟪', 6: '🟣', 7: '🔴' };
-
             const col1 = masteryList.slice(0, 5);
             const col2 = masteryList.slice(5, 10);
 
@@ -628,66 +705,26 @@ module.exports = {
                     const champName = champ?.name || `#${m.championId}`;
                     const pts = formatNumber(m.championPoints);
                     const lvl = m.championLevel;
-                    const lvlEmoji = levelEmojis[lvl] || '⭐';
-                    const chest = m.chestGranted ? '' : '📦';
-                    return `${masteryEmojis[startIdx + i]} **${champName}** ${lvlEmoji}\n> ${pts} pts ${chest}`;
+                    const chest = m.chestGranted ? '' : ' • Bau disponivel';
+                    return `${startIdx + i + 1}. **${champName}** • M${lvl}\n> ${pts} pts${chest}`;
                 }).join('\n');
-            }
-
-            // discord-arts card para maestria (top champion splash)
-            let masteryCardAttachment = null;
-            try {
-                const topMasteryChamp = masteryList.length > 0 ? champsMap[masteryList[0].championId] : null;
-                const masterySplash = topMasteryChamp ? CHAMP_SPLASH_URL(topMasteryChamp.id) : mainSplashUrl;
-                const topPts = masteryList.length > 0 ? formatNumber(masteryList[0].championPoints) : '0';
-
-                const masteryBuffer = await Profile(interaction.user.id, {
-                    customUsername: `${topMasteryChamp?.name || 'N/A'}`,
-                    customTag: `Main de ${account.gameName} • ${topPts} pts`,
-                    customBackground: masterySplash,
-                    borderColor: TIER_BAR_COLORS[tierPrincipal] || ['#fff'],
-                    borderAllign: 'horizontal',
-                    badgesFrame: true,
-                    removeBadges: true,
-                    disableBackgroundBlur: true,
-                    backgroundBrightness: -20,
-                    customDate: `Top ${masteryList.length} Campeões • Lvl ${masteryList[0]?.championLevel || '?'}`,
-                    rankData: {
-                        currentXp: masteryList[0]?.championPoints || 0,
-                        requiredXp: (masteryList[0]?.championPoints || 0) + (masteryList[0]?.championPointsUntilNextLevel || 1),
-                        level: masteryList[0]?.championLevel || 0,
-                        barColor: TIER_BAR_COLORS[tierPrincipal] || ['#C89B3C', '#FFD700'],
-                        levelColor: '#FFD700',
-                    },
-                    presenceStatus: interaction.member?.presence?.status || 'online',
-                    squareAvatar: false,
-                });
-
-                masteryCardAttachment = new AttachmentBuilder(masteryBuffer, { name: 'lol-mastery.png' });
-            } catch (err) {
-                console.error('[LOL] discord-arts mastery erro:', err.message);
             }
 
             const embed3 = new EmbedBuilder()
                 .setAuthor({ name: `${account.gameName}#${account.tagLine}`, iconURL: profileIconUrl })
-                .setTitle('🎭 Top 10 Campeões — Maestria')
-                .setDescription(`> 🏆 **${totalMasteryScore}** campeões com maestria • **${formatNumber(totalMasteryPoints)}** pontos totais\n> 📦 = Baú de hextech disponível`)
+                .setTitle('Top 10 Campeoes — Maestria')
+                .setDescription(`> **${totalMasteryScore}** campeoes com maestria • **${formatNumber(totalMasteryPoints)}** pontos totais\n> Bau disponivel aparece descrito na linha do campeao`)
                 .setColor(corTier)
                 .setThumbnail(profileIconUrl)
                 .addFields(
-                    { name: '🏅 Top 1-5', value: formatMasteryCol(col1, 0), inline: true },
-                    { name: '🎖️ Top 6-10', value: formatMasteryCol(col2, 5), inline: true },
+                    { name: 'Top 1-5', value: formatMasteryCol(col1, 0), inline: true },
+                    { name: 'Top 6-10', value: formatMasteryCol(col2, 5), inline: true },
                 )
+                .setImage(mainSplashUrl)
                 .setFooter({ text: 'Página 3/5 • Maestria de Campeões' });
 
-            if (masteryCardAttachment) {
-                embed3.setImage('attachment://lol-mastery.png');
-            } else {
-                embed3.setImage(mainSplashUrl);
-            }
-
             // ══════════════════════════════════════════════════════════════════
-            // PÁGINA 4: HISTÓRICO DE PARTIDAS — com discord-arts card
+            // PÁGINA 4: HISTÓRICO DE PARTIDAS
             // ══════════════════════════════════════════════════════════════════
             let matchHistoryText = '`Nenhuma partida encontrada.`';
             if (matchDetails.length) {
@@ -704,16 +741,16 @@ module.exports = {
                     const modeMap = { 'CLASSIC': 'SR', 'ARAM': 'ARAM', 'CHERRY': 'Arena' };
                     const mode = modeMap[m.info.gameMode] || m.info.gameMode;
 
-                    const resultEmoji = win ? '🟢' : '🔴';
-                    const kdaIcon = kda === 'Perfect' ? '🌟' : parseFloat(kda) >= 3 ? '🔥' : '';
+                    const resultLabel = win ? '[VITORIA]' : '[DERROTA]';
+                    const kdaTag = kda === 'Perfect' ? 'Perfect' : parseFloat(kda) >= 3 ? 'Hot Streak' : 'Padrao';
 
                     let multiKill = '';
-                    if (p.pentaKills) multiKill = ' 💀PENTA';
-                    else if (p.quadraKills) multiKill = ' 💀QUADRA';
-                    else if (p.tripleKills) multiKill = ' 💀TRIPLA';
+                    if (p.pentaKills) multiKill = ' • PENTA';
+                    else if (p.quadraKills) multiKill = ' • QUADRA';
+                    else if (p.tripleKills) multiKill = ' • TRIPLA';
 
-                    return `${resultEmoji} **${p.championName}** • ${p.kills}/${p.deaths}/${p.assists} (${kda}${kdaIcon})${multiKill}\n` +
-                           `> 🗡️${dmg} • 🌾${cs} • ⏱️${dur}m • ${mode} • ${when}`;
+                    return `${resultLabel} **${p.championName}** • ${p.kills}/${p.deaths}/${p.assists} (${kda} • ${kdaTag})${multiKill}\n` +
+                           `> DMG ${dmg} • CS ${cs} • ${dur}m • ${mode} • ${when}`;
                 });
                 matchHistoryText = lines.join('\n\n');
             }
@@ -728,81 +765,34 @@ module.exports = {
                 })
                 .join('\n') || '`N/A`';
 
-            // discord-arts card para histórico (champion mais jogado recente)
-            let historyCardAttachment = null;
-            try {
-                const topRecentChamp = Object.entries(champStats).sort((a, b) => b[1].games - a[1].games)[0];
-                const topRecentName = topRecentChamp ? topRecentChamp[0] : null;
-                const topRecentSplash = topRecentName ? CHAMP_SPLASH_URL(topRecentName) : mainSplashUrl;
-                const topRecentStats = topRecentChamp ? topRecentChamp[1] : null;
-
-                const historyBuffer = await Profile(interaction.user.id, {
-                    customUsername: topRecentName || account.gameName,
-                    customTag: `${stats.wins}V / ${stats.games - stats.wins}D • ${wrRecent} WR`,
-                    customBackground: topRecentSplash,
-                    borderColor: stats.wins >= stats.games - stats.wins ? ['#2ECC71', '#27AE60'] : ['#E74C3C', '#C0392B'],
-                    borderAllign: 'horizontal',
-                    badgesFrame: true,
-                    removeBadges: true,
-                    disableBackgroundBlur: true,
-                    backgroundBrightness: -25,
-                    customDate: `${stats.games} partidas • KDA ${avgKDA}`,
-                    rankData: {
-                        currentXp: stats.wins,
-                        requiredXp: Math.max(stats.games, 1),
-                        level: stats.games,
-                        barColor: stats.wins >= stats.games - stats.wins ? ['#2ECC71', '#27AE60'] : ['#E74C3C', '#C0392B'],
-                        levelColor: stats.wins >= stats.games - stats.wins ? '#2ECC71' : '#E74C3C',
-                    },
-                    presenceStatus: interaction.member?.presence?.status || 'online',
-                    squareAvatar: false,
-                });
-
-                historyCardAttachment = new AttachmentBuilder(historyBuffer, { name: 'lol-history.png' });
-            } catch (err) {
-                console.error('[LOL] discord-arts history erro:', err.message);
-            }
-
             const embed4 = new EmbedBuilder()
                 .setAuthor({ name: `${account.gameName}#${account.tagLine}`, iconURL: profileIconUrl })
-                .setTitle('📜 Histórico de Partidas')
+                .setTitle('Historico de Partidas')
                 .setDescription(matchHistoryText)
                 .setColor(corTier)
                 .setThumbnail(profileIconUrl)
                 .addFields(
-                    { name: '🎮 Mais Jogados (Recente)', value: topPlayedChamps, inline: false },
+                    { name: 'Mais Jogados (Recente)', value: topPlayedChamps, inline: false },
                 )
+                .setImage(mainSplashUrl)
                 .setFooter({ text: 'Página 4/5 • Histórico' });
-
-            if (historyCardAttachment) {
-                embed4.setImage('attachment://lol-history.png');
-            } else {
-                embed4.setImage(mainSplashUrl);
-            }
 
             // ══════════════════════════════════════════════════════════════════
             // PÁGINA 5: DESAFIOS
             // ══════════════════════════════════════════════════════════════════
             const CHALLENGE_CATEGORIES = {
-                'IMAGINATION': { name: 'Imaginação', emoji: '🎨' },
-                'EXPERTISE':   { name: 'Perícia', emoji: '🎯' },
-                'TEAMWORK':    { name: 'Equipe', emoji: '🤝' },
-                'COLLECTION':  { name: 'Coleção', emoji: '📦' },
-                'VETERANCY':   { name: 'Veterania', emoji: '⭐' },
-            };
-
-            const CHALLENGE_LEVEL_EMOJI = {
-                'NONE': '⬜', 'IRON': '🔩', 'BRONZE': '🥉', 'SILVER': '🥈',
-                'GOLD': '🥇', 'PLATINUM': '💎', 'DIAMOND': '💠', 'MASTER': '👑',
-                'GRANDMASTER': '🔥', 'CHALLENGER': '🏆'
+                'IMAGINATION': { name: 'Imaginacao' },
+                'EXPERTISE':   { name: 'Pericia' },
+                'TEAMWORK':    { name: 'Equipe' },
+                'COLLECTION':  { name: 'Colecao' },
+                'VETERANCY':   { name: 'Veterania' },
             };
 
             let categoryText = '';
             for (const [cat, data] of Object.entries(categoryLevels)) {
                 const catInfo = CHALLENGE_CATEGORIES[cat];
                 if (catInfo && data.level) {
-                    const emoji = CHALLENGE_LEVEL_EMOJI[data.level] || '⬜';
-                    categoryText += `${catInfo.emoji} **${catInfo.name}**: ${emoji} ${data.level}\n`;
+                    categoryText += `**${catInfo.name}**: ${data.level}\n`;
                 }
             }
 
@@ -810,18 +800,18 @@ module.exports = {
 
             const embed5 = new EmbedBuilder()
                 .setAuthor({ name: `${account.gameName}#${account.tagLine}`, iconURL: profileIconUrl })
-                .setTitle('🎯 Desafios & Conquistas')
+                .setTitle('Desafios & Conquistas')
                 .setColor(corTier)
                 .setThumbnail(profileIconUrl)
                 .addFields(
-                    { name: '🏅 Pontuação Total', value: `**${formatNumber(totalChallengePoints)}** pontos`, inline: true },
-                    { name: '📊 Categorias', value: categoryText || '`Sem dados`', inline: true },
+                    { name: 'Pontuacao Total', value: `**${formatNumber(totalChallengePoints)}** pontos`, inline: true },
+                    { name: 'Categorias', value: categoryText || '`Sem dados`', inline: true },
                 )
                 .setImage(mainSplashUrl)
                 .setFooter({ text: 'Página 5/5 • Desafios' });
 
             // ══════════════════════════════════════════════════════════════════
-            // NAVEGAÇÃO com djs-forge Paginator ou fallback manual
+            // NAVEGAÇÃO POR BOTÕES DE FUNÇÃO
             // ══════════════════════════════════════════════════════════════════
             const linksRow = new ActionRowBuilder().addComponents(
                 new ButtonBuilder().setLabel('OP.GG').setURL(`https://op.gg/summoners/${regiao}/${encodeURIComponent(gameName)}-${encodeURIComponent(tagLine)}`).setStyle(ButtonStyle.Link),
@@ -829,95 +819,48 @@ module.exports = {
                 new ButtonBuilder().setLabel('Porofessor').setURL(`https://porofessor.gg/live/${regiao}/${encodeURIComponent(gameName)}-${encodeURIComponent(tagLine)}`).setStyle(ButtonStyle.Link),
             );
 
-            // Mapear cada página com seus files e embeds
-            const pages = [
-                {
-                    embeds: [embed1],
-                    files: profileCardAttachment ? [profileCardAttachment] : [],
-                    components: [linksRow],
-                },
-                {
-                    embeds: [embed2],
-                    files: [],
-                    components: [linksRow],
-                },
-                {
-                    embeds: [embed3],
-                    files: masteryCardAttachment ? [masteryCardAttachment] : [],
-                    components: [linksRow],
-                },
-                {
-                    embeds: [embed4],
-                    files: historyCardAttachment ? [historyCardAttachment] : [],
-                    components: [linksRow],
-                },
-                {
-                    embeds: [embed5],
-                    files: [],
-                    components: [linksRow],
-                },
-            ];
-
-            // Tentar usar djs-forge Paginator
-            if (Paginator) {
-                try {
-                    const paginator = new Paginator(pages, {
-                        timeout: 180000,
-                        showPageCount: true,
-                        showStop: true,
-                        userId: interaction.user.id,
-                        labels: {
-                            first: '⏮️',
-                            prev: '◀️',
-                            next: '▶️',
-                            last: '⏭️',
-                            stop: '✖️',
-                        },
-                    });
-
-                    await paginator.reply(interaction);
-                    return;
-                } catch (paginatorErr) {
-                    console.error('[LOL] Paginator erro, usando fallback manual:', paginatorErr.message);
-                }
-            }
-
-            // ── Fallback: Paginação manual ───────────────────────────────────
-            let currentPage = 0;
-
-            const navRow = new ActionRowBuilder().addComponents(
-                new ButtonBuilder().setCustomId('lol_first').setEmoji('⏮️').setStyle(ButtonStyle.Secondary),
-                new ButtonBuilder().setCustomId('lol_prev').setEmoji('◀️').setStyle(ButtonStyle.Primary),
-                new ButtonBuilder().setCustomId('lol_page').setLabel('1/5').setStyle(ButtonStyle.Secondary).setDisabled(true),
-                new ButtonBuilder().setCustomId('lol_next').setEmoji('▶️').setStyle(ButtonStyle.Primary),
-                new ButtonBuilder().setCustomId('lol_last').setEmoji('⏭️').setStyle(ButtonStyle.Secondary),
+            const sessionId = interaction.id;
+            const pageButtonsRow = new ActionRowBuilder().addComponents(
+                new ButtonBuilder().setCustomId(`lol_profile_${sessionId}`).setLabel('Perfil').setStyle(ButtonStyle.Success),
+                new ButtonBuilder().setCustomId(`lol_stats_${sessionId}`).setLabel('Estatísticas').setStyle(ButtonStyle.Primary),
+                new ButtonBuilder().setCustomId(`lol_mastery_${sessionId}`).setLabel('Maestria').setStyle(ButtonStyle.Secondary),
+                new ButtonBuilder().setCustomId(`lol_history_${sessionId}`).setLabel('Histórico').setStyle(ButtonStyle.Primary),
+                new ButtonBuilder().setCustomId(`lol_challenges_${sessionId}`).setLabel('Desafios').setStyle(ButtonStyle.Secondary),
             );
+
+            const pages = {
+                profile: embed1,
+                stats: embed2,
+                mastery: embed3,
+                history: embed4,
+                challenges: embed5,
+            };
 
             await interaction.editReply({
                 content: formatResponse(''),
-                embeds: [pages[0].embeds[0]],
-                files: pages[0].files,
-                components: [navRow, linksRow],
+                embeds: [embed1],
+                components: [pageButtonsRow, linksRow],
             });
 
             const collector = interaction.channel.createMessageComponentCollector({
-                filter: i => i.customId.startsWith('lol_') && i.user.id === interaction.user.id,
+                filter: i => i.customId.endsWith(sessionId) && i.user.id === interaction.user.id,
                 time: 180000,
             });
 
             collector.on('collect', async i => {
-                if (i.customId === 'lol_first') currentPage = 0;
-                else if (i.customId === 'lol_prev') currentPage = currentPage > 0 ? currentPage - 1 : pages.length - 1;
-                else if (i.customId === 'lol_next') currentPage = currentPage < pages.length - 1 ? currentPage + 1 : 0;
-                else if (i.customId === 'lol_last') currentPage = pages.length - 1;
-                else return;
+                const pageKey = i.customId
+                    .replace(`lol_profile_${sessionId}`, 'profile')
+                    .replace(`lol_stats_${sessionId}`, 'stats')
+                    .replace(`lol_mastery_${sessionId}`, 'mastery')
+                    .replace(`lol_history_${sessionId}`, 'history')
+                    .replace(`lol_challenges_${sessionId}`, 'challenges');
 
-                navRow.components[2].setLabel(`${currentPage + 1}/5`);
+                const nextEmbed = pages[pageKey];
+                if (!nextEmbed) return;
 
                 await i.update({
-                    embeds: [pages[currentPage].embeds[0]],
-                    files: pages[currentPage].files,
-                    components: [navRow, linksRow],
+                    embeds: [nextEmbed],
+                    components: [pageButtonsRow, linksRow],
                 });
             });
 

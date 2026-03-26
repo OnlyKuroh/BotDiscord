@@ -17,6 +17,7 @@
  * horoscopo    │ RapidAPI Zodiac — horóscopo diário (diário)
  * google_news  │ SerpAPI — busca personalizada por tópicos (freq. config.)
  * steam        │ Steam API — promoções de jogos (diário)
+ * esports_lol  │ PandaScore — LoL competitivo, CBLOL e afins (4h)
  * eleicao      │ CivicAPI — alertas eleitorais (4h)
  * ─────────────────────────────────────────────────────────────────
  *
@@ -1090,7 +1091,196 @@ async function fireEventoSteam(client, guildId, conf) {
     } catch (err) { console.error('[EVENT STEAM]', err.message); }
 }
 
-// ── 11. ELEIÇÕES (CivicAPI) ────────────────────────────────────────────────
+// ── 11. E-SPORTS LOL / CBLOL (PandaScore) ─────────────────────────────────
+// API: https://developers.pandascore.co/docs/introduction
+// Descrição: agenda, ao vivo e resultados recentes do cenário competitivo
+// Requer Key: Sim (PANDASCORE_API_KEY ou PANDASCORE_TOKEN)
+// Frequência: 4 horas
+async function fireEventoEsportsLOL(client, guildId, conf) {
+    const pandaToken = process.env.PANDASCORE_API_KEY || process.env.PANDASCORE_TOKEN || '';
+    if (!pandaToken) {
+        console.warn('[EVENT ESPORTS_LOL] PANDASCORE_API_KEY não configurada no .env');
+        return;
+    }
+
+    const leagueHints = parseTopicos(conf.topicos);
+    const interestPatterns = leagueHints.length
+        ? leagueHints.map((item) => new RegExp(item.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'), 'i'))
+        : [
+            /cblol/i,
+            /lta south/i,
+            /lta sul/i,
+            /msi/i,
+            /worlds/i,
+            /league of legends championship/i,
+            /first stand/i,
+        ];
+
+    const isInteresting = (match) => {
+        const haystack = [
+            match?.name,
+            match?.slug,
+            match?.league?.name,
+            match?.league?.slug,
+            match?.serie?.name,
+            match?.serie?.full_name,
+            match?.tournament?.name,
+            match?.tournament?.slug,
+        ].filter(Boolean).join(' • ');
+        return interestPatterns.some((pattern) => pattern.test(haystack));
+    };
+
+    const formatOpponent = (entry) => entry?.opponent?.name || entry?.name || 'TBD';
+    const formatLeague = (match) => {
+        return [
+            match?.league?.name,
+            match?.serie?.full_name || match?.serie?.name,
+            match?.tournament?.name,
+        ].filter(Boolean).join(' • ') || 'Cenario competitivo de LoL';
+    };
+    const formatScheduled = (value) => {
+        if (!value) return 'Horario ainda nao confirmado';
+        const date = new Date(value);
+        if (Number.isNaN(date.getTime())) return 'Horario ainda nao confirmado';
+        return date.toLocaleString('pt-BR', {
+            timeZone: 'America/Sao_Paulo',
+            day: '2-digit',
+            month: '2-digit',
+            hour: '2-digit',
+            minute: '2-digit',
+        });
+    };
+    const pickStatus = (match) => {
+        const status = String(match?.status || '').toLowerCase();
+        if (['running', 'live'].includes(status)) return 'running';
+        if (['finished', 'complete', 'completed'].includes(status)) return 'finished';
+        return 'upcoming';
+    };
+    const buildScore = (match) => {
+        const results = Array.isArray(match?.results) ? match.results : [];
+        if (results.length >= 2) {
+            const sorted = [...results].sort((a, b) => Number(a.team_id || 0) - Number(b.team_id || 0));
+            return sorted.map((result) => String(result.score ?? 0)).join(' x ');
+        }
+        return null;
+    };
+    const pickImage = (match) =>
+        match?.league?.image_url
+        || match?.serie?.image_url
+        || match?.videogame?.cover_url
+        || match?.opponents?.find((entry) => entry?.opponent?.image_url)?.opponent?.image_url
+        || null;
+
+    try {
+        const res = await axiosGetWithRetry('https://api.pandascore.co/lol/matches', {
+            headers: { Authorization: `Bearer ${pandaToken}` },
+            params: {
+                sort: '-begin_at',
+            },
+        }, {
+            label: 'PANDASCORE LOL',
+            attempts: 2,
+            retryStatuses: [429, 500, 502, 503, 504],
+        });
+
+        const matches = Array.isArray(res.data) ? res.data : [];
+        const now = Date.now();
+
+        const curatedMatches = matches
+            .filter(isInteresting)
+            .filter((match) => {
+                const status = pickStatus(match);
+                const beginAt = match?.begin_at ? new Date(match.begin_at).getTime() : null;
+                if (status === 'running') return true;
+                if (!beginAt || Number.isNaN(beginAt)) return false;
+                if (status === 'finished') return (now - beginAt) <= 36 * 60 * 60 * 1000;
+                return (beginAt - now) <= 36 * 60 * 60 * 1000;
+            })
+            .slice(0, 6);
+
+        for (const match of curatedMatches) {
+            const status = pickStatus(match);
+            const dedupeKey = `${status}:${match.id}`;
+            if (isDuplicate(guildId, 'esports_lol', dedupeKey)) continue;
+
+            const opponents = Array.isArray(match?.opponents) ? match.opponents : [];
+            const blue = formatOpponent(opponents[0]);
+            const red = formatOpponent(opponents[1]);
+            const leagueLabel = formatLeague(match);
+            const scoreText = buildScore(match);
+            const scheduledText = formatScheduled(match?.begin_at || match?.scheduled_at);
+            const bestOf = Number(match?.number_of_games || 0);
+            const boText = bestOf > 1 ? `MD${bestOf}` : 'Jogo unico';
+
+            const statusMeta = {
+                running: {
+                    emoji: '🔴',
+                    color: '#E53935',
+                    title: `${leagueLabel} ao vivo`,
+                    description: `${blue} e ${red} ja estao se enfrentando agora no competitivo de LoL.`,
+                },
+                finished: {
+                    emoji: '🏆',
+                    color: '#FBC02D',
+                    title: `${leagueLabel} teve resultado`,
+                    description: `${blue} contra ${red} ja fechou serie e o placar principal ja saiu.`,
+                },
+                upcoming: {
+                    emoji: '📅',
+                    color: '#1E88E5',
+                    title: `${leagueLabel} vem ai`,
+                    description: `${blue} encara ${red} em breve, entao ja da pra ficar de olho na agenda.`,
+                },
+            }[status];
+
+            const link = match?.official_stream_url
+                || match?.videogame?.slug && `https://www.pandascore.co/lol/matches/${match.slug || match.id}`
+                || 'https://www.pandascore.co/league-of-legends';
+
+            const embed = buildNewsEmbed({
+                titulo: `${statusMeta.emoji} ${statusMeta.title}: ${blue} vs ${red}`,
+                descricao: statusMeta.description,
+                link,
+                fonte: 'PandaScore',
+                tema: 'E-sports LoL / CBLOL',
+                cor: statusMeta.color,
+                imagem: pickImage(match),
+                extras: {
+                    status: status === 'running' ? 'Ao vivo agora' : status === 'finished' ? 'Serie encerrada' : `Agendado para ${scheduledText}`,
+                    data: scheduledText,
+                    tags: [leagueLabel, boText].filter(Boolean).join(' • '),
+                },
+            });
+
+            embed.addFields(
+                { name: '🏟️ Campeonato', value: leagueLabel.substring(0, 1024), inline: false },
+                { name: '🕒 Horario BR', value: scheduledText, inline: true },
+                { name: '🎯 Formato', value: boText, inline: true },
+                {
+                    name: '📌 Status',
+                    value: status === 'running' ? 'Ao vivo' : status === 'finished' ? 'Finalizada' : 'Agenda',
+                    inline: true,
+                },
+            );
+
+            if (scoreText) {
+                embed.addFields({
+                    name: '📊 Placar',
+                    value: `**${blue} ${scoreText} ${red}**`,
+                    inline: false,
+                });
+            }
+
+            markSent(guildId, 'esports_lol', dedupeKey);
+            await enviarEmbed(client, conf.channelId, embed, conf.roleId);
+            await sleep(1500);
+        }
+    } catch (err) {
+        console.error('[EVENT ESPORTS_LOL]', formatHttpError(err));
+    }
+}
+
+// ── 12. ELEIÇÕES (CivicAPI) ────────────────────────────────────────────────
 // API: https://civicapi.org/api/v2/race/search
 // Descrição: Resultados eleitorais recentes ao redor do mundo
 // Requer Key: Não (gratuita)
@@ -1175,6 +1365,7 @@ const EVENT_REGISTRY = {
     horoscopo:    { handler: fireEventoHoroscopo,        freq: 20,     type: 'horario', hora: '08:00' },
     google_news:  { handler: fireEventoGoogleNews,      freq: 6,      type: 'interval' },
     steam:        { handler: fireEventoSteam,            freq: 20,     type: 'horario', hora: '12:00' },
+    esports_lol:  { handler: fireEventoEsportsLOL,      freq: 4,      type: 'interval' },
     eleicao:      { handler: fireEventoEleicao,         freq: 4,      type: 'interval' },
     // Retrocompat
     camara:       { handler: fireEventoPoliticaBR,      freq: 4,      type: 'interval' },
@@ -1237,6 +1428,7 @@ module.exports = {
         horoscopo:    fireEventoHoroscopo,
         google_news:  fireEventoGoogleNews,
         steam:        fireEventoSteam,
+        esports_lol:  fireEventoEsportsLOL,
         eleicao:      fireEventoEleicao,
         camara:       fireEventoPoliticaBR,
     },

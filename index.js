@@ -60,4 +60,9 @@ client.login(process.env.DISCORD_TOKEN).then(() => {
     require('./handlers/dashboard')(client);
     require('./handlers/events-scheduler').start(client);
     require('./utils/update-notifier').start(client);
+    require('./utils/lol-dm-tracker').start(client);
+    const tempCommands = require('./utils/temp-command-window');
+    tempCommands.ensureWindow();
+    tempCommands.scheduleCleanup(client);
+    void tempCommands.cleanupTemporaryCommands(client);
 });

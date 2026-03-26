@@ -9,10 +9,10 @@ async function traduzir(texto) {
     catch { return texto; }
 }
 
-const MAP_RATING  = { 'G': '🟢 Livre', 'PG': '🟡 PG', 'PG-13': '🟠 PG-13', 'R - 17+': '🔞 +17', 'Rx - Hentai': '❌ Hentai' };
-const MAP_STATUS  = { 'Finished Airing': '🏁 Finalizado', 'Currently Airing': '🟢 Em Exibição', 'Not yet aired': '⏳ Aguardando' };
-const MAP_TYPE    = { 'TV': '📺 TV', 'Movie': '🎬 Filme', 'OVA': '💿 OVA', 'ONA': '🌐 ONA', 'Special': '⭐ Especial', 'Music': '🎵 Música' };
-const MAP_SEASON  = { 'winter': '❄️ Inverno', 'spring': '🌸 Primavera', 'summer': '☀️ Verão', 'fall': '🍂 Outono' };
+const MAP_RATING = { 'G': '🟢 Livre', 'PG': '🟡 PG', 'PG-13': '🟠 PG-13', 'R - 17+': '🔞 +17', 'Rx - Hentai': '❌ Hentai' };
+const MAP_STATUS = { 'Finished Airing': '🏁 Finalizado', 'Currently Airing': '🟢 Em Exibição', 'Not yet aired': '⏳ Aguardando' };
+const MAP_TYPE = { 'TV': '📺 TV', 'Movie': '🎬 Filme', 'OVA': '💿 OVA', 'ONA': '🌐 ONA', 'Special': '⭐ Especial', 'Music': '🎵 Música' };
+const MAP_SEASON = { 'winter': '❄️ Inverno', 'spring': '🌸 Primavera', 'summer': '☀️ Verão', 'fall': '🍂 Outono' };
 
 module.exports = {
     data: new SlashCommandBuilder()
@@ -47,25 +47,25 @@ module.exports = {
 
             const a = fullRes.status === 'fulfilled' ? fullRes.value.data.data : results[0];
             const sinopse = await traduzir(a.synopsis || 'Sinopse não disponível.');
-            const imagem  = a.images?.jpg?.large_image_url || a.images?.jpg?.image_url || '';
-            const titulo  = a.title_portuguese || a.title || 'Desconhecido';
+            const imagem = a.images?.jpg?.large_image_url || a.images?.jpg?.image_url || '';
+            const titulo = a.title_portuguese || a.title || 'Desconhecido';
             const tituloJP = a.title_japanese || '';
 
-            const score      = a.score       ? `⭐ **${a.score}**/10`       : 'N/A';
-            const rank       = a.rank        ? `🏆 **#${a.rank}**`          : 'N/A';
-            const pop        = a.popularity  ? `🔥 **#${a.popularity}**`    : 'N/A';
-            const membros    = a.members     ? `👥 ${a.members.toLocaleString('pt-BR')} membros` : 'N/A';
-            const status     = MAP_STATUS[a.status]  || a.status  || 'N/A';
-            const tipo       = MAP_TYPE[a.type]      || a.type     || 'N/A';
-            const rating     = MAP_RATING[a.rating]  || a.rating   || 'N/A';
-            const episodios  = a.episodes    ? `${a.episodes} ep`           : '? ep';
-            const duracao    = a.duration    || 'N/A';
-            const temporada  = a.season      ? `${MAP_SEASON[a.season] || a.season} ${a.year || ''}` : (a.year?.toString() || 'N/A');
-            const estudio    = a.studios?.map(s => s.name).join(', ') || 'N/A';
-            const generos    = a.genres?.map(g => `\`${g.name}\``).slice(0, 6).join(' ') || 'N/A';
-            const temas      = a.themes?.map(t => `\`${t.name}\``).slice(0, 4).join(' ') || '';
+            const score = a.score ? `⭐ **${a.score}**/10` : 'N/A';
+            const rank = a.rank ? `🏆 **#${a.rank}**` : 'N/A';
+            const pop = a.popularity ? `🔥 **#${a.popularity}**` : 'N/A';
+            const membros = a.members ? `👥 ${a.members.toLocaleString('pt-BR')} membros` : 'N/A';
+            const status = MAP_STATUS[a.status] || a.status || 'N/A';
+            const tipo = MAP_TYPE[a.type] || a.type || 'N/A';
+            const rating = MAP_RATING[a.rating] || a.rating || 'N/A';
+            const episodios = a.episodes ? `${a.episodes} ep` : '? ep';
+            const duracao = a.duration || 'N/A';
+            const temporada = a.season ? `${MAP_SEASON[a.season] || a.season} ${a.year || ''}` : (a.year?.toString() || 'N/A');
+            const estudio = a.studios?.map(s => s.name).join(', ') || 'N/A';
+            const generos = a.genres?.map(g => `\`${g.name}\``).slice(0, 6).join(' ') || 'N/A';
+            const temas = a.themes?.map(t => `\`${t.name}\``).slice(0, 4).join(' ') || '';
             const demographics = a.demographics?.map(d => `\`${d.name}\``).join(' ') || '';
-            const trailer    = a.trailer?.url || null;
+            const trailer = a.trailer?.url || null;
 
             // ── Personagens ──
             let personagensDesc = '> Nenhum personagem encontrado.';
@@ -115,10 +115,10 @@ module.exports = {
                 .setColor('#2E51A2')
                 .setImage(imagem)
                 .addFields(
-                    { name: '📊 Nota',        value: score,   inline: true },
-                    { name: '🏆 Ranking',     value: rank,    inline: true },
-                    { name: '🔥 Popularidade',value: pop,     inline: true },
-                    { name: '\u200B',          value: membros, inline: false },
+                    { name: '📊 Nota', value: score, inline: true },
+                    { name: '🏆 Ranking', value: rank, inline: true },
+                    { name: '🔥 Popularidade', value: pop, inline: true },
+                    { name: '\u200B', value: membros, inline: false },
                 )
                 .setFooter({ text: `Página 1/4 • Arte & Sinopse • MyAnimeList` })
                 .setTimestamp();
@@ -131,20 +131,20 @@ module.exports = {
                 .setColor('#2E51A2')
                 .setThumbnail(imagem)
                 .addFields(
-                    { name: '📺 Tipo',          value: tipo,       inline: true },
-                    { name: '🎬 Status',        value: status,     inline: true },
-                    { name: '🔞 Classificação', value: rating,     inline: true },
-                    { name: '📅 Episódios',     value: `\`${episodios} • ${duracao}\``, inline: true },
-                    { name: '🌸 Temporada',     value: `\`${temporada}\``, inline: true },
-                    { name: '\u200B',            value: '\u200B',   inline: true },
-                    { name: '🏭 Estúdio',       value: `> ${estudio}`, inline: false },
-                    { name: '🏷️ Gêneros',      value: generos,    inline: false },
+                    { name: '📺 Tipo', value: tipo, inline: true },
+                    { name: '🎬 Status', value: status, inline: true },
+                    { name: '🔞 Classificação', value: rating, inline: true },
+                    { name: '📅 Episódios', value: `\`${episodios} • ${duracao}\``, inline: true },
+                    { name: '🌸 Temporada', value: `\`${temporada}\``, inline: true },
+                    { name: '\u200B', value: '\u200B', inline: true },
+                    { name: '🏭 Estúdio', value: `> ${estudio}`, inline: false },
+                    { name: '🏷️ Gêneros', value: generos, inline: false },
                 )
                 .setFooter({ text: `Página 2/4 • Ficha Técnica • MyAnimeList` });
 
-            if (temas)        embed2.addFields({ name: '🎭 Temas',       value: temas,        inline: false });
+            if (temas) embed2.addFields({ name: '🎭 Temas', value: temas, inline: false });
             if (demographics) embed2.addFields({ name: '👥 Demographic', value: demographics, inline: false });
-            if (trailer)      embed2.addFields({ name: '🎬 Trailer',     value: `[Assistir no YouTube](${trailer})`, inline: false });
+            if (trailer) embed2.addFields({ name: '🎬 Trailer', value: `[Assistir no YouTube](${trailer})`, inline: false });
 
             // ══════════════════════════════════════
             // PÁGINA 3: ELENCO
@@ -178,13 +178,13 @@ module.exports = {
             });
 
             collector.on('collect', async i => {
-                if (i.customId === 'ani_prev')     pagAtual = pagAtual > 0 ? pagAtual - 1 : embeds.length - 1;
+                if (i.customId === 'ani_prev') pagAtual = pagAtual > 0 ? pagAtual - 1 : embeds.length - 1;
                 else if (i.customId === 'ani_next') pagAtual = pagAtual < embeds.length - 1 ? pagAtual + 1 : 0;
                 else if (i.customId === 'ani_home') pagAtual = 0;
                 await i.update({ embeds: [embeds[pagAtual]], components: [row] });
             });
 
-            collector.on('end', () => interaction.editReply({ components: [] }).catch(() => {}));
+            collector.on('end', () => interaction.editReply({ components: [] }).catch(() => { }));
 
         } catch (err) {
             console.error('[ANIME]', err.message);

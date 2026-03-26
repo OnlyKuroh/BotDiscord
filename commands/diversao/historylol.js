@@ -7,6 +7,12 @@ const {
 } = require('discord.js');
 const axios = require('axios');
 const { formatResponse } = require('../../utils/persona');
+const { toggleTracker, getTracker } = require('../../utils/lol-dm-tracker');
+const db = require('../../utils/db');
+const {
+    getLatestDataDragonVersion,
+    getProfileIconUrl,
+} = require('../../utils/lol-assets');
 
 const RIOT_KEY = process.env.RIOT_API_KEY || '';
 
@@ -78,10 +84,6 @@ function formatDuration(seconds) {
     const minutes = Math.floor(totalSeconds / 60);
     const remaining = totalSeconds % 60;
     return `${minutes}:${String(remaining).padStart(2, '0')}`;
-}
-
-function getLatestDataDragonVersion(data) {
-    return Array.isArray(data) && data.length > 0 ? data[0] : '15.1.1';
 }
 
 function getQueueLabel(queueId, gameMode) {
@@ -348,6 +350,7 @@ function buildComponentRows(sessionId, baseSummonerUrl, disableInteractive = fal
             new ButtonBuilder().setCustomId(`historylol_current_${sessionId}`).setLabel('Agora').setStyle(ButtonStyle.Success).setDisabled(disableInteractive),
             new ButtonBuilder().setCustomId(`historylol_matches_${sessionId}`).setLabel('Historico').setStyle(ButtonStyle.Primary).setDisabled(disableInteractive),
             new ButtonBuilder().setCustomId(`historylol_analysis_${sessionId}`).setLabel('Analise').setStyle(ButtonStyle.Secondary).setDisabled(disableInteractive),
+            new ButtonBuilder().setCustomId(`historylol_track_${sessionId}`).setLabel('Tracker DM').setStyle(ButtonStyle.Danger).setDisabled(disableInteractive),
         ),
         new ActionRowBuilder().addComponents(
             new ButtonBuilder().setLabel('OP.GG').setStyle(ButtonStyle.Link).setURL(`https://op.gg/summoners/${baseSummonerUrl}`),
@@ -407,15 +410,14 @@ module.exports = {
             : [nickInput, regiao === 'br1' ? 'BR1' : regiao.toUpperCase()];
 
         try {
-            const [versionRes, accountRes] = await Promise.all([
-                axios.get('https://ddragon.leagueoflegends.com/api/versions.json'),
+            const [patchVersion, accountRes] = await Promise.all([
+                getLatestDataDragonVersion(),
                 axios.get(
                     `https://${routing}.api.riotgames.com/riot/account/v1/accounts/by-riot-id/${encodeURIComponent(gameName)}/${encodeURIComponent(tagLine)}`,
                     riotHeaders
                 ),
             ]);
 
-            const patchVersion = getLatestDataDragonVersion(versionRes.data);
             const account = accountRes.data;
             const puuid = account.puuid;
 
@@ -429,13 +431,13 @@ module.exports = {
             }
 
             const summoner = summonerRes.value.data;
-            const profileIconUrl = `https://ddragon.leagueoflegends.com/cdn/${patchVersion}/img/profileicon/${summoner.profileIconId}.png`;
+            const profileIconUrl = getProfileIconUrl(patchVersion, summoner.profileIconId);
 
             const [rankRes, masteryRes, matchIdsRes, liveRes] = await Promise.allSettled([
                 axios.get(`https://${regiao}.api.riotgames.com/lol/league/v4/entries/by-summoner/${summoner.id}`, riotHeaders),
                 axios.get(`https://${regiao}.api.riotgames.com/lol/champion-mastery/v4/champion-masteries/by-puuid/${puuid}/top?count=5`, riotHeaders),
                 axios.get(`https://${routing}.api.riotgames.com/lol/match/v5/matches/by-puuid/${puuid}/ids?start=0&count=10`, riotHeaders),
-                axios.get(`https://${regiao}.api.riotgames.com/lol/spectator/v5/active-games/by-summoner/${puuid}`, riotHeaders),
+                axios.get(`https://${regiao}.api.riotgames.com/lol/spectator/v5/active-games/by-summoner/${summoner.id}`, riotHeaders),
             ]);
 
             const ranks = rankRes.status === 'fulfilled' ? rankRes.value.data : [];
@@ -445,6 +447,17 @@ module.exports = {
             const averageLp = rankedEntries.length
                 ? `${(rankedEntries.reduce((sum, entry) => sum + Number(entry.leaguePoints || 0), 0) / rankedEntries.length).toFixed(1)} LP`
                 : 'Sem LP oficial disponivel';
+
+            db.set(`lol_known_player_${String(`${account.gameName}#${account.tagLine}`).toLowerCase()}`, {
+                riotId: `${account.gameName}#${account.tagLine}`,
+                gameName: account.gameName,
+                tagLine: account.tagLine,
+                regiao,
+                level: summoner.summonerLevel,
+                rankText: rankSolo ? getTierLabel(rankSolo) : (rankFlex ? getTierLabel(rankFlex) : 'Sem rank'),
+                iconUrl: profileIconUrl,
+                updatedAt: new Date().toISOString(),
+            });
 
             const champsByNumericId = {};
             if (ddRes.status === 'fulfilled') {
@@ -523,6 +536,39 @@ module.exports = {
                     embed = buildHistoryEmbed(context);
                 } else if (componentInteraction.customId.startsWith('historylol_analysis_')) {
                     embed = buildAnalysisEmbed(context);
+                } else if (componentInteraction.customId.startsWith('historylol_track_')) {
+                    const existing = getTracker(componentInteraction.user.id, regiao, gameName, tagLine);
+                    if (existing) {
+                        toggleTracker({
+                            userId: componentInteraction.user.id,
+                            riotId: `${account.gameName}#${account.tagLine}`,
+                            gameName,
+                            tagLine,
+                            regiao,
+                            puuid,
+                            summonerId: summoner.id,
+                            profileIconUrl,
+                        });
+                        return componentInteraction.reply({
+                            content: 'Tracker privado de LoL desligado. Nao vou mais te chamar por DM para esse jogador.',
+                            flags: ['Ephemeral'],
+                        }).catch(() => null);
+                    }
+
+                    toggleTracker({
+                        userId: componentInteraction.user.id,
+                        riotId: `${account.gameName}#${account.tagLine}`,
+                        gameName,
+                        tagLine,
+                        regiao,
+                        puuid,
+                        summonerId: summoner.id,
+                        profileIconUrl,
+                    });
+                    return componentInteraction.reply({
+                        content: 'Tracker privado ativado. A partir de agora eu te aviso por DM quando essa conta entrar e sair de partida.',
+                        flags: ['Ephemeral'],
+                    }).catch(() => null);
                 }
 
                 if (!embed) {

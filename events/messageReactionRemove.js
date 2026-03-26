@@ -46,6 +46,7 @@ module.exports = {
             '🔍': 'google_news',
             '♈': 'horoscopo',
             '🎮': 'steam',
+            '🏆': 'esports_lol',
             '🗳️': 'eleicao',
         };
 
