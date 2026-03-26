@@ -11,6 +11,7 @@ const { toggleTracker, getTracker } = require('../../utils/lol-dm-tracker');
 const db = require('../../utils/db');
 const {
     getLatestDataDragonVersion,
+    getChampionCatalog,
     getProfileIconUrl,
 } = require('../../utils/lol-assets');
 const {
@@ -104,10 +105,6 @@ function getQueueLabel(queueId, gameMode) {
     return queueMap[queueId] || gameMode || 'Partida';
 }
 
-function getResultEmoji(win) {
-    return win ? '🟢' : '🔴';
-}
-
 function getTierColor(rank) {
     return TIER_DATA[rank?.tier || 'UNRANKED']?.hex || '#3C3C41';
 }
@@ -133,9 +130,24 @@ function buildMatchLine(match) {
     const { participant, info } = match;
     const cs = Number(participant.totalMinionsKilled || 0) + Number(participant.neutralMinionsKilled || 0);
     const kda = calcKDA(participant.kills, participant.deaths, participant.assists);
+    const durSecs = info.gameDuration || 0;
+    const durMin = Math.max(1, Math.floor(durSecs / 60));
+    const csPerMin = (cs / durMin).toFixed(1);
+    const gold = formatNumber(participant.goldEarned || 0);
+    const vision = participant.visionScore || 0;
+    const teamKills = info.participants
+        .filter(p => p.teamId === participant.teamId)
+        .reduce((sum, p) => sum + (p.kills || 0), 0);
+    const kp = teamKills > 0 ? Math.round(((participant.kills + participant.assists) / teamKills) * 100) : 0;
+    const resultLabel = participant.win ? '🏆 **VITÓRIA**' : '💀 **DERROTA**';
+    let multiKill = '';
+    if (participant.pentaKills) multiKill = ' **• PENTA!**';
+    else if (participant.quadraKills) multiKill = ' **• QUADRA**';
+    else if (participant.tripleKills) multiKill = ' **• TRIPLA**';
     return [
-        `${getResultEmoji(participant.win)} **${participant.championName}** • ${participant.kills}/${participant.deaths}/${participant.assists} (${kda})`,
-        `> ${getQueueLabel(info.queueId, info.gameMode)} • ${Math.floor((info.gameDuration || 0) / 60)}m • ${cs} CS • ${timeAgo(info.gameCreation)}`,
+        `${resultLabel} | ${getQueueLabel(info.queueId, info.gameMode)} | ${formatDuration(durSecs)} | ${timeAgo(info.gameCreation)}`,
+        `⚔️ **${participant.championName}**${multiKill} • ${participant.kills}/${participant.deaths}/${participant.assists} (${kda} KDA · ${kp}% KP)`,
+        `> CS ${cs} (${csPerMin}/min) · 🔭 ${vision} · 💰 ${gold}`,
     ].join('\n');
 }
 
@@ -428,7 +440,7 @@ module.exports = {
 
             const [summonerRes, ddRes] = await Promise.allSettled([
                 axios.get(`https://${regiao}.api.riotgames.com/lol/summoner/v4/summoners/by-puuid/${puuid}`, riotHeaders),
-                axios.get(`https://ddragon.leagueoflegends.com/cdn/${patchVersion}/data/pt_BR/champion.json`),
+                getChampionCatalog(patchVersion),
             ]);
 
             if (summonerRes.status !== 'fulfilled') {
@@ -466,7 +478,7 @@ module.exports = {
 
             const champsByNumericId = {};
             if (ddRes.status === 'fulfilled') {
-                for (const champion of Object.values(ddRes.value.data.data)) {
+                for (const champion of Object.values(ddRes.value)) {
                     champsByNumericId[String(champion.key)] = champion;
                 }
             }

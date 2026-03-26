@@ -4,6 +4,7 @@ const DEFAULT_DDRAGON_VERSION = '15.1.1';
 const DDRAGON_VERSIONS_URL = 'https://ddragon.leagueoflegends.com/api/versions.json';
 const DDRAGON_REALMS_BR_URL = 'https://ddragon.leagueoflegends.com/realms/br.json';
 const CACHE_TTL_MS = 6 * 60 * 60 * 1000;
+const CHAMPION_CACHE = new Map();
 
 let cachedVersion = null;
 let cachedAt = 0;
@@ -75,8 +76,29 @@ function getRoleIconUrl(role) {
     return `https://raw.communitydragon.org/latest/plugins/rcp-fe-lol-clash/global/default/assets/images/position-selector/positions/icon-position-${normalized}.png`;
 }
 
+async function getChampionCatalog(version, locale = 'pt_BR') {
+    const cacheKey = `${version}:${locale}`;
+    const cached = CHAMPION_CACHE.get(cacheKey);
+    if (cached && (Date.now() - cached.cachedAt) < CACHE_TTL_MS) {
+        return cached.data;
+    }
+
+    try {
+        const response = await axios.get(
+            `https://ddragon.leagueoflegends.com/cdn/${version}/data/${locale}/champion.json`,
+            { timeout: 8000 }
+        );
+        const data = response.data?.data || {};
+        CHAMPION_CACHE.set(cacheKey, { data, cachedAt: Date.now() });
+        return data;
+    } catch {
+        return cached?.data || {};
+    }
+}
+
 module.exports = {
     getLatestDataDragonVersion,
+    getChampionCatalog,
     getProfileIconUrl,
     getChampionSplashUrl,
     getChampionSquareUrl,

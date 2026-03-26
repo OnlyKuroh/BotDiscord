@@ -7,6 +7,7 @@ const { formatResponse } = require('../../utils/persona');
 const db = require('../../utils/db');
 const {
     getLatestDataDragonVersion,
+    getChampionCatalog,
     getProfileIconUrl,
     getChampionSplashUrl,
     getChampionSquareUrl,
@@ -14,6 +15,11 @@ const {
     getRankMiniIconUrl,
     getRoleIconUrl,
 } = require('../../utils/lol-assets');
+const {
+    getTierEmoji,
+    getRoleEmoji,
+    getChampionEmoji,
+} = require('../../utils/lol-app-emojis');
 const {
     rememberKnownPlayer,
     indexMatchParticipants,
@@ -193,6 +199,76 @@ function normalizeRole(role) {
     return value || 'FILL';
 }
 
+function formatEmojiLabel(emoji, text) {
+    return emoji ? `${emoji} ${text}` : text;
+}
+
+function formatQueuePanel(rank, emoji) {
+    if (!rank) {
+        return '`Unranked`';
+    }
+
+    const { text: wrText } = getWinRate(rank.wins, rank.losses);
+    return [
+        `${formatEmojiLabel(emoji, `**${TIER_DATA[rank.tier]?.name || rank.tier} ${rank.rank}**`)}`,
+        `**${rank.leaguePoints} LP** • ${rank.wins}V/${rank.losses}D • ${wrText}`,
+    ].join('\n');
+}
+
+function formatRecentGameCard(entry, championEmoji = '') {
+    if (!entry?.participant || !entry?.match?.info) {
+        return '`Sem partida recente.`';
+    }
+
+    const { participant, match } = entry;
+    const result = participant.win ? 'Vitoria' : 'Derrota';
+    const kda = calcKDA(participant.kills, participant.deaths, participant.assists);
+    const cs = Number(participant.totalMinionsKilled || 0) + Number(participant.neutralMinionsKilled || 0);
+    const duration = Math.floor((match.info.gameDuration || 0) / 60);
+
+    return [
+        `${formatEmojiLabel(championEmoji, `**${participant.championName}**`)}`,
+        `${result} • ${participant.kills}/${participant.deaths}/${participant.assists} • ${kda} KDA • ${cs} CS • ${duration}m`,
+    ].join('\n');
+}
+
+function formatCurrentGameCard(liveGame, me, championEmoji = '') {
+    if (!liveGame || !me) {
+        return '`Jogador nao esta em partida.`';
+    }
+
+    return [
+        `${formatEmojiLabel(championEmoji, `**${me.championName || 'Campeao atual'}**`)}`,
+        `${normalizeRole(me.teamPosition || me.individualPosition || me.lane || 'FILL')} • ${formatDuration(Math.floor((Date.now() - liveGame.gameStartTime) / 1000))}`,
+    ].join('\n');
+}
+
+function formatMasteryTopLines(masteryEntries, champsMap, emojiMap) {
+    if (!masteryEntries.length) return '`Sem dados`';
+    return masteryEntries.slice(0, 5).map(entry => {
+        const champ = champsMap[entry.championId];
+        const champId = champ?.id;
+        const champName = champ?.name || `#${entry.championId}`;
+        const emoji = emojiMap.get(champId) || '';
+        const lvl = entry.championLevel;
+        return `${formatEmojiLabel(emoji, `**${champName}**`)} • M${lvl} ${formatNumber(entry.championPoints)}`;
+    }).join('\n');
+}
+
+function formatRecentChampStats(champStats, emojiMap, overall) {
+    const entries = Object.entries(champStats)
+        .sort((a, b) => b[1].games - a[1].games)
+        .slice(0, 4);
+    const lines = [];
+    if (overall) lines.push(overall);
+    for (const [name, s] of entries) {
+        const wr = ((s.wins / s.games) * 100).toFixed(0);
+        const emoji = emojiMap.get(name) || '';
+        lines.push(`${formatEmojiLabel(emoji, `**${wr}%**`)} (${s.wins}W/${s.games - s.wins}L)`);
+    }
+    return lines.join('\n') || '`Sem partidas`';
+}
+
 // URLs oficiais
 // ─── Module ──────────────────────────────────────────────────────────────────
 module.exports = {
@@ -257,7 +333,7 @@ module.exports = {
         ),
 
     aliases: ['lol', 'league', 'invocador', 'summoner'],
-    detailedDescription: 'Consulta completa de perfil LoL com discord-arts card, 5 páginas de stats e partida ao vivo.',
+    detailedDescription: 'Consulta completa de perfil LoL com painel em embeds, botões por função, maestria, histórico e partida ao vivo.',
     usage: '`/lol perfil [nome#tag]` | `/lol aovivo [nome#tag]` | `/lol rotacao`',
     permissions: [''],
 
@@ -279,13 +355,12 @@ module.exports = {
         // ══════════════════════════════════════════════════════════════════════
         if (sub === 'rotacao') {
             try {
-                const [rotationRes, ddRes] = await Promise.all([
+                const [rotationRes, champsData] = await Promise.all([
                     axios.get('https://br1.api.riotgames.com/lol/platform/v3/champion-rotations', riotHeaders),
-                    axios.get(`https://ddragon.leagueoflegends.com/cdn/${patchVersion}/data/pt_BR/champion.json`)
+                    getChampionCatalog(patchVersion),
                 ]);
 
                 const rotation = rotationRes.data;
-                const champsData = ddRes.data.data;
                 const champsMap = {};
                 Object.values(champsData).forEach(c => { champsMap[c.key] = c; });
 
@@ -374,15 +449,15 @@ module.exports = {
             if (sub === 'aovivo') {
                 try {
                     const liveRes = await axios.get(
-                        `https://${regiao}.api.riotgames.com/lol/spectator/v5/active-games/by-summoner/${puuid}`,
+                        `https://${regiao}.api.riotgames.com/lol/spectator/v5/active-games/by-summoner/${summoner.id}`,
                         riotHeaders
                     );
                     const game = liveRes.data;
 
                     let champsMap = {};
                     try {
-                        const dd = await axios.get(`https://ddragon.leagueoflegends.com/cdn/${patchVersion}/data/pt_BR/champion.json`);
-                        Object.values(dd.data.data).forEach(c => { champsMap[c.key] = c; });
+                        const dd = await getChampionCatalog(patchVersion);
+                        Object.values(dd).forEach(c => { champsMap[c.key] = c; });
                     } catch { }
 
                     const modeMap = {
@@ -470,13 +545,14 @@ module.exports = {
             // ══════════════════════════════════════════════════════════════════
 
             // ── Coleta massiva de dados em paralelo ──────────────────────────
-            const [rankRes, masteryRes, matchIdsRes, challengesRes, ddRes, totalMasteryRes] = await Promise.allSettled([
+            const [rankRes, masteryRes, matchIdsRes, challengesRes, ddRes, totalMasteryRes, liveRes] = await Promise.allSettled([
                 axios.get(`https://${regiao}.api.riotgames.com/lol/league/v4/entries/by-summoner/${summoner.id}`, riotHeaders),
                 axios.get(`https://${regiao}.api.riotgames.com/lol/champion-mastery/v4/champion-masteries/by-puuid/${puuid}/top?count=10`, riotHeaders),
-                axios.get(`https://${routing}.api.riotgames.com/lol/match/v5/matches/by-puuid/${puuid}/ids?start=0&count=10`, riotHeaders),
+                axios.get(`https://${routing}.api.riotgames.com/lol/match/v5/matches/by-puuid/${puuid}/ids?start=0&count=5`, riotHeaders),
                 axios.get(`https://${regiao}.api.riotgames.com/lol/challenges/v1/player-data/${puuid}`, riotHeaders),
-                axios.get(`https://ddragon.leagueoflegends.com/cdn/${patchVersion}/data/pt_BR/champion.json`),
+                getChampionCatalog(patchVersion),
                 axios.get(`https://${regiao}.api.riotgames.com/lol/champion-mastery/v4/scores/by-puuid/${puuid}`, riotHeaders),
+                axios.get(`https://${regiao}.api.riotgames.com/lol/spectator/v5/active-games/by-summoner/${summoner.id}`, riotHeaders),
             ]);
 
             // ── Processar dados ──────────────────────────────────────────────
@@ -493,7 +569,7 @@ module.exports = {
 
             let champsMap = {};
             if (ddRes.status === 'fulfilled') {
-                Object.values(ddRes.value.data.data).forEach(c => { champsMap[c.key] = c; });
+                Object.values(ddRes.value).forEach(c => { champsMap[c.key] = c; });
             }
 
             const totalMasteryScore = totalMasteryRes.status === 'fulfilled' ? totalMasteryRes.value.data : 0;
@@ -524,8 +600,6 @@ module.exports = {
                 totalMasteryPoints = masteryList.reduce((acc, m) => acc + m.championPoints, 0);
             }
 
-            // Splash do main champion
-            const mainSplashUrl = topChampName ? getChampionSplashUrl(topChampName) : getChampionSplashUrl('Jinx');
             const mainChampDisplayName = champsMap[topChampId]?.name || 'N/A';
 
             rememberKnownPlayer({
@@ -600,27 +674,87 @@ module.exports = {
             const primaryRoleIconUrl = primaryRole ? getRoleIconUrl(primaryRole) : null;
             const rankMiniIconUrl = tierPrincipal !== 'UNRANKED' ? getRankMiniIconUrl(tierPrincipal) : profileIconUrl;
 
-            const topChampionsText = Object.entries(champStats)
-                .sort((a, b) => b[1].games - a[1].games)
-                .slice(0, 3)
-                .map(([name, s]) => {
-                    const wr = ((s.wins / s.games) * 100).toFixed(0);
-                    return `**${name}** — ${s.games}p • ${wr}% WR`;
-                })
-                .join('\n') || '`Sem dados suficientes.`';
-
             const bestQueue = rankSolo || rankFlex || rankArena || null;
-            const identityIconUrl = bestQueue ? (rankMiniIconUrl || profileIconUrl) : (primaryRoleIconUrl || profileIconUrl);
-            const recentRecordText = stats.games > 0 ? `${stats.wins}V/${stats.games - stats.wins}D em ${stats.games} partidas` : 'Sem recorte recente';
-            const masteryShortText = [
-                `Score: **${formatNumber(totalMasteryPoints)}**`,
-                `Campeoes: **${totalMasteryScore}**`,
-                `Main: **${mainChampDisplayName}**`,
+            const liveGame = liveRes.status === 'fulfilled' ? liveRes.value.data : null;
+            const liveParticipant = liveGame?.participants?.find((participant) =>
+                participant?.puuid === puuid ||
+                participant?.summonerId === summoner.id ||
+                normalizeSearchText(participant?.riotIdGameName || participant?.summonerName) === normalizeSearchText(account.gameName)
+            ) || null;
+            const liveChampionName = liveParticipant?.championId ? (champsMap[String(liveParticipant.championId)]?.id || null) : null;
+
+            const masteryPreview = masteryList.slice(0, 8);
+            const masteryTop5 = masteryList.slice(0, 5);
+            const recentChampNames = Object.entries(champStats)
+                .sort((a, b) => b[1].games - a[1].games)
+                .slice(0, 5)
+                .map(([name]) => name);
+
+            const emojiChampionNames = Array.from(new Set([
+                topChampName,
+                liveChampionName,
+                ...recentChampNames,
+                ...masteryPreview.map((entry) => champsMap[entry.championId]?.id),
+                matchDetails[0]?.participant?.championName,
+            ].filter(Boolean)));
+
+            const championEmojiResults = await Promise.allSettled(
+                emojiChampionNames.map((championName) => getChampionEmoji(interaction.client, patchVersion, championName))
+            );
+            const championEmojiMap = new Map();
+            emojiChampionNames.forEach((championName, index) => {
+                const result = championEmojiResults[index];
+                championEmojiMap.set(championName, result?.status === 'fulfilled' ? result.value : '');
+            });
+
+            const [
+                primaryTierEmojiRes,
+                primaryRoleEmojiRes,
+                soloTierEmojiRes,
+                flexTierEmojiRes,
+                arenaTierEmojiRes,
+            ] = await Promise.allSettled([
+                getTierEmoji(interaction.client, bestQueue?.tier),
+                getRoleEmoji(interaction.client, primaryRole),
+                getTierEmoji(interaction.client, rankSolo?.tier),
+                getTierEmoji(interaction.client, rankFlex?.tier),
+                getTierEmoji(interaction.client, rankArena?.tier),
+            ]);
+
+            const primaryTierEmoji = primaryTierEmojiRes.status === 'fulfilled' ? primaryTierEmojiRes.value : '';
+            const primaryRoleEmoji = primaryRoleEmojiRes.status === 'fulfilled' ? primaryRoleEmojiRes.value : '';
+            const soloTierEmoji = soloTierEmojiRes.status === 'fulfilled' ? soloTierEmojiRes.value : '';
+            const flexTierEmoji = flexTierEmojiRes.status === 'fulfilled' ? flexTierEmojiRes.value : '';
+            const arenaTierEmoji = arenaTierEmojiRes.status === 'fulfilled' ? arenaTierEmojiRes.value : '';
+            const mainChampEmoji = championEmojiMap.get(topChampName) || '';
+
+            const embedHeaderText = [
+                titleText ? `**Status:** ${titleText}` : '**Status:** leitura oficial sincronizada.',
+                `**Shard:** ${regiao.toUpperCase()} • **Patch:** ${patchVersion}`,
             ].join('\n');
-            const profileSnapshotText = [
+            const levelAndRankText = [
                 `Nivel **${summoner.summonerLevel}**`,
-                primaryRole ? `Funcao **${primaryRole}**` : 'Funcao em leitura',
-                bestQueue ? `Fila **${formatRankCompact(bestQueue)}**` : 'Sem rank principal',
+                bestQueue
+                    ? formatEmojiLabel(primaryTierEmoji, `**${formatRankCompact(bestQueue)}**`)
+                    : '`Unranked`',
+                primaryRole
+                    ? formatEmojiLabel(primaryRoleEmoji, `**${primaryRole}**`)
+                    : 'Funcao em leitura',
+            ].join('\n');
+            const recentGamesText = formatRecentChampStats(
+                champStats,
+                championEmojiMap,
+                `**${wrRecent} WR** (${stats.wins}W/${stats.games - stats.wins}L)`
+            );
+            const masteryShortText = [
+                formatEmojiLabel(mainChampEmoji, `**${mainChampDisplayName}**`),
+                `Score **${formatNumber(totalMasteryPoints)}**`,
+                `Campeoes **${totalMasteryScore}**`,
+            ].join('\n');
+            const signalsText = [
+                `Visao **${avgVision}**`,
+                `Gold **${avgGold}**`,
+                `Pool **${Object.keys(champStats).length || 0}** picks`,
             ].join('\n');
 
             // ══════════════════════════════════════════════════════════════════
@@ -629,36 +763,25 @@ module.exports = {
             const embed1 = new EmbedBuilder()
                 .setAuthor({
                     name: `${account.gameName}#${account.tagLine} • ${regiao.toUpperCase()}`,
-                    iconURL: identityIconUrl
+                    iconURL: profileIconUrl
                 })
                 .setColor(corTier)
                 .setTitle(`${account.gameName}'s Profile`)
-                .setDescription([
-                    titleText ? `**Status:** ${titleText}` : '**Status:** sem titulo equipado.',
-                    `**Shard:** ${regiao.toUpperCase()} • **Recorte:** ${recentRecordText}`,
-                ].join('\n'))
+                .setDescription(embedHeaderText)
                 .setThumbnail(mainChampSquareUrl)
+                .setImage(topChampName ? getChampionSplashUrl(topChampName) : null)
                 .addFields(
-                    { name: 'Conta', value: profileSnapshotText, inline: true },
-                    { name: 'Main', value: `Campeao: **${mainChampDisplayName}**\nIcone e splash oficiais carregados`, inline: true },
-                    { name: 'Maestria', value: masteryShortText, inline: true },
-                    { name: 'Solo/Duo', value: formatRankFull(rankSolo), inline: true },
-                    { name: 'Flex', value: formatRankFull(rankFlex), inline: true },
-                    { name: 'Arena', value: formatRankFull(rankArena), inline: true },
-                    { name: 'Pool recente', value: topChampionsText, inline: false },
-                    {
-                        name: 'Snapshot recente',
-                        value: [
-                            `**KDA medio:** ${avgKDA}`,
-                            `**CS medio:** ${avgCS}`,
-                            `**Dano medio:** ${avgDamage}`,
-                            `**Visao media:** ${avgVision}`,
-                        ].join('\n'),
-                        inline: false,
-                    },
+                    { name: formatEmojiLabel(primaryTierEmoji, 'Level and Rank'), value: levelAndRankText, inline: true },
+                    { name: formatEmojiLabel(mainChampEmoji, 'Top Champions'), value: formatMasteryTopLines(masteryTop5, champsMap, championEmojiMap), inline: true },
+                    { name: 'Recent Games', value: recentGamesText, inline: true },
+                    { name: formatEmojiLabel(soloTierEmoji, 'Ranked Solo/Duo'), value: formatQueuePanel(rankSolo, soloTierEmoji), inline: true },
+                    { name: formatEmojiLabel(flexTierEmoji, 'Ranked Flex'), value: formatQueuePanel(rankFlex, flexTierEmoji), inline: true },
+                    { name: formatEmojiLabel(championEmojiMap.get(matchDetails[0]?.participant?.championName), 'Last Game'), value: formatRecentGameCard(matchDetails[0], championEmojiMap.get(matchDetails[0]?.participant?.championName)), inline: true },
+                    { name: formatEmojiLabel(championEmojiMap.get(liveChampionName) || primaryRoleEmoji, 'Current Game'), value: formatCurrentGameCard(liveGame, liveParticipant, championEmojiMap.get(liveChampionName)), inline: true },
+                    { name: formatEmojiLabel(mainChampEmoji, 'Mastery Snapshot'), value: masteryShortText, inline: true },
+                    { name: formatEmojiLabel(arenaTierEmoji, 'Arena / Signals'), value: `${formatQueuePanel(rankArena, arenaTierEmoji)}\n${signalsText}`, inline: true },
                 )
-                .setFooter({ text: `Perfil 1/5 • ${mainChampDisplayName}`, iconURL: primaryRoleIconUrl || profileIconUrl })
-                .setTimestamp();
+                .setFooter({ text: `Perfil 1/5 • Atualizado às ${new Date().toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' })}`, iconURL: rankMiniIconUrl || profileIconUrl });
 
             // ══════════════════════════════════════════════════════════════════
             // PÁGINA 2: ESTATÍSTICAS
@@ -704,38 +827,43 @@ module.exports = {
                     { name: 'Duracao Media', value: `**${avgDuration}** min`, inline: true },
                     { name: 'Maestria Total', value: `**${formatNumber(totalMasteryPoints)}** pts`, inline: true },
                 )
-                .setImage(mainSplashUrl)
                 .setFooter({ text: 'Página 2/5 • Estatísticas', iconURL: primaryRoleIconUrl || profileIconUrl });
 
             // ══════════════════════════════════════════════════════════════════
             // PÁGINA 3: TOP CAMPEÕES (MAESTRIA)
             // ══════════════════════════════════════════════════════════════════
-            const col1 = masteryList.slice(0, 5);
-            const col2 = masteryList.slice(5, 10);
-
-            function formatMasteryCol(list, startIdx) {
+            function formatMasteryNameCol(list) {
                 if (!list.length) return '`Sem dados`';
-                return list.map((m, i) => {
-                    const champ = champsMap[m.championId];
-                    const champName = champ?.name || `#${m.championId}`;
-                    const pts = formatNumber(m.championPoints);
-                    const lvl = m.championLevel;
-                    const chest = m.chestGranted ? '' : ' • Bau disponivel';
-                    return `${startIdx + i + 1}. **${champName}** • M${lvl}\n> ${pts} pts${chest}`;
+                return list.map((entry, index) => {
+                    const champ = champsMap[entry.championId];
+                    const champId = champ?.id || null;
+                    const champName = champ?.name || `#${entry.championId}`;
+                    const champEmoji = championEmojiMap.get(champId) || '';
+                    return `${index + 1}. ${formatEmojiLabel(champEmoji, `**${champName}**`)} • M${entry.championLevel}\n${formatNumber(entry.championPoints)} pts`;
                 }).join('\n');
+            }
+
+            function formatMasteryLastPlayedCol(list) {
+                if (!list.length) return '`Sem dados`';
+                return list.map((entry) => entry.lastPlayTime ? timeAgo(entry.lastPlayTime) : 'Sem leitura').join('\n');
+            }
+
+            function formatMasteryChestCol(list) {
+                if (!list.length) return '`Sem dados`';
+                return list.map((entry) => entry.chestGranted ? 'Chest claimed' : 'Chest unclaimed').join('\n');
             }
 
             const embed3 = new EmbedBuilder()
                 .setAuthor({ name: `${account.gameName}#${account.tagLine}`, iconURL: mainChampSquareUrl })
-                .setTitle('Top 10 Campeoes — Maestria')
-                .setDescription(`> **${totalMasteryScore}** campeoes com maestria • **${formatNumber(totalMasteryPoints)}** pontos totais\n> Bau disponivel aparece descrito na linha do campeao`)
+                .setTitle('Mastery Stats')
+                .setDescription(`**${totalMasteryScore}** campeoes com maestria • **${formatNumber(totalMasteryPoints)}** pontos totais`)
                 .setColor(corTier)
                 .setThumbnail(mainChampSquareUrl)
                 .addFields(
-                    { name: 'Top 1-5', value: formatMasteryCol(col1, 0), inline: true },
-                    { name: 'Top 6-10', value: formatMasteryCol(col2, 5), inline: true },
+                    { name: 'Champion & Mastery', value: formatMasteryNameCol(masteryPreview), inline: true },
+                    { name: 'Last Played', value: formatMasteryLastPlayedCol(masteryPreview), inline: true },
+                    { name: 'Chest Granted', value: formatMasteryChestCol(masteryPreview), inline: true },
                 )
-                .setImage(mainSplashUrl)
                 .setFooter({ text: 'Página 3/5 • Maestria de Campeões' });
 
             // ══════════════════════════════════════════════════════════════════
@@ -743,29 +871,38 @@ module.exports = {
             // ══════════════════════════════════════════════════════════════════
             let matchHistoryText = '`Nenhuma partida encontrada.`';
             if (matchDetails.length) {
-                const lines = matchDetails.slice(0, 6).map((md) => {
+                const lines = matchDetails.slice(0, 5).map((md) => {
                     const p = md.participant;
                     const m = md.match;
-                    const win = p.win;
                     const kda = calcKDA(p.kills, p.deaths, p.assists);
                     const cs = (p.totalMinionsKilled || 0) + (p.neutralMinionsKilled || 0);
-                    const dur = Math.floor(m.info.gameDuration / 60);
-                    const dmg = formatNumber(p.totalDamageDealtToChampions || 0);
+                    const durSecs = m.info.gameDuration || 0;
+                    const durMin = Math.max(1, Math.floor(durSecs / 60));
+                    const csPerMin = (cs / durMin).toFixed(1);
                     const when = timeAgo(m.info.gameCreation);
+                    const gold = formatNumber(p.goldEarned || 0);
+                    const vision = p.visionScore || 0;
 
-                    const modeMap = { 'CLASSIC': 'SR', 'ARAM': 'ARAM', 'CHERRY': 'Arena' };
+                    const teamKills = m.info.participants
+                        .filter(pl => pl.teamId === p.teamId)
+                        .reduce((sum, pl) => sum + (pl.kills || 0), 0);
+                    const kp = teamKills > 0 ? Math.round(((p.kills + p.assists) / teamKills) * 100) : 0;
+
+                    const modeMap = { 'CLASSIC': 'Ranked SR', 'ARAM': 'ARAM', 'CHERRY': 'Arena' };
                     const mode = modeMap[m.info.gameMode] || m.info.gameMode;
-
-                    const resultLabel = win ? '[VITORIA]' : '[DERROTA]';
-                    const kdaTag = kda === 'Perfect' ? 'Perfect' : parseFloat(kda) >= 3 ? 'Hot Streak' : 'Padrao';
+                    const resultLabel = p.win ? '🏆 **VITÓRIA**' : '💀 **DERROTA**';
 
                     let multiKill = '';
-                    if (p.pentaKills) multiKill = ' • PENTA';
-                    else if (p.quadraKills) multiKill = ' • QUADRA';
-                    else if (p.tripleKills) multiKill = ' • TRIPLA';
+                    if (p.pentaKills) multiKill = ' **• PENTA!**';
+                    else if (p.quadraKills) multiKill = ' **• QUADRA**';
+                    else if (p.tripleKills) multiKill = ' **• TRIPLA**';
 
-                    return `${resultLabel} **${p.championName}** • ${p.kills}/${p.deaths}/${p.assists} (${kda} • ${kdaTag})${multiKill}\n` +
-                           `> DMG ${dmg} • CS ${cs} • ${dur}m • ${mode} • ${when}`;
+                    const champEmoji = championEmojiMap.get(p.championName) || '';
+                    return [
+                        `${resultLabel} | ${mode} | ${formatDuration(durSecs)} | ${when}`,
+                        `${formatEmojiLabel(champEmoji, `**${p.championName}**`)}${multiKill} • ${p.kills}/${p.deaths}/${p.assists} (${kda} KDA · ${kp}% KP)`,
+                        `> CS ${cs} (${csPerMin}/min) · 🔭 ${vision} · 💰 ${gold}`,
+                    ].join('\n');
                 });
                 matchHistoryText = lines.join('\n\n');
             }
@@ -789,7 +926,6 @@ module.exports = {
                 .addFields(
                     { name: 'Mais Jogados (Recente)', value: topPlayedChamps, inline: false },
                 )
-                .setImage(mainSplashUrl)
                 .setFooter({ text: 'Página 4/5 • Histórico' });
 
             // ══════════════════════════════════════════════════════════════════
@@ -822,7 +958,6 @@ module.exports = {
                     { name: 'Pontuacao Total', value: `**${formatNumber(totalChallengePoints)}** pontos`, inline: true },
                     { name: 'Categorias', value: categoryText || '`Sem dados`', inline: true },
                 )
-                .setImage(mainSplashUrl)
                 .setFooter({ text: 'Página 5/5 • Desafios', iconURL: primaryRoleIconUrl || profileIconUrl });
 
             // ══════════════════════════════════════════════════════════════════
