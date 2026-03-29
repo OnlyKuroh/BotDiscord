@@ -104,6 +104,8 @@ function startDashboard(client) {
     app.use(express.json());
     app.use(express.static(path.join(__dirname, '..', 'dashboard')));
     app.use('/uploads', express.static(uploadsDir));
+    // Assets locais do LoL (ranks, lanes, maestrias, honras) — gerados por scripts/download-lol-assets.js
+    app.use('/lol-assets', express.static(path.join(__dirname, '..', 'assets', 'lol')));
 
     // WebSocket: Real-time logs
     io.on('connection', (socket) => {
@@ -514,8 +516,26 @@ function startDashboard(client) {
                 .setDescription(description || null)
                 .setFooter(footer ? { text: footer } : null);
 
-            if (image) mainEmbed.setImage(image);
-            if (thumbnail) mainEmbed.setThumbnail(thumbnail);
+            const filesToAttach = [];
+            const processImage = (url, isThumbnail = false) => {
+                if (!url) return;
+                if (url.includes('/uploads/')) {
+                    const filename = url.split('/').pop().split('?')[0];
+                    const filePath = path.join(uploadsDir, filename);
+                    if (fs.existsSync(filePath)) {
+                        filesToAttach.push({ attachment: filePath, name: filename });
+                        if (isThumbnail) mainEmbed.setThumbnail(`attachment://${filename}`);
+                        else mainEmbed.setImage(`attachment://${filename}`);
+                        return;
+                    }
+                }
+                if (isThumbnail) mainEmbed.setThumbnail(url);
+                else mainEmbed.setImage(url);
+            };
+
+            processImage(image, false);
+            processImage(thumbnail, true);
+
             if (bundledFields.length > 0) {
                 mainEmbed.addFields(bundledFields.map(f => ({
                     name: f.name || '\u200b',
@@ -524,7 +544,7 @@ function startDashboard(client) {
                 })));
             }
 
-            await webhook.send({ ...webhookOpts, embeds: [mainEmbed] });
+            await webhook.send({ ...webhookOpts, embeds: [mainEmbed], files: filesToAttach });
 
             // Send each "separate" field as its own embed
             for (const f of separateFields) {

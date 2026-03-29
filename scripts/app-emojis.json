@@ -1,0 +1,5213 @@
+[
+  {
+    "id": "1450795276150243328",
+    "name": "Exc",
+    "user": {
+      "id": "461660911107833856",
+      "username": "athila.cabrall",
+      "avatar": "a_225b4da7fdb2408a419dc9ae8241beab",
+      "discriminator": "0",
+      "public_flags": 64,
+      "flags": 64,
+      "banner": null,
+      "accent_color": null,
+      "global_name": "Cabrall",
+      "avatar_decoration_data": null,
+      "collectibles": {
+        "nameplate": {
+          "sku_id": "1409983105577783410",
+          "asset": "nameplates/special_events_2/nitro_rocketfuel_nameplate/",
+          "label": "COLLECTIBLES_SEPTEMBER_2025_MARKETING_NAMEPLATE_A11Y",
+          "palette": "violet"
+        }
+      },
+      "display_name_styles": {
+        "font_id": 8,
+        "effect_id": 4,
+        "colors": [
+          525061
+        ]
+      },
+      "banner_color": null,
+      "clan": null,
+      "primary_guild": null
+    },
+    "roles": [],
+    "require_colons": true,
+    "managed": false,
+    "animated": false,
+    "available": true
+  },
+  {
+    "id": "1450795279963127911",
+    "name": "wumpus",
+    "user": {
+      "id": "461660911107833856",
+      "username": "athila.cabrall",
+      "avatar": "a_225b4da7fdb2408a419dc9ae8241beab",
+      "discriminator": "0",
+      "public_flags": 64,
+      "flags": 64,
+      "banner": null,
+      "accent_color": null,
+      "global_name": "Cabrall",
+      "avatar_decoration_data": null,
+      "collectibles": {
+        "nameplate": {
+          "sku_id": "1409983105577783410",
+          "asset": "nameplates/special_events_2/nitro_rocketfuel_nameplate/",
+          "label": "COLLECTIBLES_SEPTEMBER_2025_MARKETING_NAMEPLATE_A11Y",
+          "palette": "violet"
+        }
+      },
+      "display_name_styles": {
+        "font_id": 8,
+        "effect_id": 4,
+        "colors": [
+          525061
+        ]
+      },
+      "banner_color": null,
+      "clan": null,
+      "primary_guild": null
+    },
+    "roles": [],
+    "require_colons": true,
+    "managed": false,
+    "animated": false,
+    "available": true
+  },
+  {
+    "id": "1450795282009948210",
+    "name": "special",
+    "user": {
+      "id": "461660911107833856",
+      "username": "athila.cabrall",
+      "avatar": "a_225b4da7fdb2408a419dc9ae8241beab",
+      "discriminator": "0",
+      "public_flags": 64,
+      "flags": 64,
+      "banner": null,
+      "accent_color": null,
+      "global_name": "Cabrall",
+      "avatar_decoration_data": null,
+      "collectibles": {
+        "nameplate": {
+          "sku_id": "1409983105577783410",
+          "asset": "nameplates/special_events_2/nitro_rocketfuel_nameplate/",
+          "label": "COLLECTIBLES_SEPTEMBER_2025_MARKETING_NAMEPLATE_A11Y",
+          "palette": "violet"
+        }
+      },
+      "display_name_styles": {
+        "font_id": 8,
+        "effect_id": 4,
+        "colors": [
+          525061
+        ]
+      },
+      "banner_color": null,
+      "clan": null,
+      "primary_guild": null
+    },
+    "roles": [],
+    "require_colons": true,
+    "managed": false,
+    "animated": true,
+    "available": true
+  },
+  {
+    "id": "1450795293363666967",
+    "name": "zoom_glass",
+    "user": {
+      "id": "461660911107833856",
+      "username": "athila.cabrall",
+      "avatar": "a_225b4da7fdb2408a419dc9ae8241beab",
+      "discriminator": "0",
+      "public_flags": 64,
+      "flags": 64,
+      "banner": null,
+      "accent_color": null,
+      "global_name": "Cabrall",
+      "avatar_decoration_data": null,
+      "collectibles": {
+        "nameplate": {
+          "sku_id": "1409983105577783410",
+          "asset": "nameplates/special_events_2/nitro_rocketfuel_nameplate/",
+          "label": "COLLECTIBLES_SEPTEMBER_2025_MARKETING_NAMEPLATE_A11Y",
+          "palette": "violet"
+        }
+      },
+      "display_name_styles": {
+        "font_id": 8,
+        "effect_id": 4,
+        "colors": [
+          525061
+        ]
+      },
+      "banner_color": null,
+      "clan": null,
+      "primary_guild": null
+    },
+    "roles": [],
+    "require_colons": true,
+    "managed": false,
+    "animated": false,
+    "available": true
+  },
+  {
+    "id": "1450795294773219480",
+    "name": "home",
+    "user": {
+      "id": "461660911107833856",
+      "username": "athila.cabrall",
+      "avatar": "a_225b4da7fdb2408a419dc9ae8241beab",
+      "discriminator": "0",
+      "public_flags": 64,
+      "flags": 64,
+      "banner": null,
+      "accent_color": null,
+      "global_name": "Cabrall",
+      "avatar_decoration_data": null,
+      "collectibles": {
+        "nameplate": {
+          "sku_id": "1409983105577783410",
+          "asset": "nameplates/special_events_2/nitro_rocketfuel_nameplate/",
+          "label": "COLLECTIBLES_SEPTEMBER_2025_MARKETING_NAMEPLATE_A11Y",
+          "palette": "violet"
+        }
+      },
+      "display_name_styles": {
+        "font_id": 8,
+        "effect_id": 4,
+        "colors": [
+          525061
+        ]
+      },
+      "banner_color": null,
+      "clan": null,
+      "primary_guild": null
+    },
+    "roles": [],
+    "require_colons": true,
+    "managed": false,
+    "animated": false,
+    "available": true
+  },
+  {
+    "id": "1450795299604922448",
+    "name": "github",
+    "user": {
+      "id": "461660911107833856",
+      "username": "athila.cabrall",
+      "avatar": "a_225b4da7fdb2408a419dc9ae8241beab",
+      "discriminator": "0",
+      "public_flags": 64,
+      "flags": 64,
+      "banner": null,
+      "accent_color": null,
+      "global_name": "Cabrall",
+      "avatar_decoration_data": null,
+      "collectibles": {
+        "nameplate": {
+          "sku_id": "1409983105577783410",
+          "asset": "nameplates/special_events_2/nitro_rocketfuel_nameplate/",
+          "label": "COLLECTIBLES_SEPTEMBER_2025_MARKETING_NAMEPLATE_A11Y",
+          "palette": "violet"
+        }
+      },
+      "display_name_styles": {
+        "font_id": 8,
+        "effect_id": 4,
+        "colors": [
+          525061
+        ]
+      },
+      "banner_color": null,
+      "clan": null,
+      "primary_guild": null
+    },
+    "roles": [],
+    "require_colons": true,
+    "managed": false,
+    "animated": false,
+    "available": true
+  },
+  {
+    "id": "1450795301085515827",
+    "name": "ile",
+    "user": {
+      "id": "461660911107833856",
+      "username": "athila.cabrall",
+      "avatar": "a_225b4da7fdb2408a419dc9ae8241beab",
+      "discriminator": "0",
+      "public_flags": 64,
+      "flags": 64,
+      "banner": null,
+      "accent_color": null,
+      "global_name": "Cabrall",
+      "avatar_decoration_data": null,
+      "collectibles": {
+        "nameplate": {
+          "sku_id": "1409983105577783410",
+          "asset": "nameplates/special_events_2/nitro_rocketfuel_nameplate/",
+          "label": "COLLECTIBLES_SEPTEMBER_2025_MARKETING_NAMEPLATE_A11Y",
+          "palette": "violet"
+        }
+      },
+      "display_name_styles": {
+        "font_id": 8,
+        "effect_id": 4,
+        "colors": [
+          525061
+        ]
+      },
+      "banner_color": null,
+      "clan": null,
+      "primary_guild": null
+    },
+    "roles": [],
+    "require_colons": true,
+    "managed": false,
+    "animated": false,
+    "available": true
+  },
+  {
+    "id": "1450795303316881418",
+    "name": "right_arrow",
+    "user": {
+      "id": "461660911107833856",
+      "username": "athila.cabrall",
+      "avatar": "a_225b4da7fdb2408a419dc9ae8241beab",
+      "discriminator": "0",
+      "public_flags": 64,
+      "flags": 64,
+      "banner": null,
+      "accent_color": null,
+      "global_name": "Cabrall",
+      "avatar_decoration_data": null,
+      "collectibles": {
+        "nameplate": {
+          "sku_id": "1409983105577783410",
+          "asset": "nameplates/special_events_2/nitro_rocketfuel_nameplate/",
+          "label": "COLLECTIBLES_SEPTEMBER_2025_MARKETING_NAMEPLATE_A11Y",
+          "palette": "violet"
+        }
+      },
+      "display_name_styles": {
+        "font_id": 8,
+        "effect_id": 4,
+        "colors": [
+          525061
+        ]
+      },
+      "banner_color": null,
+      "clan": null,
+      "primary_guild": null
+    },
+    "roles": [],
+    "require_colons": true,
+    "managed": false,
+    "animated": false,
+    "available": true
+  },
+  {
+    "id": "1450795304994476134",
+    "name": "affiliate",
+    "user": {
+      "id": "461660911107833856",
+      "username": "athila.cabrall",
+      "avatar": "a_225b4da7fdb2408a419dc9ae8241beab",
+      "discriminator": "0",
+      "public_flags": 64,
+      "flags": 64,
+      "banner": null,
+      "accent_color": null,
+      "global_name": "Cabrall",
+      "avatar_decoration_data": null,
+      "collectibles": {
+        "nameplate": {
+          "sku_id": "1409983105577783410",
+          "asset": "nameplates/special_events_2/nitro_rocketfuel_nameplate/",
+          "label": "COLLECTIBLES_SEPTEMBER_2025_MARKETING_NAMEPLATE_A11Y",
+          "palette": "violet"
+        }
+      },
+      "display_name_styles": {
+        "font_id": 8,
+        "effect_id": 4,
+        "colors": [
+          525061
+        ]
+      },
+      "banner_color": null,
+      "clan": null,
+      "primary_guild": null
+    },
+    "roles": [],
+    "require_colons": true,
+    "managed": false,
+    "animated": false,
+    "available": true
+  },
+  {
+    "id": "1450795306760540252",
+    "name": "chat",
+    "user": {
+      "id": "461660911107833856",
+      "username": "athila.cabrall",
+      "avatar": "a_225b4da7fdb2408a419dc9ae8241beab",
+      "discriminator": "0",
+      "public_flags": 64,
+      "flags": 64,
+      "banner": null,
+      "accent_color": null,
+      "global_name": "Cabrall",
+      "avatar_decoration_data": null,
+      "collectibles": {
+        "nameplate": {
+          "sku_id": "1409983105577783410",
+          "asset": "nameplates/special_events_2/nitro_rocketfuel_nameplate/",
+          "label": "COLLECTIBLES_SEPTEMBER_2025_MARKETING_NAMEPLATE_A11Y",
+          "palette": "violet"
+        }
+      },
+      "display_name_styles": {
+        "font_id": 8,
+        "effect_id": 4,
+        "colors": [
+          525061
+        ]
+      },
+      "banner_color": null,
+      "clan": null,
+      "primary_guild": null
+    },
+    "roles": [],
+    "require_colons": true,
+    "managed": false,
+    "animated": false,
+    "available": true
+  },
+  {
+    "id": "1450795308819808326",
+    "name": "gavel",
+    "user": {
+      "id": "461660911107833856",
+      "username": "athila.cabrall",
+      "avatar": "a_225b4da7fdb2408a419dc9ae8241beab",
+      "discriminator": "0",
+      "public_flags": 64,
+      "flags": 64,
+      "banner": null,
+      "accent_color": null,
+      "global_name": "Cabrall",
+      "avatar_decoration_data": null,
+      "collectibles": {
+        "nameplate": {
+          "sku_id": "1409983105577783410",
+          "asset": "nameplates/special_events_2/nitro_rocketfuel_nameplate/",
+          "label": "COLLECTIBLES_SEPTEMBER_2025_MARKETING_NAMEPLATE_A11Y",
+          "palette": "violet"
+        }
+      },
+      "display_name_styles": {
+        "font_id": 8,
+        "effect_id": 4,
+        "colors": [
+          525061
+        ]
+      },
+      "banner_color": null,
+      "clan": null,
+      "primary_guild": null
+    },
+    "roles": [],
+    "require_colons": true,
+    "managed": false,
+    "animated": false,
+    "available": true
+  },
+  {
+    "id": "1450795310438813696",
+    "name": "community",
+    "user": {
+      "id": "461660911107833856",
+      "username": "athila.cabrall",
+      "avatar": "a_225b4da7fdb2408a419dc9ae8241beab",
+      "discriminator": "0",
+      "public_flags": 64,
+      "flags": 64,
+      "banner": null,
+      "accent_color": null,
+      "global_name": "Cabrall",
+      "avatar_decoration_data": null,
+      "collectibles": {
+        "nameplate": {
+          "sku_id": "1409983105577783410",
+          "asset": "nameplates/special_events_2/nitro_rocketfuel_nameplate/",
+          "label": "COLLECTIBLES_SEPTEMBER_2025_MARKETING_NAMEPLATE_A11Y",
+          "palette": "violet"
+        }
+      },
+      "display_name_styles": {
+        "font_id": 8,
+        "effect_id": 4,
+        "colors": [
+          525061
+        ]
+      },
+      "banner_color": null,
+      "clan": null,
+      "primary_guild": null
+    },
+    "roles": [],
+    "require_colons": true,
+    "managed": false,
+    "animated": false,
+    "available": true
+  },
+  {
+    "id": "1486661103923495022",
+    "name": "TahmKench",
+    "user": {
+      "id": "598326915522101270",
+      "username": "Yuji Itadori",
+      "avatar": "838b5f470c7fe019000b53082ff73cee",
+      "discriminator": "4582",
+      "public_flags": 65536,
+      "flags": 65536,
+      "bot": true,
+      "banner": null,
+      "accent_color": null,
+      "global_name": null,
+      "avatar_decoration_data": null,
+      "collectibles": null,
+      "display_name_styles": null,
+      "banner_color": null,
+      "clan": null,
+      "primary_guild": null
+    },
+    "roles": [],
+    "require_colons": true,
+    "managed": false,
+    "animated": false,
+    "available": true
+  },
+  {
+    "id": "1486661105370529802",
+    "name": "yasuo",
+    "user": {
+      "id": "598326915522101270",
+      "username": "Yuji Itadori",
+      "avatar": "838b5f470c7fe019000b53082ff73cee",
+      "discriminator": "4582",
+      "public_flags": 65536,
+      "flags": 65536,
+      "bot": true,
+      "banner": null,
+      "accent_color": null,
+      "global_name": null,
+      "avatar_decoration_data": null,
+      "collectibles": null,
+      "display_name_styles": null,
+      "banner_color": null,
+      "clan": null,
+      "primary_guild": null
+    },
+    "roles": [],
+    "require_colons": true,
+    "managed": false,
+    "animated": false,
+    "available": true
+  },
+  {
+    "id": "1486661106423566347",
+    "name": "Ivern",
+    "user": {
+      "id": "598326915522101270",
+      "username": "Yuji Itadori",
+      "avatar": "838b5f470c7fe019000b53082ff73cee",
+      "discriminator": "4582",
+      "public_flags": 65536,
+      "flags": 65536,
+      "bot": true,
+      "banner": null,
+      "accent_color": null,
+      "global_name": null,
+      "avatar_decoration_data": null,
+      "collectibles": null,
+      "display_name_styles": null,
+      "banner_color": null,
+      "clan": null,
+      "primary_guild": null
+    },
+    "roles": [],
+    "require_colons": true,
+    "managed": false,
+    "animated": false,
+    "available": true
+  },
+  {
+    "id": "1486661107056771257",
+    "name": "Sett",
+    "user": {
+      "id": "598326915522101270",
+      "username": "Yuji Itadori",
+      "avatar": "838b5f470c7fe019000b53082ff73cee",
+      "discriminator": "4582",
+      "public_flags": 65536,
+      "flags": 65536,
+      "bot": true,
+      "banner": null,
+      "accent_color": null,
+      "global_name": null,
+      "avatar_decoration_data": null,
+      "collectibles": null,
+      "display_name_styles": null,
+      "banner_color": null,
+      "clan": null,
+      "primary_guild": null
+    },
+    "roles": [],
+    "require_colons": true,
+    "managed": false,
+    "animated": false,
+    "available": true
+  },
+  {
+    "id": "1486661108592017469",
+    "name": "Ashe",
+    "user": {
+      "id": "598326915522101270",
+      "username": "Yuji Itadori",
+      "avatar": "838b5f470c7fe019000b53082ff73cee",
+      "discriminator": "4582",
+      "public_flags": 65536,
+      "flags": 65536,
+      "bot": true,
+      "banner": null,
+      "accent_color": null,
+      "global_name": null,
+      "avatar_decoration_data": null,
+      "collectibles": null,
+      "display_name_styles": null,
+      "banner_color": null,
+      "clan": null,
+      "primary_guild": null
+    },
+    "roles": [],
+    "require_colons": true,
+    "managed": false,
+    "animated": false,
+    "available": true
+  },
+  {
+    "id": "1486661110596767759",
+    "name": "Teemo",
+    "user": {
+      "id": "598326915522101270",
+      "username": "Yuji Itadori",
+      "avatar": "838b5f470c7fe019000b53082ff73cee",
+      "discriminator": "4582",
+      "public_flags": 65536,
+      "flags": 65536,
+      "bot": true,
+      "banner": null,
+      "accent_color": null,
+      "global_name": null,
+      "avatar_decoration_data": null,
+      "collectibles": null,
+      "display_name_styles": null,
+      "banner_color": null,
+      "clan": null,
+      "primary_guild": null
+    },
+    "roles": [],
+    "require_colons": true,
+    "managed": false,
+    "animated": false,
+    "available": true
+  },
+  {
+    "id": "1486661112295456870",
+    "name": "Jhin",
+    "user": {
+      "id": "598326915522101270",
+      "username": "Yuji Itadori",
+      "avatar": "838b5f470c7fe019000b53082ff73cee",
+      "discriminator": "4582",
+      "public_flags": 65536,
+      "flags": 65536,
+      "bot": true,
+      "banner": null,
+      "accent_color": null,
+      "global_name": null,
+      "avatar_decoration_data": null,
+      "collectibles": null,
+      "display_name_styles": null,
+      "banner_color": null,
+      "clan": null,
+      "primary_guild": null
+    },
+    "roles": [],
+    "require_colons": true,
+    "managed": false,
+    "animated": false,
+    "available": true
+  },
+  {
+    "id": "1486661113268535389",
+    "name": "Twitch",
+    "user": {
+      "id": "598326915522101270",
+      "username": "Yuji Itadori",
+      "avatar": "838b5f470c7fe019000b53082ff73cee",
+      "discriminator": "4582",
+      "public_flags": 65536,
+      "flags": 65536,
+      "bot": true,
+      "banner": null,
+      "accent_color": null,
+      "global_name": null,
+      "avatar_decoration_data": null,
+      "collectibles": null,
+      "display_name_styles": null,
+      "banner_color": null,
+      "clan": null,
+      "primary_guild": null
+    },
+    "roles": [],
+    "require_colons": true,
+    "managed": false,
+    "animated": false,
+    "available": true
+  },
+  {
+    "id": "1486661115386794036",
+    "name": "Heimerdinger",
+    "user": {
+      "id": "598326915522101270",
+      "username": "Yuji Itadori",
+      "avatar": "838b5f470c7fe019000b53082ff73cee",
+      "discriminator": "4582",
+      "public_flags": 65536,
+      "flags": 65536,
+      "bot": true,
+      "banner": null,
+      "accent_color": null,
+      "global_name": null,
+      "avatar_decoration_data": null,
+      "collectibles": null,
+      "display_name_styles": null,
+      "banner_color": null,
+      "clan": null,
+      "primary_guild": null
+    },
+    "roles": [],
+    "require_colons": true,
+    "managed": false,
+    "animated": false,
+    "available": true
+  },
+  {
+    "id": "1486661116787691621",
+    "name": "Shyvana",
+    "user": {
+      "id": "598326915522101270",
+      "username": "Yuji Itadori",
+      "avatar": "838b5f470c7fe019000b53082ff73cee",
+      "discriminator": "4582",
+      "public_flags": 65536,
+      "flags": 65536,
+      "bot": true,
+      "banner": null,
+      "accent_color": null,
+      "global_name": null,
+      "avatar_decoration_data": null,
+      "collectibles": null,
+      "display_name_styles": null,
+      "banner_color": null,
+      "clan": null,
+      "primary_guild": null
+    },
+    "roles": [],
+    "require_colons": true,
+    "managed": false,
+    "animated": false,
+    "available": true
+  },
+  {
+    "id": "1486661120616829099",
+    "name": "Top",
+    "user": {
+      "id": "598326915522101270",
+      "username": "Yuji Itadori",
+      "avatar": "838b5f470c7fe019000b53082ff73cee",
+      "discriminator": "4582",
+      "public_flags": 65536,
+      "flags": 65536,
+      "bot": true,
+      "banner": null,
+      "accent_color": null,
+      "global_name": null,
+      "avatar_decoration_data": null,
+      "collectibles": null,
+      "display_name_styles": null,
+      "banner_color": null,
+      "clan": null,
+      "primary_guild": null
+    },
+    "roles": [],
+    "require_colons": true,
+    "managed": false,
+    "animated": false,
+    "available": true
+  },
+  {
+    "id": "1486813706536095744",
+    "name": "Bot",
+    "user": {
+      "id": "461660911107833856",
+      "username": "athila.cabrall",
+      "avatar": "a_225b4da7fdb2408a419dc9ae8241beab",
+      "discriminator": "0",
+      "public_flags": 64,
+      "flags": 64,
+      "banner": null,
+      "accent_color": null,
+      "global_name": "Cabrall",
+      "avatar_decoration_data": null,
+      "collectibles": {
+        "nameplate": {
+          "sku_id": "1409983105577783410",
+          "asset": "nameplates/special_events_2/nitro_rocketfuel_nameplate/",
+          "label": "COLLECTIBLES_SEPTEMBER_2025_MARKETING_NAMEPLATE_A11Y",
+          "palette": "violet"
+        }
+      },
+      "display_name_styles": {
+        "font_id": 8,
+        "effect_id": 4,
+        "colors": [
+          525061
+        ]
+      },
+      "banner_color": null,
+      "clan": null,
+      "primary_guild": null
+    },
+    "roles": [],
+    "require_colons": true,
+    "managed": false,
+    "animated": false,
+    "available": true
+  },
+  {
+    "id": "1486813708037656667",
+    "name": "Selva",
+    "user": {
+      "id": "461660911107833856",
+      "username": "athila.cabrall",
+      "avatar": "a_225b4da7fdb2408a419dc9ae8241beab",
+      "discriminator": "0",
+      "public_flags": 64,
+      "flags": 64,
+      "banner": null,
+      "accent_color": null,
+      "global_name": "Cabrall",
+      "avatar_decoration_data": null,
+      "collectibles": {
+        "nameplate": {
+          "sku_id": "1409983105577783410",
+          "asset": "nameplates/special_events_2/nitro_rocketfuel_nameplate/",
+          "label": "COLLECTIBLES_SEPTEMBER_2025_MARKETING_NAMEPLATE_A11Y",
+          "palette": "violet"
+        }
+      },
+      "display_name_styles": {
+        "font_id": 8,
+        "effect_id": 4,
+        "colors": [
+          525061
+        ]
+      },
+      "banner_color": null,
+      "clan": null,
+      "primary_guild": null
+    },
+    "roles": [],
+    "require_colons": true,
+    "managed": false,
+    "animated": false,
+    "available": true
+  },
+  {
+    "id": "1486813709543149630",
+    "name": "Meio",
+    "user": {
+      "id": "461660911107833856",
+      "username": "athila.cabrall",
+      "avatar": "a_225b4da7fdb2408a419dc9ae8241beab",
+      "discriminator": "0",
+      "public_flags": 64,
+      "flags": 64,
+      "banner": null,
+      "accent_color": null,
+      "global_name": "Cabrall",
+      "avatar_decoration_data": null,
+      "collectibles": {
+        "nameplate": {
+          "sku_id": "1409983105577783410",
+          "asset": "nameplates/special_events_2/nitro_rocketfuel_nameplate/",
+          "label": "COLLECTIBLES_SEPTEMBER_2025_MARKETING_NAMEPLATE_A11Y",
+          "palette": "violet"
+        }
+      },
+      "display_name_styles": {
+        "font_id": 8,
+        "effect_id": 4,
+        "colors": [
+          525061
+        ]
+      },
+      "banner_color": null,
+      "clan": null,
+      "primary_guild": null
+    },
+    "roles": [],
+    "require_colons": true,
+    "managed": false,
+    "animated": false,
+    "available": true
+  },
+  {
+    "id": "1486813710927527967",
+    "name": "Aleatorio",
+    "user": {
+      "id": "461660911107833856",
+      "username": "athila.cabrall",
+      "avatar": "a_225b4da7fdb2408a419dc9ae8241beab",
+      "discriminator": "0",
+      "public_flags": 64,
+      "flags": 64,
+      "banner": null,
+      "accent_color": null,
+      "global_name": "Cabrall",
+      "avatar_decoration_data": null,
+      "collectibles": {
+        "nameplate": {
+          "sku_id": "1409983105577783410",
+          "asset": "nameplates/special_events_2/nitro_rocketfuel_nameplate/",
+          "label": "COLLECTIBLES_SEPTEMBER_2025_MARKETING_NAMEPLATE_A11Y",
+          "palette": "violet"
+        }
+      },
+      "display_name_styles": {
+        "font_id": 8,
+        "effect_id": 4,
+        "colors": [
+          525061
+        ]
+      },
+      "banner_color": null,
+      "clan": null,
+      "primary_guild": null
+    },
+    "roles": [],
+    "require_colons": true,
+    "managed": false,
+    "animated": false,
+    "available": true
+  },
+  {
+    "id": "1486813712592670720",
+    "name": "Suporte",
+    "user": {
+      "id": "461660911107833856",
+      "username": "athila.cabrall",
+      "avatar": "a_225b4da7fdb2408a419dc9ae8241beab",
+      "discriminator": "0",
+      "public_flags": 64,
+      "flags": 64,
+      "banner": null,
+      "accent_color": null,
+      "global_name": "Cabrall",
+      "avatar_decoration_data": null,
+      "collectibles": {
+        "nameplate": {
+          "sku_id": "1409983105577783410",
+          "asset": "nameplates/special_events_2/nitro_rocketfuel_nameplate/",
+          "label": "COLLECTIBLES_SEPTEMBER_2025_MARKETING_NAMEPLATE_A11Y",
+          "palette": "violet"
+        }
+      },
+      "display_name_styles": {
+        "font_id": 8,
+        "effect_id": 4,
+        "colors": [
+          525061
+        ]
+      },
+      "banner_color": null,
+      "clan": null,
+      "primary_guild": null
+    },
+    "roles": [],
+    "require_colons": true,
+    "managed": false,
+    "animated": false,
+    "available": true
+  },
+  {
+    "id": "1486830551011954880",
+    "name": "Prata",
+    "user": {
+      "id": "461660911107833856",
+      "username": "athila.cabrall",
+      "avatar": "a_225b4da7fdb2408a419dc9ae8241beab",
+      "discriminator": "0",
+      "public_flags": 64,
+      "flags": 64,
+      "banner": null,
+      "accent_color": null,
+      "global_name": "Cabrall",
+      "avatar_decoration_data": null,
+      "collectibles": {
+        "nameplate": {
+          "sku_id": "1409983105577783410",
+          "asset": "nameplates/special_events_2/nitro_rocketfuel_nameplate/",
+          "label": "COLLECTIBLES_SEPTEMBER_2025_MARKETING_NAMEPLATE_A11Y",
+          "palette": "violet"
+        }
+      },
+      "display_name_styles": {
+        "font_id": 8,
+        "effect_id": 4,
+        "colors": [
+          525061
+        ]
+      },
+      "banner_color": null,
+      "clan": null,
+      "primary_guild": null
+    },
+    "roles": [],
+    "require_colons": true,
+    "managed": false,
+    "animated": false,
+    "available": true
+  },
+  {
+    "id": "1486830552173645876",
+    "name": "Ouro",
+    "user": {
+      "id": "461660911107833856",
+      "username": "athila.cabrall",
+      "avatar": "a_225b4da7fdb2408a419dc9ae8241beab",
+      "discriminator": "0",
+      "public_flags": 64,
+      "flags": 64,
+      "banner": null,
+      "accent_color": null,
+      "global_name": "Cabrall",
+      "avatar_decoration_data": null,
+      "collectibles": {
+        "nameplate": {
+          "sku_id": "1409983105577783410",
+          "asset": "nameplates/special_events_2/nitro_rocketfuel_nameplate/",
+          "label": "COLLECTIBLES_SEPTEMBER_2025_MARKETING_NAMEPLATE_A11Y",
+          "palette": "violet"
+        }
+      },
+      "display_name_styles": {
+        "font_id": 8,
+        "effect_id": 4,
+        "colors": [
+          525061
+        ]
+      },
+      "banner_color": null,
+      "clan": null,
+      "primary_guild": null
+    },
+    "roles": [],
+    "require_colons": true,
+    "managed": false,
+    "animated": false,
+    "available": true
+  },
+  {
+    "id": "1486830554707001525",
+    "name": "Desafiante",
+    "user": {
+      "id": "461660911107833856",
+      "username": "athila.cabrall",
+      "avatar": "a_225b4da7fdb2408a419dc9ae8241beab",
+      "discriminator": "0",
+      "public_flags": 64,
+      "flags": 64,
+      "banner": null,
+      "accent_color": null,
+      "global_name": "Cabrall",
+      "avatar_decoration_data": null,
+      "collectibles": {
+        "nameplate": {
+          "sku_id": "1409983105577783410",
+          "asset": "nameplates/special_events_2/nitro_rocketfuel_nameplate/",
+          "label": "COLLECTIBLES_SEPTEMBER_2025_MARKETING_NAMEPLATE_A11Y",
+          "palette": "violet"
+        }
+      },
+      "display_name_styles": {
+        "font_id": 8,
+        "effect_id": 4,
+        "colors": [
+          525061
+        ]
+      },
+      "banner_color": null,
+      "clan": null,
+      "primary_guild": null
+    },
+    "roles": [],
+    "require_colons": true,
+    "managed": false,
+    "animated": false,
+    "available": true
+  },
+  {
+    "id": "1486830556342779995",
+    "name": "Grao_Mestre",
+    "user": {
+      "id": "461660911107833856",
+      "username": "athila.cabrall",
+      "avatar": "a_225b4da7fdb2408a419dc9ae8241beab",
+      "discriminator": "0",
+      "public_flags": 64,
+      "flags": 64,
+      "banner": null,
+      "accent_color": null,
+      "global_name": "Cabrall",
+      "avatar_decoration_data": null,
+      "collectibles": {
+        "nameplate": {
+          "sku_id": "1409983105577783410",
+          "asset": "nameplates/special_events_2/nitro_rocketfuel_nameplate/",
+          "label": "COLLECTIBLES_SEPTEMBER_2025_MARKETING_NAMEPLATE_A11Y",
+          "palette": "violet"
+        }
+      },
+      "display_name_styles": {
+        "font_id": 8,
+        "effect_id": 4,
+        "colors": [
+          525061
+        ]
+      },
+      "banner_color": null,
+      "clan": null,
+      "primary_guild": null
+    },
+    "roles": [],
+    "require_colons": true,
+    "managed": false,
+    "animated": false,
+    "available": true
+  },
+  {
+    "id": "1486830557903196341",
+    "name": "Mestre",
+    "user": {
+      "id": "461660911107833856",
+      "username": "athila.cabrall",
+      "avatar": "a_225b4da7fdb2408a419dc9ae8241beab",
+      "discriminator": "0",
+      "public_flags": 64,
+      "flags": 64,
+      "banner": null,
+      "accent_color": null,
+      "global_name": "Cabrall",
+      "avatar_decoration_data": null,
+      "collectibles": {
+        "nameplate": {
+          "sku_id": "1409983105577783410",
+          "asset": "nameplates/special_events_2/nitro_rocketfuel_nameplate/",
+          "label": "COLLECTIBLES_SEPTEMBER_2025_MARKETING_NAMEPLATE_A11Y",
+          "palette": "violet"
+        }
+      },
+      "display_name_styles": {
+        "font_id": 8,
+        "effect_id": 4,
+        "colors": [
+          525061
+        ]
+      },
+      "banner_color": null,
+      "clan": null,
+      "primary_guild": null
+    },
+    "roles": [],
+    "require_colons": true,
+    "managed": false,
+    "animated": false,
+    "available": true
+  },
+  {
+    "id": "1486830559362547793",
+    "name": "Platina",
+    "user": {
+      "id": "461660911107833856",
+      "username": "athila.cabrall",
+      "avatar": "a_225b4da7fdb2408a419dc9ae8241beab",
+      "discriminator": "0",
+      "public_flags": 64,
+      "flags": 64,
+      "banner": null,
+      "accent_color": null,
+      "global_name": "Cabrall",
+      "avatar_decoration_data": null,
+      "collectibles": {
+        "nameplate": {
+          "sku_id": "1409983105577783410",
+          "asset": "nameplates/special_events_2/nitro_rocketfuel_nameplate/",
+          "label": "COLLECTIBLES_SEPTEMBER_2025_MARKETING_NAMEPLATE_A11Y",
+          "palette": "violet"
+        }
+      },
+      "display_name_styles": {
+        "font_id": 8,
+        "effect_id": 4,
+        "colors": [
+          525061
+        ]
+      },
+      "banner_color": null,
+      "clan": null,
+      "primary_guild": null
+    },
+    "roles": [],
+    "require_colons": true,
+    "managed": false,
+    "animated": false,
+    "available": true
+  },
+  {
+    "id": "1486830562453885131",
+    "name": "Bronze",
+    "user": {
+      "id": "461660911107833856",
+      "username": "athila.cabrall",
+      "avatar": "a_225b4da7fdb2408a419dc9ae8241beab",
+      "discriminator": "0",
+      "public_flags": 64,
+      "flags": 64,
+      "banner": null,
+      "accent_color": null,
+      "global_name": "Cabrall",
+      "avatar_decoration_data": null,
+      "collectibles": {
+        "nameplate": {
+          "sku_id": "1409983105577783410",
+          "asset": "nameplates/special_events_2/nitro_rocketfuel_nameplate/",
+          "label": "COLLECTIBLES_SEPTEMBER_2025_MARKETING_NAMEPLATE_A11Y",
+          "palette": "violet"
+        }
+      },
+      "display_name_styles": {
+        "font_id": 8,
+        "effect_id": 4,
+        "colors": [
+          525061
+        ]
+      },
+      "banner_color": null,
+      "clan": null,
+      "primary_guild": null
+    },
+    "roles": [],
+    "require_colons": true,
+    "managed": false,
+    "animated": false,
+    "available": true
+  },
+  {
+    "id": "1486830565427773531",
+    "name": "Diamante",
+    "user": {
+      "id": "461660911107833856",
+      "username": "athila.cabrall",
+      "avatar": "a_225b4da7fdb2408a419dc9ae8241beab",
+      "discriminator": "0",
+      "public_flags": 64,
+      "flags": 64,
+      "banner": null,
+      "accent_color": null,
+      "global_name": "Cabrall",
+      "avatar_decoration_data": null,
+      "collectibles": {
+        "nameplate": {
+          "sku_id": "1409983105577783410",
+          "asset": "nameplates/special_events_2/nitro_rocketfuel_nameplate/",
+          "label": "COLLECTIBLES_SEPTEMBER_2025_MARKETING_NAMEPLATE_A11Y",
+          "palette": "violet"
+        }
+      },
+      "display_name_styles": {
+        "font_id": 8,
+        "effect_id": 4,
+        "colors": [
+          525061
+        ]
+      },
+      "banner_color": null,
+      "clan": null,
+      "primary_guild": null
+    },
+    "roles": [],
+    "require_colons": true,
+    "managed": false,
+    "animated": false,
+    "available": true
+  },
+  {
+    "id": "1486830568359334019",
+    "name": "Ferro",
+    "user": {
+      "id": "461660911107833856",
+      "username": "athila.cabrall",
+      "avatar": "a_225b4da7fdb2408a419dc9ae8241beab",
+      "discriminator": "0",
+      "public_flags": 64,
+      "flags": 64,
+      "banner": null,
+      "accent_color": null,
+      "global_name": "Cabrall",
+      "avatar_decoration_data": null,
+      "collectibles": {
+        "nameplate": {
+          "sku_id": "1409983105577783410",
+          "asset": "nameplates/special_events_2/nitro_rocketfuel_nameplate/",
+          "label": "COLLECTIBLES_SEPTEMBER_2025_MARKETING_NAMEPLATE_A11Y",
+          "palette": "violet"
+        }
+      },
+      "display_name_styles": {
+        "font_id": 8,
+        "effect_id": 4,
+        "colors": [
+          525061
+        ]
+      },
+      "banner_color": null,
+      "clan": null,
+      "primary_guild": null
+    },
+    "roles": [],
+    "require_colons": true,
+    "managed": false,
+    "animated": false,
+    "available": true
+  },
+  {
+    "id": "1486830570448359585",
+    "name": "Esmeralda",
+    "user": {
+      "id": "461660911107833856",
+      "username": "athila.cabrall",
+      "avatar": "a_225b4da7fdb2408a419dc9ae8241beab",
+      "discriminator": "0",
+      "public_flags": 64,
+      "flags": 64,
+      "banner": null,
+      "accent_color": null,
+      "global_name": "Cabrall",
+      "avatar_decoration_data": null,
+      "collectibles": {
+        "nameplate": {
+          "sku_id": "1409983105577783410",
+          "asset": "nameplates/special_events_2/nitro_rocketfuel_nameplate/",
+          "label": "COLLECTIBLES_SEPTEMBER_2025_MARKETING_NAMEPLATE_A11Y",
+          "palette": "violet"
+        }
+      },
+      "display_name_styles": {
+        "font_id": 8,
+        "effect_id": 4,
+        "colors": [
+          525061
+        ]
+      },
+      "banner_color": null,
+      "clan": null,
+      "primary_guild": null
+    },
+    "roles": [],
+    "require_colons": true,
+    "managed": false,
+    "animated": false,
+    "available": true
+  },
+  {
+    "id": "1486831418159136869",
+    "name": "challenger",
+    "user": {
+      "id": "461660911107833856",
+      "username": "athila.cabrall",
+      "avatar": "a_225b4da7fdb2408a419dc9ae8241beab",
+      "discriminator": "0",
+      "public_flags": 64,
+      "flags": 64,
+      "banner": null,
+      "accent_color": null,
+      "global_name": "Cabrall",
+      "avatar_decoration_data": null,
+      "collectibles": {
+        "nameplate": {
+          "sku_id": "1409983105577783410",
+          "asset": "nameplates/special_events_2/nitro_rocketfuel_nameplate/",
+          "label": "COLLECTIBLES_SEPTEMBER_2025_MARKETING_NAMEPLATE_A11Y",
+          "palette": "violet"
+        }
+      },
+      "display_name_styles": {
+        "font_id": 8,
+        "effect_id": 4,
+        "colors": [
+          525061
+        ]
+      },
+      "banner_color": null,
+      "clan": null,
+      "primary_guild": null
+    },
+    "roles": [],
+    "require_colons": true,
+    "managed": false,
+    "animated": false,
+    "available": true
+  },
+  {
+    "id": "1486831419782201406",
+    "name": "unranked",
+    "user": {
+      "id": "461660911107833856",
+      "username": "athila.cabrall",
+      "avatar": "a_225b4da7fdb2408a419dc9ae8241beab",
+      "discriminator": "0",
+      "public_flags": 64,
+      "flags": 64,
+      "banner": null,
+      "accent_color": null,
+      "global_name": "Cabrall",
+      "avatar_decoration_data": null,
+      "collectibles": {
+        "nameplate": {
+          "sku_id": "1409983105577783410",
+          "asset": "nameplates/special_events_2/nitro_rocketfuel_nameplate/",
+          "label": "COLLECTIBLES_SEPTEMBER_2025_MARKETING_NAMEPLATE_A11Y",
+          "palette": "violet"
+        }
+      },
+      "display_name_styles": {
+        "font_id": 8,
+        "effect_id": 4,
+        "colors": [
+          525061
+        ]
+      },
+      "banner_color": null,
+      "clan": null,
+      "primary_guild": null
+    },
+    "roles": [],
+    "require_colons": true,
+    "managed": false,
+    "animated": false,
+    "available": true
+  },
+  {
+    "id": "1486831421501739079",
+    "name": "diamond",
+    "user": {
+      "id": "461660911107833856",
+      "username": "athila.cabrall",
+      "avatar": "a_225b4da7fdb2408a419dc9ae8241beab",
+      "discriminator": "0",
+      "public_flags": 64,
+      "flags": 64,
+      "banner": null,
+      "accent_color": null,
+      "global_name": "Cabrall",
+      "avatar_decoration_data": null,
+      "collectibles": {
+        "nameplate": {
+          "sku_id": "1409983105577783410",
+          "asset": "nameplates/special_events_2/nitro_rocketfuel_nameplate/",
+          "label": "COLLECTIBLES_SEPTEMBER_2025_MARKETING_NAMEPLATE_A11Y",
+          "palette": "violet"
+        }
+      },
+      "display_name_styles": {
+        "font_id": 8,
+        "effect_id": 4,
+        "colors": [
+          525061
+        ]
+      },
+      "banner_color": null,
+      "clan": null,
+      "primary_guild": null
+    },
+    "roles": [],
+    "require_colons": true,
+    "managed": false,
+    "animated": false,
+    "available": true
+  },
+  {
+    "id": "1486831423359815712",
+    "name": "grandmaster",
+    "user": {
+      "id": "461660911107833856",
+      "username": "athila.cabrall",
+      "avatar": "a_225b4da7fdb2408a419dc9ae8241beab",
+      "discriminator": "0",
+      "public_flags": 64,
+      "flags": 64,
+      "banner": null,
+      "accent_color": null,
+      "global_name": "Cabrall",
+      "avatar_decoration_data": null,
+      "collectibles": {
+        "nameplate": {
+          "sku_id": "1409983105577783410",
+          "asset": "nameplates/special_events_2/nitro_rocketfuel_nameplate/",
+          "label": "COLLECTIBLES_SEPTEMBER_2025_MARKETING_NAMEPLATE_A11Y",
+          "palette": "violet"
+        }
+      },
+      "display_name_styles": {
+        "font_id": 8,
+        "effect_id": 4,
+        "colors": [
+          525061
+        ]
+      },
+      "banner_color": null,
+      "clan": null,
+      "primary_guild": null
+    },
+    "roles": [],
+    "require_colons": true,
+    "managed": false,
+    "animated": false,
+    "available": true
+  },
+  {
+    "id": "1486831426384040026",
+    "name": "master",
+    "user": {
+      "id": "461660911107833856",
+      "username": "athila.cabrall",
+      "avatar": "a_225b4da7fdb2408a419dc9ae8241beab",
+      "discriminator": "0",
+      "public_flags": 64,
+      "flags": 64,
+      "banner": null,
+      "accent_color": null,
+      "global_name": "Cabrall",
+      "avatar_decoration_data": null,
+      "collectibles": {
+        "nameplate": {
+          "sku_id": "1409983105577783410",
+          "asset": "nameplates/special_events_2/nitro_rocketfuel_nameplate/",
+          "label": "COLLECTIBLES_SEPTEMBER_2025_MARKETING_NAMEPLATE_A11Y",
+          "palette": "violet"
+        }
+      },
+      "display_name_styles": {
+        "font_id": 8,
+        "effect_id": 4,
+        "colors": [
+          525061
+        ]
+      },
+      "banner_color": null,
+      "clan": null,
+      "primary_guild": null
+    },
+    "roles": [],
+    "require_colons": true,
+    "managed": false,
+    "animated": false,
+    "available": true
+  },
+  {
+    "id": "1486831428430856302",
+    "name": "gold",
+    "user": {
+      "id": "461660911107833856",
+      "username": "athila.cabrall",
+      "avatar": "a_225b4da7fdb2408a419dc9ae8241beab",
+      "discriminator": "0",
+      "public_flags": 64,
+      "flags": 64,
+      "banner": null,
+      "accent_color": null,
+      "global_name": "Cabrall",
+      "avatar_decoration_data": null,
+      "collectibles": {
+        "nameplate": {
+          "sku_id": "1409983105577783410",
+          "asset": "nameplates/special_events_2/nitro_rocketfuel_nameplate/",
+          "label": "COLLECTIBLES_SEPTEMBER_2025_MARKETING_NAMEPLATE_A11Y",
+          "palette": "violet"
+        }
+      },
+      "display_name_styles": {
+        "font_id": 8,
+        "effect_id": 4,
+        "colors": [
+          525061
+        ]
+      },
+      "banner_color": null,
+      "clan": null,
+      "primary_guild": null
+    },
+    "roles": [],
+    "require_colons": true,
+    "managed": false,
+    "animated": false,
+    "available": true
+  },
+  {
+    "id": "1486831430859362385",
+    "name": "platinum",
+    "user": {
+      "id": "461660911107833856",
+      "username": "athila.cabrall",
+      "avatar": "a_225b4da7fdb2408a419dc9ae8241beab",
+      "discriminator": "0",
+      "public_flags": 64,
+      "flags": 64,
+      "banner": null,
+      "accent_color": null,
+      "global_name": "Cabrall",
+      "avatar_decoration_data": null,
+      "collectibles": {
+        "nameplate": {
+          "sku_id": "1409983105577783410",
+          "asset": "nameplates/special_events_2/nitro_rocketfuel_nameplate/",
+          "label": "COLLECTIBLES_SEPTEMBER_2025_MARKETING_NAMEPLATE_A11Y",
+          "palette": "violet"
+        }
+      },
+      "display_name_styles": {
+        "font_id": 8,
+        "effect_id": 4,
+        "colors": [
+          525061
+        ]
+      },
+      "banner_color": null,
+      "clan": null,
+      "primary_guild": null
+    },
+    "roles": [],
+    "require_colons": true,
+    "managed": false,
+    "animated": false,
+    "available": true
+  },
+  {
+    "id": "1486831433329803546",
+    "name": "bronze",
+    "user": {
+      "id": "461660911107833856",
+      "username": "athila.cabrall",
+      "avatar": "a_225b4da7fdb2408a419dc9ae8241beab",
+      "discriminator": "0",
+      "public_flags": 64,
+      "flags": 64,
+      "banner": null,
+      "accent_color": null,
+      "global_name": "Cabrall",
+      "avatar_decoration_data": null,
+      "collectibles": {
+        "nameplate": {
+          "sku_id": "1409983105577783410",
+          "asset": "nameplates/special_events_2/nitro_rocketfuel_nameplate/",
+          "label": "COLLECTIBLES_SEPTEMBER_2025_MARKETING_NAMEPLATE_A11Y",
+          "palette": "violet"
+        }
+      },
+      "display_name_styles": {
+        "font_id": 8,
+        "effect_id": 4,
+        "colors": [
+          525061
+        ]
+      },
+      "banner_color": null,
+      "clan": null,
+      "primary_guild": null
+    },
+    "roles": [],
+    "require_colons": true,
+    "managed": false,
+    "animated": false,
+    "available": true
+  },
+  {
+    "id": "1486831434697150617",
+    "name": "iron",
+    "user": {
+      "id": "461660911107833856",
+      "username": "athila.cabrall",
+      "avatar": "a_225b4da7fdb2408a419dc9ae8241beab",
+      "discriminator": "0",
+      "public_flags": 64,
+      "flags": 64,
+      "banner": null,
+      "accent_color": null,
+      "global_name": "Cabrall",
+      "avatar_decoration_data": null,
+      "collectibles": {
+        "nameplate": {
+          "sku_id": "1409983105577783410",
+          "asset": "nameplates/special_events_2/nitro_rocketfuel_nameplate/",
+          "label": "COLLECTIBLES_SEPTEMBER_2025_MARKETING_NAMEPLATE_A11Y",
+          "palette": "violet"
+        }
+      },
+      "display_name_styles": {
+        "font_id": 8,
+        "effect_id": 4,
+        "colors": [
+          525061
+        ]
+      },
+      "banner_color": null,
+      "clan": null,
+      "primary_guild": null
+    },
+    "roles": [],
+    "require_colons": true,
+    "managed": false,
+    "animated": false,
+    "available": true
+  },
+  {
+    "id": "1486831435984670800",
+    "name": "silver",
+    "user": {
+      "id": "461660911107833856",
+      "username": "athila.cabrall",
+      "avatar": "a_225b4da7fdb2408a419dc9ae8241beab",
+      "discriminator": "0",
+      "public_flags": 64,
+      "flags": 64,
+      "banner": null,
+      "accent_color": null,
+      "global_name": "Cabrall",
+      "avatar_decoration_data": null,
+      "collectibles": {
+        "nameplate": {
+          "sku_id": "1409983105577783410",
+          "asset": "nameplates/special_events_2/nitro_rocketfuel_nameplate/",
+          "label": "COLLECTIBLES_SEPTEMBER_2025_MARKETING_NAMEPLATE_A11Y",
+          "palette": "violet"
+        }
+      },
+      "display_name_styles": {
+        "font_id": 8,
+        "effect_id": 4,
+        "colors": [
+          525061
+        ]
+      },
+      "banner_color": null,
+      "clan": null,
+      "primary_guild": null
+    },
+    "roles": [],
+    "require_colons": true,
+    "managed": false,
+    "animated": false,
+    "available": true
+  },
+  {
+    "id": "1486832723493388469",
+    "name": "Maestria_10",
+    "user": {
+      "id": "461660911107833856",
+      "username": "athila.cabrall",
+      "avatar": "a_225b4da7fdb2408a419dc9ae8241beab",
+      "discriminator": "0",
+      "public_flags": 64,
+      "flags": 64,
+      "banner": null,
+      "accent_color": null,
+      "global_name": "Cabrall",
+      "avatar_decoration_data": null,
+      "collectibles": {
+        "nameplate": {
+          "sku_id": "1409983105577783410",
+          "asset": "nameplates/special_events_2/nitro_rocketfuel_nameplate/",
+          "label": "COLLECTIBLES_SEPTEMBER_2025_MARKETING_NAMEPLATE_A11Y",
+          "palette": "violet"
+        }
+      },
+      "display_name_styles": {
+        "font_id": 8,
+        "effect_id": 4,
+        "colors": [
+          525061
+        ]
+      },
+      "banner_color": null,
+      "clan": null,
+      "primary_guild": null
+    },
+    "roles": [],
+    "require_colons": true,
+    "managed": false,
+    "animated": false,
+    "available": true
+  },
+  {
+    "id": "1486832725393674342",
+    "name": "Maestria_9",
+    "user": {
+      "id": "461660911107833856",
+      "username": "athila.cabrall",
+      "avatar": "a_225b4da7fdb2408a419dc9ae8241beab",
+      "discriminator": "0",
+      "public_flags": 64,
+      "flags": 64,
+      "banner": null,
+      "accent_color": null,
+      "global_name": "Cabrall",
+      "avatar_decoration_data": null,
+      "collectibles": {
+        "nameplate": {
+          "sku_id": "1409983105577783410",
+          "asset": "nameplates/special_events_2/nitro_rocketfuel_nameplate/",
+          "label": "COLLECTIBLES_SEPTEMBER_2025_MARKETING_NAMEPLATE_A11Y",
+          "palette": "violet"
+        }
+      },
+      "display_name_styles": {
+        "font_id": 8,
+        "effect_id": 4,
+        "colors": [
+          525061
+        ]
+      },
+      "banner_color": null,
+      "clan": null,
+      "primary_guild": null
+    },
+    "roles": [],
+    "require_colons": true,
+    "managed": false,
+    "animated": false,
+    "available": true
+  },
+  {
+    "id": "1486832727998070845",
+    "name": "Maestria_3",
+    "user": {
+      "id": "461660911107833856",
+      "username": "athila.cabrall",
+      "avatar": "a_225b4da7fdb2408a419dc9ae8241beab",
+      "discriminator": "0",
+      "public_flags": 64,
+      "flags": 64,
+      "banner": null,
+      "accent_color": null,
+      "global_name": "Cabrall",
+      "avatar_decoration_data": null,
+      "collectibles": {
+        "nameplate": {
+          "sku_id": "1409983105577783410",
+          "asset": "nameplates/special_events_2/nitro_rocketfuel_nameplate/",
+          "label": "COLLECTIBLES_SEPTEMBER_2025_MARKETING_NAMEPLATE_A11Y",
+          "palette": "violet"
+        }
+      },
+      "display_name_styles": {
+        "font_id": 8,
+        "effect_id": 4,
+        "colors": [
+          525061
+        ]
+      },
+      "banner_color": null,
+      "clan": null,
+      "primary_guild": null
+    },
+    "roles": [],
+    "require_colons": true,
+    "managed": false,
+    "animated": false,
+    "available": true
+  },
+  {
+    "id": "1486832730007277669",
+    "name": "Maestria_2",
+    "user": {
+      "id": "461660911107833856",
+      "username": "athila.cabrall",
+      "avatar": "a_225b4da7fdb2408a419dc9ae8241beab",
+      "discriminator": "0",
+      "public_flags": 64,
+      "flags": 64,
+      "banner": null,
+      "accent_color": null,
+      "global_name": "Cabrall",
+      "avatar_decoration_data": null,
+      "collectibles": {
+        "nameplate": {
+          "sku_id": "1409983105577783410",
+          "asset": "nameplates/special_events_2/nitro_rocketfuel_nameplate/",
+          "label": "COLLECTIBLES_SEPTEMBER_2025_MARKETING_NAMEPLATE_A11Y",
+          "palette": "violet"
+        }
+      },
+      "display_name_styles": {
+        "font_id": 8,
+        "effect_id": 4,
+        "colors": [
+          525061
+        ]
+      },
+      "banner_color": null,
+      "clan": null,
+      "primary_guild": null
+    },
+    "roles": [],
+    "require_colons": true,
+    "managed": false,
+    "animated": false,
+    "available": true
+  },
+  {
+    "id": "1486832731936653451",
+    "name": "Maestria_6",
+    "user": {
+      "id": "461660911107833856",
+      "username": "athila.cabrall",
+      "avatar": "a_225b4da7fdb2408a419dc9ae8241beab",
+      "discriminator": "0",
+      "public_flags": 64,
+      "flags": 64,
+      "banner": null,
+      "accent_color": null,
+      "global_name": "Cabrall",
+      "avatar_decoration_data": null,
+      "collectibles": {
+        "nameplate": {
+          "sku_id": "1409983105577783410",
+          "asset": "nameplates/special_events_2/nitro_rocketfuel_nameplate/",
+          "label": "COLLECTIBLES_SEPTEMBER_2025_MARKETING_NAMEPLATE_A11Y",
+          "palette": "violet"
+        }
+      },
+      "display_name_styles": {
+        "font_id": 8,
+        "effect_id": 4,
+        "colors": [
+          525061
+        ]
+      },
+      "banner_color": null,
+      "clan": null,
+      "primary_guild": null
+    },
+    "roles": [],
+    "require_colons": true,
+    "managed": false,
+    "animated": false,
+    "available": true
+  },
+  {
+    "id": "1486832733887135885",
+    "name": "Maestria_7",
+    "user": {
+      "id": "461660911107833856",
+      "username": "athila.cabrall",
+      "avatar": "a_225b4da7fdb2408a419dc9ae8241beab",
+      "discriminator": "0",
+      "public_flags": 64,
+      "flags": 64,
+      "banner": null,
+      "accent_color": null,
+      "global_name": "Cabrall",
+      "avatar_decoration_data": null,
+      "collectibles": {
+        "nameplate": {
+          "sku_id": "1409983105577783410",
+          "asset": "nameplates/special_events_2/nitro_rocketfuel_nameplate/",
+          "label": "COLLECTIBLES_SEPTEMBER_2025_MARKETING_NAMEPLATE_A11Y",
+          "palette": "violet"
+        }
+      },
+      "display_name_styles": {
+        "font_id": 8,
+        "effect_id": 4,
+        "colors": [
+          525061
+        ]
+      },
+      "banner_color": null,
+      "clan": null,
+      "primary_guild": null
+    },
+    "roles": [],
+    "require_colons": true,
+    "managed": false,
+    "animated": false,
+    "available": true
+  },
+  {
+    "id": "1486832735678107739",
+    "name": "Maestria_8",
+    "user": {
+      "id": "461660911107833856",
+      "username": "athila.cabrall",
+      "avatar": "a_225b4da7fdb2408a419dc9ae8241beab",
+      "discriminator": "0",
+      "public_flags": 64,
+      "flags": 64,
+      "banner": null,
+      "accent_color": null,
+      "global_name": "Cabrall",
+      "avatar_decoration_data": null,
+      "collectibles": {
+        "nameplate": {
+          "sku_id": "1409983105577783410",
+          "asset": "nameplates/special_events_2/nitro_rocketfuel_nameplate/",
+          "label": "COLLECTIBLES_SEPTEMBER_2025_MARKETING_NAMEPLATE_A11Y",
+          "palette": "violet"
+        }
+      },
+      "display_name_styles": {
+        "font_id": 8,
+        "effect_id": 4,
+        "colors": [
+          525061
+        ]
+      },
+      "banner_color": null,
+      "clan": null,
+      "primary_guild": null
+    },
+    "roles": [],
+    "require_colons": true,
+    "managed": false,
+    "animated": false,
+    "available": true
+  },
+  {
+    "id": "1486833146191151215",
+    "name": "Honra_4",
+    "user": {
+      "id": "461660911107833856",
+      "username": "athila.cabrall",
+      "avatar": "a_225b4da7fdb2408a419dc9ae8241beab",
+      "discriminator": "0",
+      "public_flags": 64,
+      "flags": 64,
+      "banner": null,
+      "accent_color": null,
+      "global_name": "Cabrall",
+      "avatar_decoration_data": null,
+      "collectibles": {
+        "nameplate": {
+          "sku_id": "1409983105577783410",
+          "asset": "nameplates/special_events_2/nitro_rocketfuel_nameplate/",
+          "label": "COLLECTIBLES_SEPTEMBER_2025_MARKETING_NAMEPLATE_A11Y",
+          "palette": "violet"
+        }
+      },
+      "display_name_styles": {
+        "font_id": 8,
+        "effect_id": 4,
+        "colors": [
+          525061
+        ]
+      },
+      "banner_color": null,
+      "clan": null,
+      "primary_guild": null
+    },
+    "roles": [],
+    "require_colons": true,
+    "managed": false,
+    "animated": false,
+    "available": true
+  },
+  {
+    "id": "1486833149676752987",
+    "name": "Honra_5",
+    "user": {
+      "id": "461660911107833856",
+      "username": "athila.cabrall",
+      "avatar": "a_225b4da7fdb2408a419dc9ae8241beab",
+      "discriminator": "0",
+      "public_flags": 64,
+      "flags": 64,
+      "banner": null,
+      "accent_color": null,
+      "global_name": "Cabrall",
+      "avatar_decoration_data": null,
+      "collectibles": {
+        "nameplate": {
+          "sku_id": "1409983105577783410",
+          "asset": "nameplates/special_events_2/nitro_rocketfuel_nameplate/",
+          "label": "COLLECTIBLES_SEPTEMBER_2025_MARKETING_NAMEPLATE_A11Y",
+          "palette": "violet"
+        }
+      },
+      "display_name_styles": {
+        "font_id": 8,
+        "effect_id": 4,
+        "colors": [
+          525061
+        ]
+      },
+      "banner_color": null,
+      "clan": null,
+      "primary_guild": null
+    },
+    "roles": [],
+    "require_colons": true,
+    "managed": false,
+    "animated": false,
+    "available": true
+  },
+  {
+    "id": "1486833153023803574",
+    "name": "Honra_3",
+    "user": {
+      "id": "461660911107833856",
+      "username": "athila.cabrall",
+      "avatar": "a_225b4da7fdb2408a419dc9ae8241beab",
+      "discriminator": "0",
+      "public_flags": 64,
+      "flags": 64,
+      "banner": null,
+      "accent_color": null,
+      "global_name": "Cabrall",
+      "avatar_decoration_data": null,
+      "collectibles": {
+        "nameplate": {
+          "sku_id": "1409983105577783410",
+          "asset": "nameplates/special_events_2/nitro_rocketfuel_nameplate/",
+          "label": "COLLECTIBLES_SEPTEMBER_2025_MARKETING_NAMEPLATE_A11Y",
+          "palette": "violet"
+        }
+      },
+      "display_name_styles": {
+        "font_id": 8,
+        "effect_id": 4,
+        "colors": [
+          525061
+        ]
+      },
+      "banner_color": null,
+      "clan": null,
+      "primary_guild": null
+    },
+    "roles": [],
+    "require_colons": true,
+    "managed": false,
+    "animated": false,
+    "available": true
+  },
+  {
+    "id": "1486833154449870888",
+    "name": "Honra_2",
+    "user": {
+      "id": "461660911107833856",
+      "username": "athila.cabrall",
+      "avatar": "a_225b4da7fdb2408a419dc9ae8241beab",
+      "discriminator": "0",
+      "public_flags": 64,
+      "flags": 64,
+      "banner": null,
+      "accent_color": null,
+      "global_name": "Cabrall",
+      "avatar_decoration_data": null,
+      "collectibles": {
+        "nameplate": {
+          "sku_id": "1409983105577783410",
+          "asset": "nameplates/special_events_2/nitro_rocketfuel_nameplate/",
+          "label": "COLLECTIBLES_SEPTEMBER_2025_MARKETING_NAMEPLATE_A11Y",
+          "palette": "violet"
+        }
+      },
+      "display_name_styles": {
+        "font_id": 8,
+        "effect_id": 4,
+        "colors": [
+          525061
+        ]
+      },
+      "banner_color": null,
+      "clan": null,
+      "primary_guild": null
+    },
+    "roles": [],
+    "require_colons": true,
+    "managed": false,
+    "animated": false,
+    "available": true
+  },
+  {
+    "id": "1486833156358148196",
+    "name": "Honra_1",
+    "user": {
+      "id": "461660911107833856",
+      "username": "athila.cabrall",
+      "avatar": "a_225b4da7fdb2408a419dc9ae8241beab",
+      "discriminator": "0",
+      "public_flags": 64,
+      "flags": 64,
+      "banner": null,
+      "accent_color": null,
+      "global_name": "Cabrall",
+      "avatar_decoration_data": null,
+      "collectibles": {
+        "nameplate": {
+          "sku_id": "1409983105577783410",
+          "asset": "nameplates/special_events_2/nitro_rocketfuel_nameplate/",
+          "label": "COLLECTIBLES_SEPTEMBER_2025_MARKETING_NAMEPLATE_A11Y",
+          "palette": "violet"
+        }
+      },
+      "display_name_styles": {
+        "font_id": 8,
+        "effect_id": 4,
+        "colors": [
+          525061
+        ]
+      },
+      "banner_color": null,
+      "clan": null,
+      "primary_guild": null
+    },
+    "roles": [],
+    "require_colons": true,
+    "managed": false,
+    "animated": false,
+    "available": true
+  },
+  {
+    "id": "1486834217445757210",
+    "name": "1318legend",
+    "user": {
+      "id": "461660911107833856",
+      "username": "athila.cabrall",
+      "avatar": "a_225b4da7fdb2408a419dc9ae8241beab",
+      "discriminator": "0",
+      "public_flags": 64,
+      "flags": 64,
+      "banner": null,
+      "accent_color": null,
+      "global_name": "Cabrall",
+      "avatar_decoration_data": null,
+      "collectibles": {
+        "nameplate": {
+          "sku_id": "1409983105577783410",
+          "asset": "nameplates/special_events_2/nitro_rocketfuel_nameplate/",
+          "label": "COLLECTIBLES_SEPTEMBER_2025_MARKETING_NAMEPLATE_A11Y",
+          "palette": "violet"
+        }
+      },
+      "display_name_styles": {
+        "font_id": 8,
+        "effect_id": 4,
+        "colors": [
+          525061
+        ]
+      },
+      "banner_color": null,
+      "clan": null,
+      "primary_guild": null
+    },
+    "roles": [],
+    "require_colons": true,
+    "managed": false,
+    "animated": false,
+    "available": true
+  },
+  {
+    "id": "1486834225016737872",
+    "name": "1844legend",
+    "user": {
+      "id": "461660911107833856",
+      "username": "athila.cabrall",
+      "avatar": "a_225b4da7fdb2408a419dc9ae8241beab",
+      "discriminator": "0",
+      "public_flags": 64,
+      "flags": 64,
+      "banner": null,
+      "accent_color": null,
+      "global_name": "Cabrall",
+      "avatar_decoration_data": null,
+      "collectibles": {
+        "nameplate": {
+          "sku_id": "1409983105577783410",
+          "asset": "nameplates/special_events_2/nitro_rocketfuel_nameplate/",
+          "label": "COLLECTIBLES_SEPTEMBER_2025_MARKETING_NAMEPLATE_A11Y",
+          "palette": "violet"
+        }
+      },
+      "display_name_styles": {
+        "font_id": 8,
+        "effect_id": 4,
+        "colors": [
+          525061
+        ]
+      },
+      "banner_color": null,
+      "clan": null,
+      "primary_guild": null
+    },
+    "roles": [],
+    "require_colons": true,
+    "managed": false,
+    "animated": false,
+    "available": true
+  },
+  {
+    "id": "1486834226480283698",
+    "name": "2654legend",
+    "user": {
+      "id": "461660911107833856",
+      "username": "athila.cabrall",
+      "avatar": "a_225b4da7fdb2408a419dc9ae8241beab",
+      "discriminator": "0",
+      "public_flags": 64,
+      "flags": 64,
+      "banner": null,
+      "accent_color": null,
+      "global_name": "Cabrall",
+      "avatar_decoration_data": null,
+      "collectibles": {
+        "nameplate": {
+          "sku_id": "1409983105577783410",
+          "asset": "nameplates/special_events_2/nitro_rocketfuel_nameplate/",
+          "label": "COLLECTIBLES_SEPTEMBER_2025_MARKETING_NAMEPLATE_A11Y",
+          "palette": "violet"
+        }
+      },
+      "display_name_styles": {
+        "font_id": 8,
+        "effect_id": 4,
+        "colors": [
+          525061
+        ]
+      },
+      "banner_color": null,
+      "clan": null,
+      "primary_guild": null
+    },
+    "roles": [],
+    "require_colons": true,
+    "managed": false,
+    "animated": false,
+    "available": true
+  },
+  {
+    "id": "1486834228040564928",
+    "name": "3392legend",
+    "user": {
+      "id": "461660911107833856",
+      "username": "athila.cabrall",
+      "avatar": "a_225b4da7fdb2408a419dc9ae8241beab",
+      "discriminator": "0",
+      "public_flags": 64,
+      "flags": 64,
+      "banner": null,
+      "accent_color": null,
+      "global_name": "Cabrall",
+      "avatar_decoration_data": null,
+      "collectibles": {
+        "nameplate": {
+          "sku_id": "1409983105577783410",
+          "asset": "nameplates/special_events_2/nitro_rocketfuel_nameplate/",
+          "label": "COLLECTIBLES_SEPTEMBER_2025_MARKETING_NAMEPLATE_A11Y",
+          "palette": "violet"
+        }
+      },
+      "display_name_styles": {
+        "font_id": 8,
+        "effect_id": 4,
+        "colors": [
+          525061
+        ]
+      },
+      "banner_color": null,
+      "clan": null,
+      "primary_guild": null
+    },
+    "roles": [],
+    "require_colons": true,
+    "managed": false,
+    "animated": false,
+    "available": true
+  },
+  {
+    "id": "1486834229366231211",
+    "name": "4842legend",
+    "user": {
+      "id": "461660911107833856",
+      "username": "athila.cabrall",
+      "avatar": "a_225b4da7fdb2408a419dc9ae8241beab",
+      "discriminator": "0",
+      "public_flags": 64,
+      "flags": 64,
+      "banner": null,
+      "accent_color": null,
+      "global_name": "Cabrall",
+      "avatar_decoration_data": null,
+      "collectibles": {
+        "nameplate": {
+          "sku_id": "1409983105577783410",
+          "asset": "nameplates/special_events_2/nitro_rocketfuel_nameplate/",
+          "label": "COLLECTIBLES_SEPTEMBER_2025_MARKETING_NAMEPLATE_A11Y",
+          "palette": "violet"
+        }
+      },
+      "display_name_styles": {
+        "font_id": 8,
+        "effect_id": 4,
+        "colors": [
+          525061
+        ]
+      },
+      "banner_color": null,
+      "clan": null,
+      "primary_guild": null
+    },
+    "roles": [],
+    "require_colons": true,
+    "managed": false,
+    "animated": false,
+    "available": true
+  },
+  {
+    "id": "1486834230385180693",
+    "name": "5573legend",
+    "user": {
+      "id": "461660911107833856",
+      "username": "athila.cabrall",
+      "avatar": "a_225b4da7fdb2408a419dc9ae8241beab",
+      "discriminator": "0",
+      "public_flags": 64,
+      "flags": 64,
+      "banner": null,
+      "accent_color": null,
+      "global_name": "Cabrall",
+      "avatar_decoration_data": null,
+      "collectibles": {
+        "nameplate": {
+          "sku_id": "1409983105577783410",
+          "asset": "nameplates/special_events_2/nitro_rocketfuel_nameplate/",
+          "label": "COLLECTIBLES_SEPTEMBER_2025_MARKETING_NAMEPLATE_A11Y",
+          "palette": "violet"
+        }
+      },
+      "display_name_styles": {
+        "font_id": 8,
+        "effect_id": 4,
+        "colors": [
+          525061
+        ]
+      },
+      "banner_color": null,
+      "clan": null,
+      "primary_guild": null
+    },
+    "roles": [],
+    "require_colons": true,
+    "managed": false,
+    "animated": false,
+    "available": true
+  },
+  {
+    "id": "1486834233434575030",
+    "name": "5933legend",
+    "user": {
+      "id": "461660911107833856",
+      "username": "athila.cabrall",
+      "avatar": "a_225b4da7fdb2408a419dc9ae8241beab",
+      "discriminator": "0",
+      "public_flags": 64,
+      "flags": 64,
+      "banner": null,
+      "accent_color": null,
+      "global_name": "Cabrall",
+      "avatar_decoration_data": null,
+      "collectibles": {
+        "nameplate": {
+          "sku_id": "1409983105577783410",
+          "asset": "nameplates/special_events_2/nitro_rocketfuel_nameplate/",
+          "label": "COLLECTIBLES_SEPTEMBER_2025_MARKETING_NAMEPLATE_A11Y",
+          "palette": "violet"
+        }
+      },
+      "display_name_styles": {
+        "font_id": 8,
+        "effect_id": 4,
+        "colors": [
+          525061
+        ]
+      },
+      "banner_color": null,
+      "clan": null,
+      "primary_guild": null
+    },
+    "roles": [],
+    "require_colons": true,
+    "managed": false,
+    "animated": false,
+    "available": true
+  },
+  {
+    "id": "1486834241718325338",
+    "name": "7723legend",
+    "user": {
+      "id": "461660911107833856",
+      "username": "athila.cabrall",
+      "avatar": "a_225b4da7fdb2408a419dc9ae8241beab",
+      "discriminator": "0",
+      "public_flags": 64,
+      "flags": 64,
+      "banner": null,
+      "accent_color": null,
+      "global_name": "Cabrall",
+      "avatar_decoration_data": null,
+      "collectibles": {
+        "nameplate": {
+          "sku_id": "1409983105577783410",
+          "asset": "nameplates/special_events_2/nitro_rocketfuel_nameplate/",
+          "label": "COLLECTIBLES_SEPTEMBER_2025_MARKETING_NAMEPLATE_A11Y",
+          "palette": "violet"
+        }
+      },
+      "display_name_styles": {
+        "font_id": 8,
+        "effect_id": 4,
+        "colors": [
+          525061
+        ]
+      },
+      "banner_color": null,
+      "clan": null,
+      "primary_guild": null
+    },
+    "roles": [],
+    "require_colons": true,
+    "managed": false,
+    "animated": false,
+    "available": true
+  },
+  {
+    "id": "1486834244029517864",
+    "name": "7759legend",
+    "user": {
+      "id": "461660911107833856",
+      "username": "athila.cabrall",
+      "avatar": "a_225b4da7fdb2408a419dc9ae8241beab",
+      "discriminator": "0",
+      "public_flags": 64,
+      "flags": 64,
+      "banner": null,
+      "accent_color": null,
+      "global_name": "Cabrall",
+      "avatar_decoration_data": null,
+      "collectibles": {
+        "nameplate": {
+          "sku_id": "1409983105577783410",
+          "asset": "nameplates/special_events_2/nitro_rocketfuel_nameplate/",
+          "label": "COLLECTIBLES_SEPTEMBER_2025_MARKETING_NAMEPLATE_A11Y",
+          "palette": "violet"
+        }
+      },
+      "display_name_styles": {
+        "font_id": 8,
+        "effect_id": 4,
+        "colors": [
+          525061
+        ]
+      },
+      "banner_color": null,
+      "clan": null,
+      "primary_guild": null
+    },
+    "roles": [],
+    "require_colons": true,
+    "managed": false,
+    "animated": false,
+    "available": true
+  },
+  {
+    "id": "1486834245774082088",
+    "name": "7849legend",
+    "user": {
+      "id": "461660911107833856",
+      "username": "athila.cabrall",
+      "avatar": "a_225b4da7fdb2408a419dc9ae8241beab",
+      "discriminator": "0",
+      "public_flags": 64,
+      "flags": 64,
+      "banner": null,
+      "accent_color": null,
+      "global_name": "Cabrall",
+      "avatar_decoration_data": null,
+      "collectibles": {
+        "nameplate": {
+          "sku_id": "1409983105577783410",
+          "asset": "nameplates/special_events_2/nitro_rocketfuel_nameplate/",
+          "label": "COLLECTIBLES_SEPTEMBER_2025_MARKETING_NAMEPLATE_A11Y",
+          "palette": "violet"
+        }
+      },
+      "display_name_styles": {
+        "font_id": 8,
+        "effect_id": 4,
+        "colors": [
+          525061
+        ]
+      },
+      "banner_color": null,
+      "clan": null,
+      "primary_guild": null
+    },
+    "roles": [],
+    "require_colons": true,
+    "managed": false,
+    "animated": false,
+    "available": true
+  },
+  {
+    "id": "1486834254829846748",
+    "name": "8267legend",
+    "user": {
+      "id": "461660911107833856",
+      "username": "athila.cabrall",
+      "avatar": "a_225b4da7fdb2408a419dc9ae8241beab",
+      "discriminator": "0",
+      "public_flags": 64,
+      "flags": 64,
+      "banner": null,
+      "accent_color": null,
+      "global_name": "Cabrall",
+      "avatar_decoration_data": null,
+      "collectibles": {
+        "nameplate": {
+          "sku_id": "1409983105577783410",
+          "asset": "nameplates/special_events_2/nitro_rocketfuel_nameplate/",
+          "label": "COLLECTIBLES_SEPTEMBER_2025_MARKETING_NAMEPLATE_A11Y",
+          "palette": "violet"
+        }
+      },
+      "display_name_styles": {
+        "font_id": 8,
+        "effect_id": 4,
+        "colors": [
+          525061
+        ]
+      },
+      "banner_color": null,
+      "clan": null,
+      "primary_guild": null
+    },
+    "roles": [],
+    "require_colons": true,
+    "managed": false,
+    "animated": false,
+    "available": true
+  },
+  {
+    "id": "1486834256368898138",
+    "name": "9287legend",
+    "user": {
+      "id": "461660911107833856",
+      "username": "athila.cabrall",
+      "avatar": "a_225b4da7fdb2408a419dc9ae8241beab",
+      "discriminator": "0",
+      "public_flags": 64,
+      "flags": 64,
+      "banner": null,
+      "accent_color": null,
+      "global_name": "Cabrall",
+      "avatar_decoration_data": null,
+      "collectibles": {
+        "nameplate": {
+          "sku_id": "1409983105577783410",
+          "asset": "nameplates/special_events_2/nitro_rocketfuel_nameplate/",
+          "label": "COLLECTIBLES_SEPTEMBER_2025_MARKETING_NAMEPLATE_A11Y",
+          "palette": "violet"
+        }
+      },
+      "display_name_styles": {
+        "font_id": 8,
+        "effect_id": 4,
+        "colors": [
+          525061
+        ]
+      },
+      "banner_color": null,
+      "clan": null,
+      "primary_guild": null
+    },
+    "roles": [],
+    "require_colons": true,
+    "managed": false,
+    "animated": false,
+    "available": true
+  },
+  {
+    "id": "1486834258294345859",
+    "name": "9288legend",
+    "user": {
+      "id": "461660911107833856",
+      "username": "athila.cabrall",
+      "avatar": "a_225b4da7fdb2408a419dc9ae8241beab",
+      "discriminator": "0",
+      "public_flags": 64,
+      "flags": 64,
+      "banner": null,
+      "accent_color": null,
+      "global_name": "Cabrall",
+      "avatar_decoration_data": null,
+      "collectibles": {
+        "nameplate": {
+          "sku_id": "1409983105577783410",
+          "asset": "nameplates/special_events_2/nitro_rocketfuel_nameplate/",
+          "label": "COLLECTIBLES_SEPTEMBER_2025_MARKETING_NAMEPLATE_A11Y",
+          "palette": "violet"
+        }
+      },
+      "display_name_styles": {
+        "font_id": 8,
+        "effect_id": 4,
+        "colors": [
+          525061
+        ]
+      },
+      "banner_color": null,
+      "clan": null,
+      "primary_guild": null
+    },
+    "roles": [],
+    "require_colons": true,
+    "managed": false,
+    "animated": false,
+    "available": true
+  },
+  {
+    "id": "1486834259942576300",
+    "name": "9350legend",
+    "user": {
+      "id": "461660911107833856",
+      "username": "athila.cabrall",
+      "avatar": "a_225b4da7fdb2408a419dc9ae8241beab",
+      "discriminator": "0",
+      "public_flags": 64,
+      "flags": 64,
+      "banner": null,
+      "accent_color": null,
+      "global_name": "Cabrall",
+      "avatar_decoration_data": null,
+      "collectibles": {
+        "nameplate": {
+          "sku_id": "1409983105577783410",
+          "asset": "nameplates/special_events_2/nitro_rocketfuel_nameplate/",
+          "label": "COLLECTIBLES_SEPTEMBER_2025_MARKETING_NAMEPLATE_A11Y",
+          "palette": "violet"
+        }
+      },
+      "display_name_styles": {
+        "font_id": 8,
+        "effect_id": 4,
+        "colors": [
+          525061
+        ]
+      },
+      "banner_color": null,
+      "clan": null,
+      "primary_guild": null
+    },
+    "roles": [],
+    "require_colons": true,
+    "managed": false,
+    "animated": false,
+    "available": true
+  },
+  {
+    "id": "1486834261850984498",
+    "name": "9627legend",
+    "user": {
+      "id": "461660911107833856",
+      "username": "athila.cabrall",
+      "avatar": "a_225b4da7fdb2408a419dc9ae8241beab",
+      "discriminator": "0",
+      "public_flags": 64,
+      "flags": 64,
+      "banner": null,
+      "accent_color": null,
+      "global_name": "Cabrall",
+      "avatar_decoration_data": null,
+      "collectibles": {
+        "nameplate": {
+          "sku_id": "1409983105577783410",
+          "asset": "nameplates/special_events_2/nitro_rocketfuel_nameplate/",
+          "label": "COLLECTIBLES_SEPTEMBER_2025_MARKETING_NAMEPLATE_A11Y",
+          "palette": "violet"
+        }
+      },
+      "display_name_styles": {
+        "font_id": 8,
+        "effect_id": 4,
+        "colors": [
+          525061
+        ]
+      },
+      "banner_color": null,
+      "clan": null,
+      "primary_guild": null
+    },
+    "roles": [],
+    "require_colons": true,
+    "managed": false,
+    "animated": false,
+    "available": true
+  },
+  {
+    "id": "1486834263231037611",
+    "name": "4428legend",
+    "user": {
+      "id": "461660911107833856",
+      "username": "athila.cabrall",
+      "avatar": "a_225b4da7fdb2408a419dc9ae8241beab",
+      "discriminator": "0",
+      "public_flags": 64,
+      "flags": 64,
+      "banner": null,
+      "accent_color": null,
+      "global_name": "Cabrall",
+      "avatar_decoration_data": null,
+      "collectibles": {
+        "nameplate": {
+          "sku_id": "1409983105577783410",
+          "asset": "nameplates/special_events_2/nitro_rocketfuel_nameplate/",
+          "label": "COLLECTIBLES_SEPTEMBER_2025_MARKETING_NAMEPLATE_A11Y",
+          "palette": "violet"
+        }
+      },
+      "display_name_styles": {
+        "font_id": 8,
+        "effect_id": 4,
+        "colors": [
+          525061
+        ]
+      },
+      "banner_color": null,
+      "clan": null,
+      "primary_guild": null
+    },
+    "roles": [],
+    "require_colons": true,
+    "managed": false,
+    "animated": false,
+    "available": true
+  },
+  {
+    "id": "1486834264837456013",
+    "name": "5268legend",
+    "user": {
+      "id": "461660911107833856",
+      "username": "athila.cabrall",
+      "avatar": "a_225b4da7fdb2408a419dc9ae8241beab",
+      "discriminator": "0",
+      "public_flags": 64,
+      "flags": 64,
+      "banner": null,
+      "accent_color": null,
+      "global_name": "Cabrall",
+      "avatar_decoration_data": null,
+      "collectibles": {
+        "nameplate": {
+          "sku_id": "1409983105577783410",
+          "asset": "nameplates/special_events_2/nitro_rocketfuel_nameplate/",
+          "label": "COLLECTIBLES_SEPTEMBER_2025_MARKETING_NAMEPLATE_A11Y",
+          "palette": "violet"
+        }
+      },
+      "display_name_styles": {
+        "font_id": 8,
+        "effect_id": 4,
+        "colors": [
+          525061
+        ]
+      },
+      "banner_color": null,
+      "clan": null,
+      "primary_guild": null
+    },
+    "roles": [],
+    "require_colons": true,
+    "managed": false,
+    "animated": false,
+    "available": true
+  },
+  {
+    "id": "1486834266179371038",
+    "name": "6262legend",
+    "user": {
+      "id": "461660911107833856",
+      "username": "athila.cabrall",
+      "avatar": "a_225b4da7fdb2408a419dc9ae8241beab",
+      "discriminator": "0",
+      "public_flags": 64,
+      "flags": 64,
+      "banner": null,
+      "accent_color": null,
+      "global_name": "Cabrall",
+      "avatar_decoration_data": null,
+      "collectibles": {
+        "nameplate": {
+          "sku_id": "1409983105577783410",
+          "asset": "nameplates/special_events_2/nitro_rocketfuel_nameplate/",
+          "label": "COLLECTIBLES_SEPTEMBER_2025_MARKETING_NAMEPLATE_A11Y",
+          "palette": "violet"
+        }
+      },
+      "display_name_styles": {
+        "font_id": 8,
+        "effect_id": 4,
+        "colors": [
+          525061
+        ]
+      },
+      "banner_color": null,
+      "clan": null,
+      "primary_guild": null
+    },
+    "roles": [],
+    "require_colons": true,
+    "managed": false,
+    "animated": false,
+    "available": true
+  },
+  {
+    "id": "1486834504772485321",
+    "name": "shurima",
+    "user": {
+      "id": "461660911107833856",
+      "username": "athila.cabrall",
+      "avatar": "a_225b4da7fdb2408a419dc9ae8241beab",
+      "discriminator": "0",
+      "public_flags": 64,
+      "flags": 64,
+      "banner": null,
+      "accent_color": null,
+      "global_name": "Cabrall",
+      "avatar_decoration_data": null,
+      "collectibles": {
+        "nameplate": {
+          "sku_id": "1409983105577783410",
+          "asset": "nameplates/special_events_2/nitro_rocketfuel_nameplate/",
+          "label": "COLLECTIBLES_SEPTEMBER_2025_MARKETING_NAMEPLATE_A11Y",
+          "palette": "violet"
+        }
+      },
+      "display_name_styles": {
+        "font_id": 8,
+        "effect_id": 4,
+        "colors": [
+          525061
+        ]
+      },
+      "banner_color": null,
+      "clan": null,
+      "primary_guild": null
+    },
+    "roles": [],
+    "require_colons": true,
+    "managed": false,
+    "animated": false,
+    "available": true
+  },
+  {
+    "id": "1486834506156474660",
+    "name": "ixtal",
+    "user": {
+      "id": "461660911107833856",
+      "username": "athila.cabrall",
+      "avatar": "a_225b4da7fdb2408a419dc9ae8241beab",
+      "discriminator": "0",
+      "public_flags": 64,
+      "flags": 64,
+      "banner": null,
+      "accent_color": null,
+      "global_name": "Cabrall",
+      "avatar_decoration_data": null,
+      "collectibles": {
+        "nameplate": {
+          "sku_id": "1409983105577783410",
+          "asset": "nameplates/special_events_2/nitro_rocketfuel_nameplate/",
+          "label": "COLLECTIBLES_SEPTEMBER_2025_MARKETING_NAMEPLATE_A11Y",
+          "palette": "violet"
+        }
+      },
+      "display_name_styles": {
+        "font_id": 8,
+        "effect_id": 4,
+        "colors": [
+          525061
+        ]
+      },
+      "banner_color": null,
+      "clan": null,
+      "primary_guild": null
+    },
+    "roles": [],
+    "require_colons": true,
+    "managed": false,
+    "animated": false,
+    "available": true
+  },
+  {
+    "id": "1486834507662491668",
+    "name": "thevoid",
+    "user": {
+      "id": "461660911107833856",
+      "username": "athila.cabrall",
+      "avatar": "a_225b4da7fdb2408a419dc9ae8241beab",
+      "discriminator": "0",
+      "public_flags": 64,
+      "flags": 64,
+      "banner": null,
+      "accent_color": null,
+      "global_name": "Cabrall",
+      "avatar_decoration_data": null,
+      "collectibles": {
+        "nameplate": {
+          "sku_id": "1409983105577783410",
+          "asset": "nameplates/special_events_2/nitro_rocketfuel_nameplate/",
+          "label": "COLLECTIBLES_SEPTEMBER_2025_MARKETING_NAMEPLATE_A11Y",
+          "palette": "violet"
+        }
+      },
+      "display_name_styles": {
+        "font_id": 8,
+        "effect_id": 4,
+        "colors": [
+          525061
+        ]
+      },
+      "banner_color": null,
+      "clan": null,
+      "primary_guild": null
+    },
+    "roles": [],
+    "require_colons": true,
+    "managed": false,
+    "animated": false,
+    "available": true
+  },
+  {
+    "id": "1486834509306396792",
+    "name": "noxus",
+    "user": {
+      "id": "461660911107833856",
+      "username": "athila.cabrall",
+      "avatar": "a_225b4da7fdb2408a419dc9ae8241beab",
+      "discriminator": "0",
+      "public_flags": 64,
+      "flags": 64,
+      "banner": null,
+      "accent_color": null,
+      "global_name": "Cabrall",
+      "avatar_decoration_data": null,
+      "collectibles": {
+        "nameplate": {
+          "sku_id": "1409983105577783410",
+          "asset": "nameplates/special_events_2/nitro_rocketfuel_nameplate/",
+          "label": "COLLECTIBLES_SEPTEMBER_2025_MARKETING_NAMEPLATE_A11Y",
+          "palette": "violet"
+        }
+      },
+      "display_name_styles": {
+        "font_id": 8,
+        "effect_id": 4,
+        "colors": [
+          525061
+        ]
+      },
+      "banner_color": null,
+      "clan": null,
+      "primary_guild": null
+    },
+    "roles": [],
+    "require_colons": true,
+    "managed": false,
+    "animated": false,
+    "available": true
+  },
+  {
+    "id": "1486834510917275678",
+    "name": "piltover",
+    "user": {
+      "id": "461660911107833856",
+      "username": "athila.cabrall",
+      "avatar": "a_225b4da7fdb2408a419dc9ae8241beab",
+      "discriminator": "0",
+      "public_flags": 64,
+      "flags": 64,
+      "banner": null,
+      "accent_color": null,
+      "global_name": "Cabrall",
+      "avatar_decoration_data": null,
+      "collectibles": {
+        "nameplate": {
+          "sku_id": "1409983105577783410",
+          "asset": "nameplates/special_events_2/nitro_rocketfuel_nameplate/",
+          "label": "COLLECTIBLES_SEPTEMBER_2025_MARKETING_NAMEPLATE_A11Y",
+          "palette": "violet"
+        }
+      },
+      "display_name_styles": {
+        "font_id": 8,
+        "effect_id": 4,
+        "colors": [
+          525061
+        ]
+      },
+      "banner_color": null,
+      "clan": null,
+      "primary_guild": null
+    },
+    "roles": [],
+    "require_colons": true,
+    "managed": false,
+    "animated": false,
+    "available": true
+  },
+  {
+    "id": "1486834512552788010",
+    "name": "bandlecity",
+    "user": {
+      "id": "461660911107833856",
+      "username": "athila.cabrall",
+      "avatar": "a_225b4da7fdb2408a419dc9ae8241beab",
+      "discriminator": "0",
+      "public_flags": 64,
+      "flags": 64,
+      "banner": null,
+      "accent_color": null,
+      "global_name": "Cabrall",
+      "avatar_decoration_data": null,
+      "collectibles": {
+        "nameplate": {
+          "sku_id": "1409983105577783410",
+          "asset": "nameplates/special_events_2/nitro_rocketfuel_nameplate/",
+          "label": "COLLECTIBLES_SEPTEMBER_2025_MARKETING_NAMEPLATE_A11Y",
+          "palette": "violet"
+        }
+      },
+      "display_name_styles": {
+        "font_id": 8,
+        "effect_id": 4,
+        "colors": [
+          525061
+        ]
+      },
+      "banner_color": null,
+      "clan": null,
+      "primary_guild": null
+    },
+    "roles": [],
+    "require_colons": true,
+    "managed": false,
+    "animated": false,
+    "available": true
+  },
+  {
+    "id": "1486834513991569511",
+    "name": "frelijord",
+    "user": {
+      "id": "461660911107833856",
+      "username": "athila.cabrall",
+      "avatar": "a_225b4da7fdb2408a419dc9ae8241beab",
+      "discriminator": "0",
+      "public_flags": 64,
+      "flags": 64,
+      "banner": null,
+      "accent_color": null,
+      "global_name": "Cabrall",
+      "avatar_decoration_data": null,
+      "collectibles": {
+        "nameplate": {
+          "sku_id": "1409983105577783410",
+          "asset": "nameplates/special_events_2/nitro_rocketfuel_nameplate/",
+          "label": "COLLECTIBLES_SEPTEMBER_2025_MARKETING_NAMEPLATE_A11Y",
+          "palette": "violet"
+        }
+      },
+      "display_name_styles": {
+        "font_id": 8,
+        "effect_id": 4,
+        "colors": [
+          525061
+        ]
+      },
+      "banner_color": null,
+      "clan": null,
+      "primary_guild": null
+    },
+    "roles": [],
+    "require_colons": true,
+    "managed": false,
+    "animated": false,
+    "available": true
+  },
+  {
+    "id": "1486834515597852803",
+    "name": "shadowisle",
+    "user": {
+      "id": "461660911107833856",
+      "username": "athila.cabrall",
+      "avatar": "a_225b4da7fdb2408a419dc9ae8241beab",
+      "discriminator": "0",
+      "public_flags": 64,
+      "flags": 64,
+      "banner": null,
+      "accent_color": null,
+      "global_name": "Cabrall",
+      "avatar_decoration_data": null,
+      "collectibles": {
+        "nameplate": {
+          "sku_id": "1409983105577783410",
+          "asset": "nameplates/special_events_2/nitro_rocketfuel_nameplate/",
+          "label": "COLLECTIBLES_SEPTEMBER_2025_MARKETING_NAMEPLATE_A11Y",
+          "palette": "violet"
+        }
+      },
+      "display_name_styles": {
+        "font_id": 8,
+        "effect_id": 4,
+        "colors": [
+          525061
+        ]
+      },
+      "banner_color": null,
+      "clan": null,
+      "primary_guild": null
+    },
+    "roles": [],
+    "require_colons": true,
+    "managed": false,
+    "animated": false,
+    "available": true
+  },
+  {
+    "id": "1486834517548335114",
+    "name": "ionia",
+    "user": {
+      "id": "461660911107833856",
+      "username": "athila.cabrall",
+      "avatar": "a_225b4da7fdb2408a419dc9ae8241beab",
+      "discriminator": "0",
+      "public_flags": 64,
+      "flags": 64,
+      "banner": null,
+      "accent_color": null,
+      "global_name": "Cabrall",
+      "avatar_decoration_data": null,
+      "collectibles": {
+        "nameplate": {
+          "sku_id": "1409983105577783410",
+          "asset": "nameplates/special_events_2/nitro_rocketfuel_nameplate/",
+          "label": "COLLECTIBLES_SEPTEMBER_2025_MARKETING_NAMEPLATE_A11Y",
+          "palette": "violet"
+        }
+      },
+      "display_name_styles": {
+        "font_id": 8,
+        "effect_id": 4,
+        "colors": [
+          525061
+        ]
+      },
+      "banner_color": null,
+      "clan": null,
+      "primary_guild": null
+    },
+    "roles": [],
+    "require_colons": true,
+    "managed": false,
+    "animated": false,
+    "available": true
+  },
+  {
+    "id": "1486834519070867667",
+    "name": "mounttargon",
+    "user": {
+      "id": "461660911107833856",
+      "username": "athila.cabrall",
+      "avatar": "a_225b4da7fdb2408a419dc9ae8241beab",
+      "discriminator": "0",
+      "public_flags": 64,
+      "flags": 64,
+      "banner": null,
+      "accent_color": null,
+      "global_name": "Cabrall",
+      "avatar_decoration_data": null,
+      "collectibles": {
+        "nameplate": {
+          "sku_id": "1409983105577783410",
+          "asset": "nameplates/special_events_2/nitro_rocketfuel_nameplate/",
+          "label": "COLLECTIBLES_SEPTEMBER_2025_MARKETING_NAMEPLATE_A11Y",
+          "palette": "violet"
+        }
+      },
+      "display_name_styles": {
+        "font_id": 8,
+        "effect_id": 4,
+        "colors": [
+          525061
+        ]
+      },
+      "banner_color": null,
+      "clan": null,
+      "primary_guild": null
+    },
+    "roles": [],
+    "require_colons": true,
+    "managed": false,
+    "animated": false,
+    "available": true
+  },
+  {
+    "id": "1486834520874287264",
+    "name": "bilgewater",
+    "user": {
+      "id": "461660911107833856",
+      "username": "athila.cabrall",
+      "avatar": "a_225b4da7fdb2408a419dc9ae8241beab",
+      "discriminator": "0",
+      "public_flags": 64,
+      "flags": 64,
+      "banner": null,
+      "accent_color": null,
+      "global_name": "Cabrall",
+      "avatar_decoration_data": null,
+      "collectibles": {
+        "nameplate": {
+          "sku_id": "1409983105577783410",
+          "asset": "nameplates/special_events_2/nitro_rocketfuel_nameplate/",
+          "label": "COLLECTIBLES_SEPTEMBER_2025_MARKETING_NAMEPLATE_A11Y",
+          "palette": "violet"
+        }
+      },
+      "display_name_styles": {
+        "font_id": 8,
+        "effect_id": 4,
+        "colors": [
+          525061
+        ]
+      },
+      "banner_color": null,
+      "clan": null,
+      "primary_guild": null
+    },
+    "roles": [],
+    "require_colons": true,
+    "managed": false,
+    "animated": false,
+    "available": true
+  },
+  {
+    "id": "1486834523315634277",
+    "name": "zaun",
+    "user": {
+      "id": "461660911107833856",
+      "username": "athila.cabrall",
+      "avatar": "a_225b4da7fdb2408a419dc9ae8241beab",
+      "discriminator": "0",
+      "public_flags": 64,
+      "flags": 64,
+      "banner": null,
+      "accent_color": null,
+      "global_name": "Cabrall",
+      "avatar_decoration_data": null,
+      "collectibles": {
+        "nameplate": {
+          "sku_id": "1409983105577783410",
+          "asset": "nameplates/special_events_2/nitro_rocketfuel_nameplate/",
+          "label": "COLLECTIBLES_SEPTEMBER_2025_MARKETING_NAMEPLATE_A11Y",
+          "palette": "violet"
+        }
+      },
+      "display_name_styles": {
+        "font_id": 8,
+        "effect_id": 4,
+        "colors": [
+          525061
+        ]
+      },
+      "banner_color": null,
+      "clan": null,
+      "primary_guild": null
+    },
+    "roles": [],
+    "require_colons": true,
+    "managed": false,
+    "animated": false,
+    "available": true
+  },
+  {
+    "id": "1486835266848030790",
+    "name": "staffbadge",
+    "user": {
+      "id": "461660911107833856",
+      "username": "athila.cabrall",
+      "avatar": "a_225b4da7fdb2408a419dc9ae8241beab",
+      "discriminator": "0",
+      "public_flags": 64,
+      "flags": 64,
+      "banner": null,
+      "accent_color": null,
+      "global_name": "Cabrall",
+      "avatar_decoration_data": null,
+      "collectibles": {
+        "nameplate": {
+          "sku_id": "1409983105577783410",
+          "asset": "nameplates/special_events_2/nitro_rocketfuel_nameplate/",
+          "label": "COLLECTIBLES_SEPTEMBER_2025_MARKETING_NAMEPLATE_A11Y",
+          "palette": "violet"
+        }
+      },
+      "display_name_styles": {
+        "font_id": 8,
+        "effect_id": 4,
+        "colors": [
+          525061
+        ]
+      },
+      "banner_color": null,
+      "clan": null,
+      "primary_guild": null
+    },
+    "roles": [],
+    "require_colons": true,
+    "managed": false,
+    "animated": false,
+    "available": true
+  },
+  {
+    "id": "1486835268609773691",
+    "name": "category",
+    "user": {
+      "id": "461660911107833856",
+      "username": "athila.cabrall",
+      "avatar": "a_225b4da7fdb2408a419dc9ae8241beab",
+      "discriminator": "0",
+      "public_flags": 64,
+      "flags": 64,
+      "banner": null,
+      "accent_color": null,
+      "global_name": "Cabrall",
+      "avatar_decoration_data": null,
+      "collectibles": {
+        "nameplate": {
+          "sku_id": "1409983105577783410",
+          "asset": "nameplates/special_events_2/nitro_rocketfuel_nameplate/",
+          "label": "COLLECTIBLES_SEPTEMBER_2025_MARKETING_NAMEPLATE_A11Y",
+          "palette": "violet"
+        }
+      },
+      "display_name_styles": {
+        "font_id": 8,
+        "effect_id": 4,
+        "colors": [
+          525061
+        ]
+      },
+      "banner_color": null,
+      "clan": null,
+      "primary_guild": null
+    },
+    "roles": [],
+    "require_colons": true,
+    "managed": false,
+    "animated": false,
+    "available": true
+  },
+  {
+    "id": "1486835269889163264",
+    "name": "choose",
+    "user": {
+      "id": "461660911107833856",
+      "username": "athila.cabrall",
+      "avatar": "a_225b4da7fdb2408a419dc9ae8241beab",
+      "discriminator": "0",
+      "public_flags": 64,
+      "flags": 64,
+      "banner": null,
+      "accent_color": null,
+      "global_name": "Cabrall",
+      "avatar_decoration_data": null,
+      "collectibles": {
+        "nameplate": {
+          "sku_id": "1409983105577783410",
+          "asset": "nameplates/special_events_2/nitro_rocketfuel_nameplate/",
+          "label": "COLLECTIBLES_SEPTEMBER_2025_MARKETING_NAMEPLATE_A11Y",
+          "palette": "violet"
+        }
+      },
+      "display_name_styles": {
+        "font_id": 8,
+        "effect_id": 4,
+        "colors": [
+          525061
+        ]
+      },
+      "banner_color": null,
+      "clan": null,
+      "primary_guild": null
+    },
+    "roles": [],
+    "require_colons": true,
+    "managed": false,
+    "animated": false,
+    "available": true
+  },
+  {
+    "id": "1486835271793377481",
+    "name": "staff",
+    "user": {
+      "id": "461660911107833856",
+      "username": "athila.cabrall",
+      "avatar": "a_225b4da7fdb2408a419dc9ae8241beab",
+      "discriminator": "0",
+      "public_flags": 64,
+      "flags": 64,
+      "banner": null,
+      "accent_color": null,
+      "global_name": "Cabrall",
+      "avatar_decoration_data": null,
+      "collectibles": {
+        "nameplate": {
+          "sku_id": "1409983105577783410",
+          "asset": "nameplates/special_events_2/nitro_rocketfuel_nameplate/",
+          "label": "COLLECTIBLES_SEPTEMBER_2025_MARKETING_NAMEPLATE_A11Y",
+          "palette": "violet"
+        }
+      },
+      "display_name_styles": {
+        "font_id": 8,
+        "effect_id": 4,
+        "colors": [
+          525061
+        ]
+      },
+      "banner_color": null,
+      "clan": null,
+      "primary_guild": null
+    },
+    "roles": [],
+    "require_colons": true,
+    "managed": false,
+    "animated": false,
+    "available": true
+  },
+  {
+    "id": "1486835273617772564",
+    "name": "member",
+    "user": {
+      "id": "461660911107833856",
+      "username": "athila.cabrall",
+      "avatar": "a_225b4da7fdb2408a419dc9ae8241beab",
+      "discriminator": "0",
+      "public_flags": 64,
+      "flags": 64,
+      "banner": null,
+      "accent_color": null,
+      "global_name": "Cabrall",
+      "avatar_decoration_data": null,
+      "collectibles": {
+        "nameplate": {
+          "sku_id": "1409983105577783410",
+          "asset": "nameplates/special_events_2/nitro_rocketfuel_nameplate/",
+          "label": "COLLECTIBLES_SEPTEMBER_2025_MARKETING_NAMEPLATE_A11Y",
+          "palette": "violet"
+        }
+      },
+      "display_name_styles": {
+        "font_id": 8,
+        "effect_id": 4,
+        "colors": [
+          525061
+        ]
+      },
+      "banner_color": null,
+      "clan": null,
+      "primary_guild": null
+    },
+    "roles": [],
+    "require_colons": true,
+    "managed": false,
+    "animated": false,
+    "available": true
+  },
+  {
+    "id": "1486835275589222651",
+    "name": "mark",
+    "user": {
+      "id": "461660911107833856",
+      "username": "athila.cabrall",
+      "avatar": "a_225b4da7fdb2408a419dc9ae8241beab",
+      "discriminator": "0",
+      "public_flags": 64,
+      "flags": 64,
+      "banner": null,
+      "accent_color": null,
+      "global_name": "Cabrall",
+      "avatar_decoration_data": null,
+      "collectibles": {
+        "nameplate": {
+          "sku_id": "1409983105577783410",
+          "asset": "nameplates/special_events_2/nitro_rocketfuel_nameplate/",
+          "label": "COLLECTIBLES_SEPTEMBER_2025_MARKETING_NAMEPLATE_A11Y",
+          "palette": "violet"
+        }
+      },
+      "display_name_styles": {
+        "font_id": 8,
+        "effect_id": 4,
+        "colors": [
+          525061
+        ]
+      },
+      "banner_color": null,
+      "clan": null,
+      "primary_guild": null
+    },
+    "roles": [],
+    "require_colons": true,
+    "managed": false,
+    "animated": false,
+    "available": true
+  },
+  {
+    "id": "1486835277199704074",
+    "name": "select",
+    "user": {
+      "id": "461660911107833856",
+      "username": "athila.cabrall",
+      "avatar": "a_225b4da7fdb2408a419dc9ae8241beab",
+      "discriminator": "0",
+      "public_flags": 64,
+      "flags": 64,
+      "banner": null,
+      "accent_color": null,
+      "global_name": "Cabrall",
+      "avatar_decoration_data": null,
+      "collectibles": {
+        "nameplate": {
+          "sku_id": "1409983105577783410",
+          "asset": "nameplates/special_events_2/nitro_rocketfuel_nameplate/",
+          "label": "COLLECTIBLES_SEPTEMBER_2025_MARKETING_NAMEPLATE_A11Y",
+          "palette": "violet"
+        }
+      },
+      "display_name_styles": {
+        "font_id": 8,
+        "effect_id": 4,
+        "colors": [
+          525061
+        ]
+      },
+      "banner_color": null,
+      "clan": null,
+      "primary_guild": null
+    },
+    "roles": [],
+    "require_colons": true,
+    "managed": false,
+    "animated": false,
+    "available": true
+  },
+  {
+    "id": "1486835279401586933",
+    "name": "upload",
+    "user": {
+      "id": "461660911107833856",
+      "username": "athila.cabrall",
+      "avatar": "a_225b4da7fdb2408a419dc9ae8241beab",
+      "discriminator": "0",
+      "public_flags": 64,
+      "flags": 64,
+      "banner": null,
+      "accent_color": null,
+      "global_name": "Cabrall",
+      "avatar_decoration_data": null,
+      "collectibles": {
+        "nameplate": {
+          "sku_id": "1409983105577783410",
+          "asset": "nameplates/special_events_2/nitro_rocketfuel_nameplate/",
+          "label": "COLLECTIBLES_SEPTEMBER_2025_MARKETING_NAMEPLATE_A11Y",
+          "palette": "violet"
+        }
+      },
+      "display_name_styles": {
+        "font_id": 8,
+        "effect_id": 4,
+        "colors": [
+          525061
+        ]
+      },
+      "banner_color": null,
+      "clan": null,
+      "primary_guild": null
+    },
+    "roles": [],
+    "require_colons": true,
+    "managed": false,
+    "animated": false,
+    "available": true
+  },
+  {
+    "id": "1486835280718725260",
+    "name": "members",
+    "user": {
+      "id": "461660911107833856",
+      "username": "athila.cabrall",
+      "avatar": "a_225b4da7fdb2408a419dc9ae8241beab",
+      "discriminator": "0",
+      "public_flags": 64,
+      "flags": 64,
+      "banner": null,
+      "accent_color": null,
+      "global_name": "Cabrall",
+      "avatar_decoration_data": null,
+      "collectibles": {
+        "nameplate": {
+          "sku_id": "1409983105577783410",
+          "asset": "nameplates/special_events_2/nitro_rocketfuel_nameplate/",
+          "label": "COLLECTIBLES_SEPTEMBER_2025_MARKETING_NAMEPLATE_A11Y",
+          "palette": "violet"
+        }
+      },
+      "display_name_styles": {
+        "font_id": 8,
+        "effect_id": 4,
+        "colors": [
+          525061
+        ]
+      },
+      "banner_color": null,
+      "clan": null,
+      "primary_guild": null
+    },
+    "roles": [],
+    "require_colons": true,
+    "managed": false,
+    "animated": false,
+    "available": true
+  },
+  {
+    "id": "1486835281972957325",
+    "name": "delivery",
+    "user": {
+      "id": "461660911107833856",
+      "username": "athila.cabrall",
+      "avatar": "a_225b4da7fdb2408a419dc9ae8241beab",
+      "discriminator": "0",
+      "public_flags": 64,
+      "flags": 64,
+      "banner": null,
+      "accent_color": null,
+      "global_name": "Cabrall",
+      "avatar_decoration_data": null,
+      "collectibles": {
+        "nameplate": {
+          "sku_id": "1409983105577783410",
+          "asset": "nameplates/special_events_2/nitro_rocketfuel_nameplate/",
+          "label": "COLLECTIBLES_SEPTEMBER_2025_MARKETING_NAMEPLATE_A11Y",
+          "palette": "violet"
+        }
+      },
+      "display_name_styles": {
+        "font_id": 8,
+        "effect_id": 4,
+        "colors": [
+          525061
+        ]
+      },
+      "banner_color": null,
+      "clan": null,
+      "primary_guild": null
+    },
+    "roles": [],
+    "require_colons": true,
+    "managed": false,
+    "animated": false,
+    "available": true
+  },
+  {
+    "id": "1486835284132757544",
+    "name": "5upload",
+    "user": {
+      "id": "461660911107833856",
+      "username": "athila.cabrall",
+      "avatar": "a_225b4da7fdb2408a419dc9ae8241beab",
+      "discriminator": "0",
+      "public_flags": 64,
+      "flags": 64,
+      "banner": null,
+      "accent_color": null,
+      "global_name": "Cabrall",
+      "avatar_decoration_data": null,
+      "collectibles": {
+        "nameplate": {
+          "sku_id": "1409983105577783410",
+          "asset": "nameplates/special_events_2/nitro_rocketfuel_nameplate/",
+          "label": "COLLECTIBLES_SEPTEMBER_2025_MARKETING_NAMEPLATE_A11Y",
+          "palette": "violet"
+        }
+      },
+      "display_name_styles": {
+        "font_id": 8,
+        "effect_id": 4,
+        "colors": [
+          525061
+        ]
+      },
+      "banner_color": null,
+      "clan": null,
+      "primary_guild": null
+    },
+    "roles": [],
+    "require_colons": true,
+    "managed": false,
+    "animated": false,
+    "available": true
+  },
+  {
+    "id": "1486835286389428274",
+    "name": "rating",
+    "user": {
+      "id": "461660911107833856",
+      "username": "athila.cabrall",
+      "avatar": "a_225b4da7fdb2408a419dc9ae8241beab",
+      "discriminator": "0",
+      "public_flags": 64,
+      "flags": 64,
+      "banner": null,
+      "accent_color": null,
+      "global_name": "Cabrall",
+      "avatar_decoration_data": null,
+      "collectibles": {
+        "nameplate": {
+          "sku_id": "1409983105577783410",
+          "asset": "nameplates/special_events_2/nitro_rocketfuel_nameplate/",
+          "label": "COLLECTIBLES_SEPTEMBER_2025_MARKETING_NAMEPLATE_A11Y",
+          "palette": "violet"
+        }
+      },
+      "display_name_styles": {
+        "font_id": 8,
+        "effect_id": 4,
+        "colors": [
+          525061
+        ]
+      },
+      "banner_color": null,
+      "clan": null,
+      "primary_guild": null
+    },
+    "roles": [],
+    "require_colons": true,
+    "managed": false,
+    "animated": false,
+    "available": true
+  },
+  {
+    "id": "1486835838531932170",
+    "name": "Vayne",
+    "user": {
+      "id": "461660911107833856",
+      "username": "athila.cabrall",
+      "avatar": "a_225b4da7fdb2408a419dc9ae8241beab",
+      "discriminator": "0",
+      "public_flags": 64,
+      "flags": 64,
+      "banner": null,
+      "accent_color": null,
+      "global_name": "Cabrall",
+      "avatar_decoration_data": null,
+      "collectibles": {
+        "nameplate": {
+          "sku_id": "1409983105577783410",
+          "asset": "nameplates/special_events_2/nitro_rocketfuel_nameplate/",
+          "label": "COLLECTIBLES_SEPTEMBER_2025_MARKETING_NAMEPLATE_A11Y",
+          "palette": "violet"
+        }
+      },
+      "display_name_styles": {
+        "font_id": 8,
+        "effect_id": 4,
+        "colors": [
+          525061
+        ]
+      },
+      "banner_color": null,
+      "clan": null,
+      "primary_guild": null
+    },
+    "roles": [],
+    "require_colons": true,
+    "managed": false,
+    "animated": false,
+    "available": true
+  },
+  {
+    "id": "1486835839882362922",
+    "name": "Vayne_heartseeker",
+    "user": {
+      "id": "461660911107833856",
+      "username": "athila.cabrall",
+      "avatar": "a_225b4da7fdb2408a419dc9ae8241beab",
+      "discriminator": "0",
+      "public_flags": 64,
+      "flags": 64,
+      "banner": null,
+      "accent_color": null,
+      "global_name": "Cabrall",
+      "avatar_decoration_data": null,
+      "collectibles": {
+        "nameplate": {
+          "sku_id": "1409983105577783410",
+          "asset": "nameplates/special_events_2/nitro_rocketfuel_nameplate/",
+          "label": "COLLECTIBLES_SEPTEMBER_2025_MARKETING_NAMEPLATE_A11Y",
+          "palette": "violet"
+        }
+      },
+      "display_name_styles": {
+        "font_id": 8,
+        "effect_id": 4,
+        "colors": [
+          525061
+        ]
+      },
+      "banner_color": null,
+      "clan": null,
+      "primary_guild": null
+    },
+    "roles": [],
+    "require_colons": true,
+    "managed": false,
+    "animated": false,
+    "available": true
+  },
+  {
+    "id": "1486835841354567763",
+    "name": "Vayne_skt",
+    "user": {
+      "id": "461660911107833856",
+      "username": "athila.cabrall",
+      "avatar": "a_225b4da7fdb2408a419dc9ae8241beab",
+      "discriminator": "0",
+      "public_flags": 64,
+      "flags": 64,
+      "banner": null,
+      "accent_color": null,
+      "global_name": "Cabrall",
+      "avatar_decoration_data": null,
+      "collectibles": {
+        "nameplate": {
+          "sku_id": "1409983105577783410",
+          "asset": "nameplates/special_events_2/nitro_rocketfuel_nameplate/",
+          "label": "COLLECTIBLES_SEPTEMBER_2025_MARKETING_NAMEPLATE_A11Y",
+          "palette": "violet"
+        }
+      },
+      "display_name_styles": {
+        "font_id": 8,
+        "effect_id": 4,
+        "colors": [
+          525061
+        ]
+      },
+      "banner_color": null,
+      "clan": null,
+      "primary_guild": null
+    },
+    "roles": [],
+    "require_colons": true,
+    "managed": false,
+    "animated": false,
+    "available": true
+  },
+  {
+    "id": "1486835843296657569",
+    "name": "Vayne_fpxvayne",
+    "user": {
+      "id": "461660911107833856",
+      "username": "athila.cabrall",
+      "avatar": "a_225b4da7fdb2408a419dc9ae8241beab",
+      "discriminator": "0",
+      "public_flags": 64,
+      "flags": 64,
+      "banner": null,
+      "accent_color": null,
+      "global_name": "Cabrall",
+      "avatar_decoration_data": null,
+      "collectibles": {
+        "nameplate": {
+          "sku_id": "1409983105577783410",
+          "asset": "nameplates/special_events_2/nitro_rocketfuel_nameplate/",
+          "label": "COLLECTIBLES_SEPTEMBER_2025_MARKETING_NAMEPLATE_A11Y",
+          "palette": "violet"
+        }
+      },
+      "display_name_styles": {
+        "font_id": 8,
+        "effect_id": 4,
+        "colors": [
+          525061
+        ]
+      },
+      "banner_color": null,
+      "clan": null,
+      "primary_guild": null
+    },
+    "roles": [],
+    "require_colons": true,
+    "managed": false,
+    "animated": false,
+    "available": true
+  },
+  {
+    "id": "1486835845200613617",
+    "name": "Vayne_project",
+    "user": {
+      "id": "461660911107833856",
+      "username": "athila.cabrall",
+      "avatar": "a_225b4da7fdb2408a419dc9ae8241beab",
+      "discriminator": "0",
+      "public_flags": 64,
+      "flags": 64,
+      "banner": null,
+      "accent_color": null,
+      "global_name": "Cabrall",
+      "avatar_decoration_data": null,
+      "collectibles": {
+        "nameplate": {
+          "sku_id": "1409983105577783410",
+          "asset": "nameplates/special_events_2/nitro_rocketfuel_nameplate/",
+          "label": "COLLECTIBLES_SEPTEMBER_2025_MARKETING_NAMEPLATE_A11Y",
+          "palette": "violet"
+        }
+      },
+      "display_name_styles": {
+        "font_id": 8,
+        "effect_id": 4,
+        "colors": [
+          525061
+        ]
+      },
+      "banner_color": null,
+      "clan": null,
+      "primary_guild": null
+    },
+    "roles": [],
+    "require_colons": true,
+    "managed": false,
+    "animated": false,
+    "available": true
+  },
+  {
+    "id": "1486835846916341973",
+    "name": "Vayne_aristocrat",
+    "user": {
+      "id": "461660911107833856",
+      "username": "athila.cabrall",
+      "avatar": "a_225b4da7fdb2408a419dc9ae8241beab",
+      "discriminator": "0",
+      "public_flags": 64,
+      "flags": 64,
+      "banner": null,
+      "accent_color": null,
+      "global_name": "Cabrall",
+      "avatar_decoration_data": null,
+      "collectibles": {
+        "nameplate": {
+          "sku_id": "1409983105577783410",
+          "asset": "nameplates/special_events_2/nitro_rocketfuel_nameplate/",
+          "label": "COLLECTIBLES_SEPTEMBER_2025_MARKETING_NAMEPLATE_A11Y",
+          "palette": "violet"
+        }
+      },
+      "display_name_styles": {
+        "font_id": 8,
+        "effect_id": 4,
+        "colors": [
+          525061
+        ]
+      },
+      "banner_color": null,
+      "clan": null,
+      "primary_guild": null
+    },
+    "roles": [],
+    "require_colons": true,
+    "managed": false,
+    "animated": false,
+    "available": true
+  },
+  {
+    "id": "1486835848266649741",
+    "name": "Vayne_vindicator",
+    "user": {
+      "id": "461660911107833856",
+      "username": "athila.cabrall",
+      "avatar": "a_225b4da7fdb2408a419dc9ae8241beab",
+      "discriminator": "0",
+      "public_flags": 64,
+      "flags": 64,
+      "banner": null,
+      "accent_color": null,
+      "global_name": "Cabrall",
+      "avatar_decoration_data": null,
+      "collectibles": {
+        "nameplate": {
+          "sku_id": "1409983105577783410",
+          "asset": "nameplates/special_events_2/nitro_rocketfuel_nameplate/",
+          "label": "COLLECTIBLES_SEPTEMBER_2025_MARKETING_NAMEPLATE_A11Y",
+          "palette": "violet"
+        }
+      },
+      "display_name_styles": {
+        "font_id": 8,
+        "effect_id": 4,
+        "colors": [
+          525061
+        ]
+      },
+      "banner_color": null,
+      "clan": null,
+      "primary_guild": null
+    },
+    "roles": [],
+    "require_colons": true,
+    "managed": false,
+    "animated": false,
+    "available": true
+  },
+  {
+    "id": "1486835850145697964",
+    "name": "Vayne_prestige",
+    "user": {
+      "id": "461660911107833856",
+      "username": "athila.cabrall",
+      "avatar": "a_225b4da7fdb2408a419dc9ae8241beab",
+      "discriminator": "0",
+      "public_flags": 64,
+      "flags": 64,
+      "banner": null,
+      "accent_color": null,
+      "global_name": "Cabrall",
+      "avatar_decoration_data": null,
+      "collectibles": {
+        "nameplate": {
+          "sku_id": "1409983105577783410",
+          "asset": "nameplates/special_events_2/nitro_rocketfuel_nameplate/",
+          "label": "COLLECTIBLES_SEPTEMBER_2025_MARKETING_NAMEPLATE_A11Y",
+          "palette": "violet"
+        }
+      },
+      "display_name_styles": {
+        "font_id": 8,
+        "effect_id": 4,
+        "colors": [
+          525061
+        ]
+      },
+      "banner_color": null,
+      "clan": null,
+      "primary_guild": null
+    },
+    "roles": [],
+    "require_colons": true,
+    "managed": false,
+    "animated": false,
+    "available": true
+  },
+  {
+    "id": "1486835852037460218",
+    "name": "Vayne_spiritblossom",
+    "user": {
+      "id": "461660911107833856",
+      "username": "athila.cabrall",
+      "avatar": "a_225b4da7fdb2408a419dc9ae8241beab",
+      "discriminator": "0",
+      "public_flags": 64,
+      "flags": 64,
+      "banner": null,
+      "accent_color": null,
+      "global_name": "Cabrall",
+      "avatar_decoration_data": null,
+      "collectibles": {
+        "nameplate": {
+          "sku_id": "1409983105577783410",
+          "asset": "nameplates/special_events_2/nitro_rocketfuel_nameplate/",
+          "label": "COLLECTIBLES_SEPTEMBER_2025_MARKETING_NAMEPLATE_A11Y",
+          "palette": "violet"
+        }
+      },
+      "display_name_styles": {
+        "font_id": 8,
+        "effect_id": 4,
+        "colors": [
+          525061
+        ]
+      },
+      "banner_color": null,
+      "clan": null,
+      "primary_guild": null
+    },
+    "roles": [],
+    "require_colons": true,
+    "managed": false,
+    "animated": false,
+    "available": true
+  },
+  {
+    "id": "1486835853752795319",
+    "name": "Vayne_oldvayne",
+    "user": {
+      "id": "461660911107833856",
+      "username": "athila.cabrall",
+      "avatar": "a_225b4da7fdb2408a419dc9ae8241beab",
+      "discriminator": "0",
+      "public_flags": 64,
+      "flags": 64,
+      "banner": null,
+      "accent_color": null,
+      "global_name": "Cabrall",
+      "avatar_decoration_data": null,
+      "collectibles": {
+        "nameplate": {
+          "sku_id": "1409983105577783410",
+          "asset": "nameplates/special_events_2/nitro_rocketfuel_nameplate/",
+          "label": "COLLECTIBLES_SEPTEMBER_2025_MARKETING_NAMEPLATE_A11Y",
+          "palette": "violet"
+        }
+      },
+      "display_name_styles": {
+        "font_id": 8,
+        "effect_id": 4,
+        "colors": [
+          525061
+        ]
+      },
+      "banner_color": null,
+      "clan": null,
+      "primary_guild": null
+    },
+    "roles": [],
+    "require_colons": true,
+    "managed": false,
+    "animated": false,
+    "available": true
+  },
+  {
+    "id": "1486835855573389372",
+    "name": "Vayne_dragonslayer",
+    "user": {
+      "id": "461660911107833856",
+      "username": "athila.cabrall",
+      "avatar": "a_225b4da7fdb2408a419dc9ae8241beab",
+      "discriminator": "0",
+      "public_flags": 64,
+      "flags": 64,
+      "banner": null,
+      "accent_color": null,
+      "global_name": "Cabrall",
+      "avatar_decoration_data": null,
+      "collectibles": {
+        "nameplate": {
+          "sku_id": "1409983105577783410",
+          "asset": "nameplates/special_events_2/nitro_rocketfuel_nameplate/",
+          "label": "COLLECTIBLES_SEPTEMBER_2025_MARKETING_NAMEPLATE_A11Y",
+          "palette": "violet"
+        }
+      },
+      "display_name_styles": {
+        "font_id": 8,
+        "effect_id": 4,
+        "colors": [
+          525061
+        ]
+      },
+      "banner_color": null,
+      "clan": null,
+      "primary_guild": null
+    },
+    "roles": [],
+    "require_colons": true,
+    "managed": false,
+    "animated": false,
+    "available": true
+  },
+  {
+    "id": "1486835857116889118",
+    "name": "Vayne_arclight",
+    "user": {
+      "id": "461660911107833856",
+      "username": "athila.cabrall",
+      "avatar": "a_225b4da7fdb2408a419dc9ae8241beab",
+      "discriminator": "0",
+      "public_flags": 64,
+      "flags": 64,
+      "banner": null,
+      "accent_color": null,
+      "global_name": "Cabrall",
+      "avatar_decoration_data": null,
+      "collectibles": {
+        "nameplate": {
+          "sku_id": "1409983105577783410",
+          "asset": "nameplates/special_events_2/nitro_rocketfuel_nameplate/",
+          "label": "COLLECTIBLES_SEPTEMBER_2025_MARKETING_NAMEPLATE_A11Y",
+          "palette": "violet"
+        }
+      },
+      "display_name_styles": {
+        "font_id": 8,
+        "effect_id": 4,
+        "colors": [
+          525061
+        ]
+      },
+      "banner_color": null,
+      "clan": null,
+      "primary_guild": null
+    },
+    "roles": [],
+    "require_colons": true,
+    "managed": false,
+    "animated": false,
+    "available": true
+  },
+  {
+    "id": "1486835858836295740",
+    "name": "Vayne_soulstealer",
+    "user": {
+      "id": "461660911107833856",
+      "username": "athila.cabrall",
+      "avatar": "a_225b4da7fdb2408a419dc9ae8241beab",
+      "discriminator": "0",
+      "public_flags": 64,
+      "flags": 64,
+      "banner": null,
+      "accent_color": null,
+      "global_name": "Cabrall",
+      "avatar_decoration_data": null,
+      "collectibles": {
+        "nameplate": {
+          "sku_id": "1409983105577783410",
+          "asset": "nameplates/special_events_2/nitro_rocketfuel_nameplate/",
+          "label": "COLLECTIBLES_SEPTEMBER_2025_MARKETING_NAMEPLATE_A11Y",
+          "palette": "violet"
+        }
+      },
+      "display_name_styles": {
+        "font_id": 8,
+        "effect_id": 4,
+        "colors": [
+          525061
+        ]
+      },
+      "banner_color": null,
+      "clan": null,
+      "primary_guild": null
+    },
+    "roles": [],
+    "require_colons": true,
+    "managed": false,
+    "animated": false,
+    "available": true
+  },
+  {
+    "id": "1486835860363284541",
+    "name": "Vayne_firecracker",
+    "user": {
+      "id": "461660911107833856",
+      "username": "athila.cabrall",
+      "avatar": "a_225b4da7fdb2408a419dc9ae8241beab",
+      "discriminator": "0",
+      "public_flags": 64,
+      "flags": 64,
+      "banner": null,
+      "accent_color": null,
+      "global_name": "Cabrall",
+      "avatar_decoration_data": null,
+      "collectibles": {
+        "nameplate": {
+          "sku_id": "1409983105577783410",
+          "asset": "nameplates/special_events_2/nitro_rocketfuel_nameplate/",
+          "label": "COLLECTIBLES_SEPTEMBER_2025_MARKETING_NAMEPLATE_A11Y",
+          "palette": "violet"
+        }
+      },
+      "display_name_styles": {
+        "font_id": 8,
+        "effect_id": 4,
+        "colors": [
+          525061
+        ]
+      },
+      "banner_color": null,
+      "clan": null,
+      "primary_guild": null
+    },
+    "roles": [],
+    "require_colons": true,
+    "managed": false,
+    "animated": false,
+    "available": true
+  },
+  {
+    "id": "1486836369946054766",
+    "name": "Ash_Skin1",
+    "user": {
+      "id": "461660911107833856",
+      "username": "athila.cabrall",
+      "avatar": "a_225b4da7fdb2408a419dc9ae8241beab",
+      "discriminator": "0",
+      "public_flags": 64,
+      "flags": 64,
+      "banner": null,
+      "accent_color": null,
+      "global_name": "Cabrall",
+      "avatar_decoration_data": null,
+      "collectibles": {
+        "nameplate": {
+          "sku_id": "1409983105577783410",
+          "asset": "nameplates/special_events_2/nitro_rocketfuel_nameplate/",
+          "label": "COLLECTIBLES_SEPTEMBER_2025_MARKETING_NAMEPLATE_A11Y",
+          "palette": "violet"
+        }
+      },
+      "display_name_styles": {
+        "font_id": 8,
+        "effect_id": 4,
+        "colors": [
+          525061
+        ]
+      },
+      "banner_color": null,
+      "clan": null,
+      "primary_guild": null
+    },
+    "roles": [],
+    "require_colons": true,
+    "managed": false,
+    "animated": false,
+    "available": true
+  },
+  {
+    "id": "1486836371451674624",
+    "name": "Ash_Skin2",
+    "user": {
+      "id": "461660911107833856",
+      "username": "athila.cabrall",
+      "avatar": "a_225b4da7fdb2408a419dc9ae8241beab",
+      "discriminator": "0",
+      "public_flags": 64,
+      "flags": 64,
+      "banner": null,
+      "accent_color": null,
+      "global_name": "Cabrall",
+      "avatar_decoration_data": null,
+      "collectibles": {
+        "nameplate": {
+          "sku_id": "1409983105577783410",
+          "asset": "nameplates/special_events_2/nitro_rocketfuel_nameplate/",
+          "label": "COLLECTIBLES_SEPTEMBER_2025_MARKETING_NAMEPLATE_A11Y",
+          "palette": "violet"
+        }
+      },
+      "display_name_styles": {
+        "font_id": 8,
+        "effect_id": 4,
+        "colors": [
+          525061
+        ]
+      },
+      "banner_color": null,
+      "clan": null,
+      "primary_guild": null
+    },
+    "roles": [],
+    "require_colons": true,
+    "managed": false,
+    "animated": false,
+    "available": true
+  },
+  {
+    "id": "1486836373423132844",
+    "name": "Ash_Skin3",
+    "user": {
+      "id": "461660911107833856",
+      "username": "athila.cabrall",
+      "avatar": "a_225b4da7fdb2408a419dc9ae8241beab",
+      "discriminator": "0",
+      "public_flags": 64,
+      "flags": 64,
+      "banner": null,
+      "accent_color": null,
+      "global_name": "Cabrall",
+      "avatar_decoration_data": null,
+      "collectibles": {
+        "nameplate": {
+          "sku_id": "1409983105577783410",
+          "asset": "nameplates/special_events_2/nitro_rocketfuel_nameplate/",
+          "label": "COLLECTIBLES_SEPTEMBER_2025_MARKETING_NAMEPLATE_A11Y",
+          "palette": "violet"
+        }
+      },
+      "display_name_styles": {
+        "font_id": 8,
+        "effect_id": 4,
+        "colors": [
+          525061
+        ]
+      },
+      "banner_color": null,
+      "clan": null,
+      "primary_guild": null
+    },
+    "roles": [],
+    "require_colons": true,
+    "managed": false,
+    "animated": false,
+    "available": true
+  },
+  {
+    "id": "1486836374924562622",
+    "name": "Ash_Skin4",
+    "user": {
+      "id": "461660911107833856",
+      "username": "athila.cabrall",
+      "avatar": "a_225b4da7fdb2408a419dc9ae8241beab",
+      "discriminator": "0",
+      "public_flags": 64,
+      "flags": 64,
+      "banner": null,
+      "accent_color": null,
+      "global_name": "Cabrall",
+      "avatar_decoration_data": null,
+      "collectibles": {
+        "nameplate": {
+          "sku_id": "1409983105577783410",
+          "asset": "nameplates/special_events_2/nitro_rocketfuel_nameplate/",
+          "label": "COLLECTIBLES_SEPTEMBER_2025_MARKETING_NAMEPLATE_A11Y",
+          "palette": "violet"
+        }
+      },
+      "display_name_styles": {
+        "font_id": 8,
+        "effect_id": 4,
+        "colors": [
+          525061
+        ]
+      },
+      "banner_color": null,
+      "clan": null,
+      "primary_guild": null
+    },
+    "roles": [],
+    "require_colons": true,
+    "managed": false,
+    "animated": false,
+    "available": true
+  },
+  {
+    "id": "1486836376677777470",
+    "name": "Ash_Skin5",
+    "user": {
+      "id": "461660911107833856",
+      "username": "athila.cabrall",
+      "avatar": "a_225b4da7fdb2408a419dc9ae8241beab",
+      "discriminator": "0",
+      "public_flags": 64,
+      "flags": 64,
+      "banner": null,
+      "accent_color": null,
+      "global_name": "Cabrall",
+      "avatar_decoration_data": null,
+      "collectibles": {
+        "nameplate": {
+          "sku_id": "1409983105577783410",
+          "asset": "nameplates/special_events_2/nitro_rocketfuel_nameplate/",
+          "label": "COLLECTIBLES_SEPTEMBER_2025_MARKETING_NAMEPLATE_A11Y",
+          "palette": "violet"
+        }
+      },
+      "display_name_styles": {
+        "font_id": 8,
+        "effect_id": 4,
+        "colors": [
+          525061
+        ]
+      },
+      "banner_color": null,
+      "clan": null,
+      "primary_guild": null
+    },
+    "roles": [],
+    "require_colons": true,
+    "managed": false,
+    "animated": false,
+    "available": true
+  },
+  {
+    "id": "1486836379257274488",
+    "name": "Ash",
+    "user": {
+      "id": "461660911107833856",
+      "username": "athila.cabrall",
+      "avatar": "a_225b4da7fdb2408a419dc9ae8241beab",
+      "discriminator": "0",
+      "public_flags": 64,
+      "flags": 64,
+      "banner": null,
+      "accent_color": null,
+      "global_name": "Cabrall",
+      "avatar_decoration_data": null,
+      "collectibles": {
+        "nameplate": {
+          "sku_id": "1409983105577783410",
+          "asset": "nameplates/special_events_2/nitro_rocketfuel_nameplate/",
+          "label": "COLLECTIBLES_SEPTEMBER_2025_MARKETING_NAMEPLATE_A11Y",
+          "palette": "violet"
+        }
+      },
+      "display_name_styles": {
+        "font_id": 8,
+        "effect_id": 4,
+        "colors": [
+          525061
+        ]
+      },
+      "banner_color": null,
+      "clan": null,
+      "primary_guild": null
+    },
+    "roles": [],
+    "require_colons": true,
+    "managed": false,
+    "animated": false,
+    "available": true
+  },
+  {
+    "id": "1486836382050680903",
+    "name": "Ash_Skin6",
+    "user": {
+      "id": "461660911107833856",
+      "username": "athila.cabrall",
+      "avatar": "a_225b4da7fdb2408a419dc9ae8241beab",
+      "discriminator": "0",
+      "public_flags": 64,
+      "flags": 64,
+      "banner": null,
+      "accent_color": null,
+      "global_name": "Cabrall",
+      "avatar_decoration_data": null,
+      "collectibles": {
+        "nameplate": {
+          "sku_id": "1409983105577783410",
+          "asset": "nameplates/special_events_2/nitro_rocketfuel_nameplate/",
+          "label": "COLLECTIBLES_SEPTEMBER_2025_MARKETING_NAMEPLATE_A11Y",
+          "palette": "violet"
+        }
+      },
+      "display_name_styles": {
+        "font_id": 8,
+        "effect_id": 4,
+        "colors": [
+          525061
+        ]
+      },
+      "banner_color": null,
+      "clan": null,
+      "primary_guild": null
+    },
+    "roles": [],
+    "require_colons": true,
+    "managed": false,
+    "animated": false,
+    "available": true
+  },
+  {
+    "id": "1486836384085053563",
+    "name": "Ash_Skin7",
+    "user": {
+      "id": "461660911107833856",
+      "username": "athila.cabrall",
+      "avatar": "a_225b4da7fdb2408a419dc9ae8241beab",
+      "discriminator": "0",
+      "public_flags": 64,
+      "flags": 64,
+      "banner": null,
+      "accent_color": null,
+      "global_name": "Cabrall",
+      "avatar_decoration_data": null,
+      "collectibles": {
+        "nameplate": {
+          "sku_id": "1409983105577783410",
+          "asset": "nameplates/special_events_2/nitro_rocketfuel_nameplate/",
+          "label": "COLLECTIBLES_SEPTEMBER_2025_MARKETING_NAMEPLATE_A11Y",
+          "palette": "violet"
+        }
+      },
+      "display_name_styles": {
+        "font_id": 8,
+        "effect_id": 4,
+        "colors": [
+          525061
+        ]
+      },
+      "banner_color": null,
+      "clan": null,
+      "primary_guild": null
+    },
+    "roles": [],
+    "require_colons": true,
+    "managed": false,
+    "animated": false,
+    "available": true
+  },
+  {
+    "id": "1486836386647773244",
+    "name": "Ash_Skin8",
+    "user": {
+      "id": "461660911107833856",
+      "username": "athila.cabrall",
+      "avatar": "a_225b4da7fdb2408a419dc9ae8241beab",
+      "discriminator": "0",
+      "public_flags": 64,
+      "flags": 64,
+      "banner": null,
+      "accent_color": null,
+      "global_name": "Cabrall",
+      "avatar_decoration_data": null,
+      "collectibles": {
+        "nameplate": {
+          "sku_id": "1409983105577783410",
+          "asset": "nameplates/special_events_2/nitro_rocketfuel_nameplate/",
+          "label": "COLLECTIBLES_SEPTEMBER_2025_MARKETING_NAMEPLATE_A11Y",
+          "palette": "violet"
+        }
+      },
+      "display_name_styles": {
+        "font_id": 8,
+        "effect_id": 4,
+        "colors": [
+          525061
+        ]
+      },
+      "banner_color": null,
+      "clan": null,
+      "primary_guild": null
+    },
+    "roles": [],
+    "require_colons": true,
+    "managed": false,
+    "animated": false,
+    "available": true
+  },
+  {
+    "id": "1486836388857909311",
+    "name": "Ash_Skin9",
+    "user": {
+      "id": "461660911107833856",
+      "username": "athila.cabrall",
+      "avatar": "a_225b4da7fdb2408a419dc9ae8241beab",
+      "discriminator": "0",
+      "public_flags": 64,
+      "flags": 64,
+      "banner": null,
+      "accent_color": null,
+      "global_name": "Cabrall",
+      "avatar_decoration_data": null,
+      "collectibles": {
+        "nameplate": {
+          "sku_id": "1409983105577783410",
+          "asset": "nameplates/special_events_2/nitro_rocketfuel_nameplate/",
+          "label": "COLLECTIBLES_SEPTEMBER_2025_MARKETING_NAMEPLATE_A11Y",
+          "palette": "violet"
+        }
+      },
+      "display_name_styles": {
+        "font_id": 8,
+        "effect_id": 4,
+        "colors": [
+          525061
+        ]
+      },
+      "banner_color": null,
+      "clan": null,
+      "primary_guild": null
+    },
+    "roles": [],
+    "require_colons": true,
+    "managed": false,
+    "animated": false,
+    "available": true
+  },
+  {
+    "id": "1486836390389088336",
+    "name": "Ash_Skin10",
+    "user": {
+      "id": "461660911107833856",
+      "username": "athila.cabrall",
+      "avatar": "a_225b4da7fdb2408a419dc9ae8241beab",
+      "discriminator": "0",
+      "public_flags": 64,
+      "flags": 64,
+      "banner": null,
+      "accent_color": null,
+      "global_name": "Cabrall",
+      "avatar_decoration_data": null,
+      "collectibles": {
+        "nameplate": {
+          "sku_id": "1409983105577783410",
+          "asset": "nameplates/special_events_2/nitro_rocketfuel_nameplate/",
+          "label": "COLLECTIBLES_SEPTEMBER_2025_MARKETING_NAMEPLATE_A11Y",
+          "palette": "violet"
+        }
+      },
+      "display_name_styles": {
+        "font_id": 8,
+        "effect_id": 4,
+        "colors": [
+          525061
+        ]
+      },
+      "banner_color": null,
+      "clan": null,
+      "primary_guild": null
+    },
+    "roles": [],
+    "require_colons": true,
+    "managed": false,
+    "animated": false,
+    "available": true
+  },
+  {
+    "id": "1486837051654410363",
+    "name": "LeagueLogo",
+    "user": {
+      "id": "461660911107833856",
+      "username": "athila.cabrall",
+      "avatar": "a_225b4da7fdb2408a419dc9ae8241beab",
+      "discriminator": "0",
+      "public_flags": 64,
+      "flags": 64,
+      "banner": null,
+      "accent_color": null,
+      "global_name": "Cabrall",
+      "avatar_decoration_data": null,
+      "collectibles": {
+        "nameplate": {
+          "sku_id": "1409983105577783410",
+          "asset": "nameplates/special_events_2/nitro_rocketfuel_nameplate/",
+          "label": "COLLECTIBLES_SEPTEMBER_2025_MARKETING_NAMEPLATE_A11Y",
+          "palette": "violet"
+        }
+      },
+      "display_name_styles": {
+        "font_id": 8,
+        "effect_id": 4,
+        "colors": [
+          525061
+        ]
+      },
+      "banner_color": null,
+      "clan": null,
+      "primary_guild": null
+    },
+    "roles": [],
+    "require_colons": true,
+    "managed": false,
+    "animated": false,
+    "available": true
+  },
+  {
+    "id": "1486837101772279868",
+    "name": "ping_missing",
+    "user": {
+      "id": "461660911107833856",
+      "username": "athila.cabrall",
+      "avatar": "a_225b4da7fdb2408a419dc9ae8241beab",
+      "discriminator": "0",
+      "public_flags": 64,
+      "flags": 64,
+      "banner": null,
+      "accent_color": null,
+      "global_name": "Cabrall",
+      "avatar_decoration_data": null,
+      "collectibles": {
+        "nameplate": {
+          "sku_id": "1409983105577783410",
+          "asset": "nameplates/special_events_2/nitro_rocketfuel_nameplate/",
+          "label": "COLLECTIBLES_SEPTEMBER_2025_MARKETING_NAMEPLATE_A11Y",
+          "palette": "violet"
+        }
+      },
+      "display_name_styles": {
+        "font_id": 8,
+        "effect_id": 4,
+        "colors": [
+          525061
+        ]
+      },
+      "banner_color": null,
+      "clan": null,
+      "primary_guild": null
+    },
+    "roles": [],
+    "require_colons": true,
+    "managed": false,
+    "animated": false,
+    "available": true
+  },
+  {
+    "id": "1486837181518708857",
+    "name": "riotgames",
+    "user": {
+      "id": "461660911107833856",
+      "username": "athila.cabrall",
+      "avatar": "a_225b4da7fdb2408a419dc9ae8241beab",
+      "discriminator": "0",
+      "public_flags": 64,
+      "flags": 64,
+      "banner": null,
+      "accent_color": null,
+      "global_name": "Cabrall",
+      "avatar_decoration_data": null,
+      "collectibles": {
+        "nameplate": {
+          "sku_id": "1409983105577783410",
+          "asset": "nameplates/special_events_2/nitro_rocketfuel_nameplate/",
+          "label": "COLLECTIBLES_SEPTEMBER_2025_MARKETING_NAMEPLATE_A11Y",
+          "palette": "violet"
+        }
+      },
+      "display_name_styles": {
+        "font_id": 8,
+        "effect_id": 4,
+        "colors": [
+          525061
+        ]
+      },
+      "banner_color": null,
+      "clan": null,
+      "primary_guild": null
+    },
+    "roles": [],
+    "require_colons": true,
+    "managed": false,
+    "animated": false,
+    "available": true
+  },
+  {
+    "id": "1486837579297980468",
+    "name": "guinsoo",
+    "user": {
+      "id": "461660911107833856",
+      "username": "athila.cabrall",
+      "avatar": "a_225b4da7fdb2408a419dc9ae8241beab",
+      "discriminator": "0",
+      "public_flags": 64,
+      "flags": 64,
+      "banner": null,
+      "accent_color": null,
+      "global_name": "Cabrall",
+      "avatar_decoration_data": null,
+      "collectibles": {
+        "nameplate": {
+          "sku_id": "1409983105577783410",
+          "asset": "nameplates/special_events_2/nitro_rocketfuel_nameplate/",
+          "label": "COLLECTIBLES_SEPTEMBER_2025_MARKETING_NAMEPLATE_A11Y",
+          "palette": "violet"
+        }
+      },
+      "display_name_styles": {
+        "font_id": 8,
+        "effect_id": 4,
+        "colors": [
+          525061
+        ]
+      },
+      "banner_color": null,
+      "clan": null,
+      "primary_guild": null
+    },
+    "roles": [],
+    "require_colons": true,
+    "managed": false,
+    "animated": false,
+    "available": true
+  },
+  {
+    "id": "1486837582162694244",
+    "name": "dancarina_fantasma",
+    "user": {
+      "id": "461660911107833856",
+      "username": "athila.cabrall",
+      "avatar": "a_225b4da7fdb2408a419dc9ae8241beab",
+      "discriminator": "0",
+      "public_flags": 64,
+      "flags": 64,
+      "banner": null,
+      "accent_color": null,
+      "global_name": "Cabrall",
+      "avatar_decoration_data": null,
+      "collectibles": {
+        "nameplate": {
+          "sku_id": "1409983105577783410",
+          "asset": "nameplates/special_events_2/nitro_rocketfuel_nameplate/",
+          "label": "COLLECTIBLES_SEPTEMBER_2025_MARKETING_NAMEPLATE_A11Y",
+          "palette": "violet"
+        }
+      },
+      "display_name_styles": {
+        "font_id": 8,
+        "effect_id": 4,
+        "colors": [
+          525061
+        ]
+      },
+      "banner_color": null,
+      "clan": null,
+      "primary_guild": null
+    },
+    "roles": [],
+    "require_colons": true,
+    "managed": false,
+    "animated": false,
+    "available": true
+  },
+  {
+    "id": "1486838065770004550",
+    "name": "boosthand",
+    "user": {
+      "id": "461660911107833856",
+      "username": "athila.cabrall",
+      "avatar": "a_225b4da7fdb2408a419dc9ae8241beab",
+      "discriminator": "0",
+      "public_flags": 64,
+      "flags": 64,
+      "banner": null,
+      "accent_color": null,
+      "global_name": "Cabrall",
+      "avatar_decoration_data": null,
+      "collectibles": {
+        "nameplate": {
+          "sku_id": "1409983105577783410",
+          "asset": "nameplates/special_events_2/nitro_rocketfuel_nameplate/",
+          "label": "COLLECTIBLES_SEPTEMBER_2025_MARKETING_NAMEPLATE_A11Y",
+          "palette": "violet"
+        }
+      },
+      "display_name_styles": {
+        "font_id": 8,
+        "effect_id": 4,
+        "colors": [
+          525061
+        ]
+      },
+      "banner_color": null,
+      "clan": null,
+      "primary_guild": null
+    },
+    "roles": [],
+    "require_colons": true,
+    "managed": false,
+    "animated": false,
+    "available": true
+  },
+  {
+    "id": "1486838191523758080",
+    "name": "star_guardian_jinx",
+    "user": {
+      "id": "461660911107833856",
+      "username": "athila.cabrall",
+      "avatar": "a_225b4da7fdb2408a419dc9ae8241beab",
+      "discriminator": "0",
+      "public_flags": 64,
+      "flags": 64,
+      "banner": null,
+      "accent_color": null,
+      "global_name": "Cabrall",
+      "avatar_decoration_data": null,
+      "collectibles": {
+        "nameplate": {
+          "sku_id": "1409983105577783410",
+          "asset": "nameplates/special_events_2/nitro_rocketfuel_nameplate/",
+          "label": "COLLECTIBLES_SEPTEMBER_2025_MARKETING_NAMEPLATE_A11Y",
+          "palette": "violet"
+        }
+      },
+      "display_name_styles": {
+        "font_id": 8,
+        "effect_id": 4,
+        "colors": [
+          525061
+        ]
+      },
+      "banner_color": null,
+      "clan": null,
+      "primary_guild": null
+    },
+    "roles": [],
+    "require_colons": true,
+    "managed": false,
+    "animated": false,
+    "available": true
+  },
+  {
+    "id": "1486838193667051762",
+    "name": "star_guardian_ahri",
+    "user": {
+      "id": "461660911107833856",
+      "username": "athila.cabrall",
+      "avatar": "a_225b4da7fdb2408a419dc9ae8241beab",
+      "discriminator": "0",
+      "public_flags": 64,
+      "flags": 64,
+      "banner": null,
+      "accent_color": null,
+      "global_name": "Cabrall",
+      "avatar_decoration_data": null,
+      "collectibles": {
+        "nameplate": {
+          "sku_id": "1409983105577783410",
+          "asset": "nameplates/special_events_2/nitro_rocketfuel_nameplate/",
+          "label": "COLLECTIBLES_SEPTEMBER_2025_MARKETING_NAMEPLATE_A11Y",
+          "palette": "violet"
+        }
+      },
+      "display_name_styles": {
+        "font_id": 8,
+        "effect_id": 4,
+        "colors": [
+          525061
+        ]
+      },
+      "banner_color": null,
+      "clan": null,
+      "primary_guild": null
+    },
+    "roles": [],
+    "require_colons": true,
+    "managed": false,
+    "animated": false,
+    "available": true
+  },
+  {
+    "id": "1486838195147636746",
+    "name": "katarina_disgust",
+    "user": {
+      "id": "461660911107833856",
+      "username": "athila.cabrall",
+      "avatar": "a_225b4da7fdb2408a419dc9ae8241beab",
+      "discriminator": "0",
+      "public_flags": 64,
+      "flags": 64,
+      "banner": null,
+      "accent_color": null,
+      "global_name": "Cabrall",
+      "avatar_decoration_data": null,
+      "collectibles": {
+        "nameplate": {
+          "sku_id": "1409983105577783410",
+          "asset": "nameplates/special_events_2/nitro_rocketfuel_nameplate/",
+          "label": "COLLECTIBLES_SEPTEMBER_2025_MARKETING_NAMEPLATE_A11Y",
+          "palette": "violet"
+        }
+      },
+      "display_name_styles": {
+        "font_id": 8,
+        "effect_id": 4,
+        "colors": [
+          525061
+        ]
+      },
+      "banner_color": null,
+      "clan": null,
+      "primary_guild": null
+    },
+    "roles": [],
+    "require_colons": true,
+    "managed": false,
+    "animated": false,
+    "available": true
+  },
+  {
+    "id": "1486838196502270004",
+    "name": "star_guardian_syndra",
+    "user": {
+      "id": "461660911107833856",
+      "username": "athila.cabrall",
+      "avatar": "a_225b4da7fdb2408a419dc9ae8241beab",
+      "discriminator": "0",
+      "public_flags": 64,
+      "flags": 64,
+      "banner": null,
+      "accent_color": null,
+      "global_name": "Cabrall",
+      "avatar_decoration_data": null,
+      "collectibles": {
+        "nameplate": {
+          "sku_id": "1409983105577783410",
+          "asset": "nameplates/special_events_2/nitro_rocketfuel_nameplate/",
+          "label": "COLLECTIBLES_SEPTEMBER_2025_MARKETING_NAMEPLATE_A11Y",
+          "palette": "violet"
+        }
+      },
+      "display_name_styles": {
+        "font_id": 8,
+        "effect_id": 4,
+        "colors": [
+          525061
+        ]
+      },
+      "banner_color": null,
+      "clan": null,
+      "primary_guild": null
+    },
+    "roles": [],
+    "require_colons": true,
+    "managed": false,
+    "animated": false,
+    "available": true
+  }
+]

@@ -1,6 +1,22 @@
 const axios = require('axios');
+const fs = require('fs');
+const path = require('path');
 
 const DEFAULT_DDRAGON_VERSION = '15.1.1';
+
+// ─── Assets locais ────────────────────────────────────────────────────────────
+// Baixados por scripts/download-lol-assets.js, servidos pelo Express em /lol-assets
+// Se o arquivo não existir localmente, cai no CDragon como fallback
+const LOCAL_ASSETS_DIR = path.join(__dirname, '..', 'assets', 'lol');
+const LOCAL_BASE_URL = 'http://localhost:3001/lol-assets';
+
+function localExists(subPath) {
+    return fs.existsSync(path.join(LOCAL_ASSETS_DIR, subPath));
+}
+
+function localUrl(subPath) {
+    return `${LOCAL_BASE_URL}/${subPath}`;
+}
 const RUNE_CACHE = new Map();
 const RUNE_CATALOG_CACHE = new Map();
 const ITEM_CACHE = new Map();
@@ -57,6 +73,7 @@ function getChampionSplashUrl(championId, skinNum = 0) {
 }
 
 function getChampionSquareUrl(version, championId) {
+    if (localExists(`champions/${championId}.png`)) return localUrl(`champions/${championId}.png`);
     return `https://ddragon.leagueoflegends.com/cdn/${version}/img/champion/${championId}.png`;
 }
 
@@ -68,18 +85,21 @@ function getItemIconUrl(itemId) {
     return `https://raw.communitydragon.org/latest/plugins/rcp-be-lol-game-data/global/default/v1/items/icons2d/${itemId}.png`;
 }
 
-function getSummonerSpellIconUrl(spellKey) {
-    return `https://raw.communitydragon.org/latest/plugins/rcp-be-lol-game-data/global/default/v1/summoner-spells/${String(spellKey || '').toLowerCase()}.png`;
-}
+// primeira declaração removida — substituída abaixo
 
-// CDragon path confirmado: content/img/ranked-emblems/
+// Emblema de rank grande (Iron → Challenger + Unranked)
+// Local: assets/lol/ranks/<tier>.png | Fallback: CDragon
 function getRankEmblemUrl(tier) {
     const t = String(tier || 'unranked').toLowerCase();
+    if (localExists(`ranks/${t}.png`)) return localUrl(`ranks/${t}.png`);
     return `https://raw.communitydragon.org/latest/plugins/rcp-be-lol-game-data/global/default/content/img/ranked-emblems/emblem-${t}.png`;
 }
 
+// Mini crest de rank (para campos inline)
+// Local: assets/lol/ranks-mini/<tier>.png | Fallback: CDragon
 function getRankMiniIconUrl(tier) {
     const t = String(tier || 'unranked').toLowerCase();
+    if (localExists(`ranks-mini/${t}.png`)) return localUrl(`ranks-mini/${t}.png`);
     return `https://raw.communitydragon.org/latest/plugins/rcp-fe-lol-static-assets/global/default/ranked-mini-crests/${t}.png`;
 }
 
@@ -93,11 +113,16 @@ function cdragonIconPathToUrl(iconPath) {
 }
 
 // DDragon: ícone de runa via campo "icon" do runesReforged.json
+// Local: assets/lol/runes/<basename>.png | Fallback: DDragon CDN
 function getRuneIconDDragonUrl(iconRelativePath) {
     if (!iconRelativePath) return null;
+    const fileName = iconRelativePath.split('/').pop();
+    if (fileName && localExists(`runes/${fileName}`)) return localUrl(`runes/${fileName}`);
     return `https://ddragon.leagueoflegends.com/cdn/img/${iconRelativePath}`;
 }
 
+// Ícone de posição/lane
+// Local: assets/lol/lanes/<lane>.png | Fallback: CDragon
 function getRoleIconUrl(role) {
     const normalized = String(role || '')
         .toLowerCase()
@@ -105,12 +130,17 @@ function getRoleIconUrl(role) {
         .replace('mid', 'middle')
         .replace('adc', 'bottom')
         .replace('fill', 'unselected');
+    if (localExists(`lanes/${normalized}.png`)) return localUrl(`lanes/${normalized}.png`);
     return `https://raw.communitydragon.org/latest/plugins/rcp-fe-lol-clash/global/default/assets/images/position-selector/positions/icon-position-${normalized}.png`;
 }
 
-// CommunityDragon: ícone de summoner spell pelo ID numérico
+// Ícone de summoner spell pelo ID (ex: "SummonerFlash") ou pelo fullImageName (ex: "SummonerFlash.png")
+// Local: assets/lol/spells/<name>.png | Fallback: CDragon
 function getSummonerSpellIconUrl(spellId) {
-    return `https://raw.communitydragon.org/latest/plugins/rcp-be-lol-game-data/global/default/v1/summoner-spells/icons2d/${spellId}.png`;
+    const name = String(spellId || '');
+    const fileName = name.endsWith('.png') ? name : `${name}.png`;
+    if (localExists(`spells/${fileName}`)) return localUrl(`spells/${fileName}`);
+    return `https://raw.communitydragon.org/latest/plugins/rcp-be-lol-game-data/global/default/v1/summoner-spells/icons2d/${name.toLowerCase()}.png`;
 }
 
 // CommunityDragon: ícone de runa/perk pelo ID numérico
@@ -136,10 +166,22 @@ function getProfileBannerUrl(puuid) {
     return null;
 }
 
-// CommunityDragon: ícone de maestria por nível
+// Ícone de maestria por nível (1–10)
+// Local: assets/lol/mastery/<level>.png | Fallback: CDragon
 function getMasteryIconUrl(level) {
     const capped = Math.min(Math.max(level || 1, 1), 10);
+    if (localExists(`mastery/${capped}.png`)) return localUrl(`mastery/${capped}.png`);
     return `https://raw.communitydragon.org/latest/plugins/rcp-fe-lol-shared-components/global/default/images/champion-mastery/mastery-${capped}.png`;
+}
+
+// Ícone de honra por nível (0–5)
+// Local: assets/lol/honor/<level>.png | Fallback: CDragon (caminho 2026)
+// Nível 0 = emblem_0.png | Níveis 1-5 = emblem_level_{n}.png
+function getHonorIconUrl(level) {
+    const capped = Math.min(Math.max(level || 0, 0), 5);
+    if (localExists(`honor/${capped}.png`)) return localUrl(`honor/${capped}.png`);
+    const fileName = capped === 0 ? 'emblem_0' : `emblem_level_${capped}`;
+    return `https://raw.communitydragon.org/latest/plugins/rcp-fe-lol-static-assets/global/default/honor/profile/${fileName}.png`;
 }
 
 // Meraki Analytics: dados de campeão (winrate, pickrate, tier por role)
@@ -147,9 +189,9 @@ function getMerakiChampionUrl(championId) {
     return `https://cdn.merakianalytics.com/riot/lol/resources/latest/en-US/champions/${championId}.json`;
 }
 
-// CommunityDragon: ícone de summoner spell pelo key (nome, ex: "SummonerFlash")
+// Alias: spell pelo key (ex: "SummonerFlash") — usa mesma lógica de getSummonerSpellIconUrl
 function getSummonerSpellByKeyUrl(spellKey) {
-    return `https://raw.communitydragon.org/latest/plugins/rcp-be-lol-game-data/global/default/v1/summoner-spells/icons2d/${String(spellKey || '').toLowerCase()}.png`;
+    return getSummonerSpellIconUrl(spellKey);
 }
 
 // Busca e cacheia o mapa de runas: id -> iconPath URL
@@ -335,4 +377,5 @@ module.exports = {
     getRankEmblemUrl,
     getRankMiniIconUrl,
     getRoleIconUrl,
+    getHonorIconUrl,
 };

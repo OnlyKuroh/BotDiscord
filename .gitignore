@@ -4,6 +4,7 @@
 node_modules/
 data/
 uploads/
+assets/lol/
 dashboard/uploads/
 
 dashboard-v2/
