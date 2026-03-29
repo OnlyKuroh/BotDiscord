@@ -30,7 +30,6 @@ function getSession(guildId, channelId, userId) {
     if (!session) return null;
 
     if (!session.lastInteractionAt || (Date.now() - session.lastInteractionAt) > SESSION_TTL_MS) {
-   db.delete(seuIdDeSessao);
         db.delete(getSessionKey(guildId, channelId, userId));
         return null;
     }

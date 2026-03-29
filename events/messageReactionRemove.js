@@ -21,6 +21,30 @@ module.exports = {
         const guildId = message.guildId;
         if (!guildId) return;
 
+        // ── Reaction Role Panel (dashboard) ──────────────────────────────────
+        const emojiStr = emoji.id
+            ? `<${emoji.animated ? 'a' : ''}:${emoji.name}:${emoji.id}>`
+            : emoji.name;
+        const reactionCfgKey = `reaction_cfg_${message.id}_${emojiStr}`;
+        const reactionCfg = db.get(reactionCfgKey);
+        if (reactionCfg) {
+            // Only reverse add_role: if user removes reaction, remove the role
+            if (reactionCfg.action !== 'add_role' || !reactionCfg.roleId) return;
+            if (message.partial) {
+                try { await message.fetch(); } catch { return; }
+            }
+            const guild = message.guild;
+            if (!guild) return;
+            const member = await guild.members.fetch(user.id).catch(() => null);
+            if (!member) return;
+            try {
+                if (member.roles.cache.has(reactionCfg.roleId)) await member.roles.remove(reactionCfg.roleId);
+            } catch (err) {
+                console.error('[reaction_remove]', err);
+            }
+            return;
+        }
+
         // Verifica se é o canal de painel de notícias
         const newsPanelChannel = db.get(`news_panel_channel_${guildId}`);
         if (!newsPanelChannel || message.channelId !== newsPanelChannel) return;

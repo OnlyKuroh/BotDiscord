@@ -21,6 +21,40 @@ module.exports = {
         const guildId = message.guildId;
         if (!guildId) return;
 
+        // ── Reaction Role Panel (dashboard) ──────────────────────────────────
+        const emojiStr = emoji.id
+            ? `<${emoji.animated ? 'a' : ''}:${emoji.name}:${emoji.id}>`
+            : emoji.name;
+        const reactionCfgKey = `reaction_cfg_${message.id}_${emojiStr}`;
+        const reactionCfg = db.get(reactionCfgKey);
+        if (reactionCfg) {
+            if (message.partial) {
+                try { await message.fetch(); } catch { return; }
+            }
+            const guild = message.guild;
+            if (!guild) return;
+            const member = await guild.members.fetch(user.id).catch(() => null);
+            if (!member) return;
+            try {
+                if (reactionCfg.action === 'add_role' && reactionCfg.roleId) {
+                    if (!member.roles.cache.has(reactionCfg.roleId)) await member.roles.add(reactionCfg.roleId);
+                } else if (reactionCfg.action === 'remove_role' && reactionCfg.roleId) {
+                    if (member.roles.cache.has(reactionCfg.roleId)) await member.roles.remove(reactionCfg.roleId);
+                } else if (reactionCfg.action === 'text_dm' || reactionCfg.action === 'text_visible') {
+                    const text = reactionCfg.text || 'Ação de reação.';
+                    if (reactionCfg.action === 'text_dm') {
+                        await user.send(text).catch(() => null);
+                    } else {
+                        const ch = guild.channels.cache.get(reactionCfg.channelId);
+                        if (ch) await ch.send(`<@${user.id}> ${text}`).catch(() => null);
+                    }
+                }
+            } catch (err) {
+                console.error('[reaction_add]', err);
+            }
+            return;
+        }
+
         // Verifica se é o canal de painel de notícias
         const newsPanelChannel = db.get(`news_panel_channel_${guildId}`);
         if (!newsPanelChannel || message.channelId !== newsPanelChannel) return;

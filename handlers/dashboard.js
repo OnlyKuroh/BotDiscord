@@ -626,6 +626,51 @@ function startDashboard(client) {
         }
     });
 
+    // ── Endpoint: send-reactions ──────────────────────────────────────────────────
+    app.post('/api/send-reactions', requireGuildAdmin, async (req, res) => {
+        const { channelId, content, reactions, guildId } = req.body;
+        if (!channelId || !Array.isArray(reactions) || reactions.length === 0) {
+            return res.status(400).json({ error: 'channelId e reactions obrigatórios.' });
+        }
+        try {
+            const channel = client.channels.cache.get(channelId);
+            if (!channel) return res.status(404).json({ error: 'Canal não encontrado.' });
+
+            const msg = await channel.send({ content: content || undefined });
+
+            for (let i = 0; i < reactions.length; i++) {
+                const reaction = reactions[i];
+                try {
+                    await msg.react(reaction.emoji);
+                } catch { /* emoji inválido, ignorar */ }
+
+                // Store reaction config
+                const reactionKey = `reaction_cfg_${msg.id}_${reaction.emoji}`;
+                db.set(reactionKey, {
+                    action: reaction.action,
+                    roleId: reaction.roleId || null,
+                    text: reaction.text || '',
+                    textMode: reaction.textMode || 'dm',
+                    messageId: msg.id,
+                    channelId,
+                });
+            }
+
+            // Store message reaction map (for cleanup)
+            db.set(`reaction_msg_${msg.id}`, {
+                guildId: guildId || null,
+                channelId,
+                emojis: reactions.map(r => r.emoji),
+            });
+
+            db.addLog('REACTION_PANEL', `Painel de reações criado em #${channel.name || channelId}`, guildId || null, null, 'dashboard');
+            res.json({ success: true, messageId: msg.id });
+        } catch (err) {
+            console.error('[send-reactions]', err);
+            res.status(500).json({ error: String(err.message || err) });
+        }
+    });
+
     // ─────────────────────────────────────────────────────────────────────────
     // API: Events Config GET
     // ─────────────────────────────────────────────────────────────────────────
