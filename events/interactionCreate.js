@@ -91,6 +91,40 @@ module.exports = {
                 if (helpCommand && helpCommand.handleButton) {
                     await helpCommand.handleButton(interaction, client);
                 }
+            } else if (interaction.isButton() && interaction.customId.startsWith('btn_')) {
+                // ── BOTÕES DO PAINEL (add_role / remove_role / text_dm / text_visible) ──
+                const db = require('../utils/db');
+                const cfg = db.get(`btn_cfg_${interaction.customId}`);
+                if (!cfg) {
+                    return interaction.reply({ content: 'Este botão não está mais configurado.', flags: ['Ephemeral'] });
+                }
+                try {
+                    if (cfg.type === 'add_role' && cfg.roleId) {
+                        if (interaction.member.roles.cache.has(cfg.roleId)) {
+                            return interaction.reply({ content: 'Você já possui este cargo.', flags: ['Ephemeral'] });
+                        }
+                        await interaction.member.roles.add(cfg.roleId);
+                        await interaction.reply({ content: `✅ Cargo <@&${cfg.roleId}> adicionado!`, flags: ['Ephemeral'] });
+                    } else if (cfg.type === 'remove_role' && cfg.roleId) {
+                        if (!interaction.member.roles.cache.has(cfg.roleId)) {
+                            return interaction.reply({ content: 'Você não possui este cargo.', flags: ['Ephemeral'] });
+                        }
+                        await interaction.member.roles.remove(cfg.roleId);
+                        await interaction.reply({ content: `✅ Cargo <@&${cfg.roleId}> removido!`, flags: ['Ephemeral'] });
+                    } else if (cfg.type === 'text_dm') {
+                        await interaction.user.send(cfg.text || 'Mensagem do botão.').catch(() => null);
+                        await interaction.reply({ content: '📬 Mensagem enviada no seu privado!', flags: ['Ephemeral'] });
+                    } else if (cfg.type === 'text_visible') {
+                        await interaction.reply({ content: cfg.text || 'Mensagem do botão.' });
+                    } else {
+                        await interaction.reply({ content: 'Ação desconhecida.', flags: ['Ephemeral'] });
+                    }
+                } catch (err) {
+                    console.error('[btn_handler]', err);
+                    if (!interaction.replied) {
+                        await interaction.reply({ content: 'Erro ao processar o botão.', flags: ['Ephemeral'] }).catch(() => null);
+                    }
+                }
             }
         }
     },

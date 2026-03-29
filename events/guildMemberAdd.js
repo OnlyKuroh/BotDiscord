@@ -4,6 +4,7 @@ const updateMemberCounter = require('../utils/updateMemberCounter');
 const { buildMemberJoinLogEmbed } = require('../utils/system-embeds');
 const { evaluatePlatformMilestones } = require('../utils/milestone-announcer');
 const { resolveWelcomeBannerForGuild } = require('../utils/persistent-panels');
+const { renderTemplatePlaceholders } = require('../utils/template-placeholders');
 
 module.exports = {
     name: Events.GuildMemberAdd,
@@ -37,18 +38,18 @@ module.exports = {
         let title = parts[0]?.trim() || 'NOVO CICLO';
         let desc = parts[1]?.trim() || '';
 
-        // Substituir as tags exigidas pelo usuário
-        const formatText = (txt) => {
-            if (!txt) return '';
-            return txt
-                .replace(/#Server/ig, member.guild.name)
-                .replace(/#User/ig, member.user.globalName || member.user.username)
-                .replace(/@USER/g, member.user.globalName || member.user.username)
-                .replace(/#Channel/ig, `<#${channel.id}>`);
+        // Contexto para substituição de variáveis
+        const templateCtx = {
+            userMention:    `<@${member.user.id}>`,
+            userName:       member.user.globalName || member.user.username,
+            guildName:      member.guild.name,
+            channelMention: `<#${channel.id}>`,
+            userAvatar:     member.user.displayAvatarURL({ extension: 'png', size: 256 }),
+            userBanner:     member.user.bannerURL?.({ extension: 'png', size: 512 }) || '',
         };
 
-        title = formatText(title);
-        desc = formatText(desc);
+        title = renderTemplatePlaceholders(title, templateCtx);
+        desc  = renderTemplatePlaceholders(desc,  templateCtx);
 
         const embed = new EmbedBuilder()
             .setColor('#430000') // tom carmesim, sangue. Engrenagem não tem frescura.

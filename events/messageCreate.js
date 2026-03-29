@@ -4,6 +4,7 @@ const { maybeHandleItadoriChat } = require('../utils/itadori-chatbot');
 const { maybeHandleMatchupCoach } = require('../utils/lol-matchup-coach');
 const { trackCommandAbuse } = require('../utils/security-monitor');
 const { registerMessageActivity } = require('../utils/jjk-system');
+const { renderTemplatePlaceholders } = require('../utils/template-placeholders');
 
 const MENTION_RESPONSES = [
     'Oi! Precisando de ajuda? Use `/help` pra ver o que eu consigo fazer. Eu tô aqui, assim como fiquei quando Gojo me disse que eu seria o receptáculo... exceto que dessa vez é só um bot.',
@@ -47,7 +48,12 @@ module.exports = {
                 if (!message.member.roles.cache.has(roleId)) {
                     await message.member.roles.add(rolesToAdd).catch(() => null);
                     const msg = verifyConfig.message
-                        ? verifyConfig.message.replace(/@USER/gi, `<@${message.author.id}>`)
+                        ? renderTemplatePlaceholders(verifyConfig.message, {
+                            userMention: `<@${message.author.id}>`,
+                            userName: message.author.globalName || message.author.username,
+                            guildName: message.guild.name,
+                            channelMention: `<#${message.channel.id}>`,
+                          })
                         : `<@${message.author.id}>, você foi autenticado. O domínio agora está aberto para você.`;
                     const success = await message.channel.send(msg);
                     setTimeout(() => success.delete().catch(() => null), 5000);

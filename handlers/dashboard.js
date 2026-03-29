@@ -7,6 +7,7 @@ const { EmbedBuilder } = require('discord.js');
 const db = require('../utils/db');
 const { getNewsStatsSnapshot } = require('../utils/newsRoleStats');
 const { buildGlobalLogEmbed } = require('../utils/system-embeds');
+const { renderTemplatePlaceholders } = require('../utils/template-placeholders');
 const http = require('http');
 const { Server } = require('socket.io');
 const jwt = require('jsonwebtoken');
@@ -487,7 +488,7 @@ function startDashboard(client) {
 
     // API: Send Embed (Via Webhook)
     app.post('/api/send-embed', async (req, res) => {
-        const { channelId, title, description, color, image, thumbnail, footer, username, avatar, fields } = req.body;
+        const { channelId, title, description, color, image, thumbnail, footer, username, avatar, fields, extraImages, cargoRoleId } = req.body;
 
         try {
             const channel = await client.channels.fetch(channelId);
@@ -510,11 +511,20 @@ function startDashboard(client) {
             const bundledFields = Array.isArray(fields) ? fields.filter(f => !f.separate) : [];
             const separateFields = Array.isArray(fields) ? fields.filter(f => f.separate) : [];
 
+            // Processar variáveis ${} (HORARIO, DIVISORIA, IMG1..IMG5, CARGO, etc.) que fazem sentido em envio manual
+            const cargoMention = cargoRoleId ? `<@&${cargoRoleId}>` : '';
+            const tplCtx = {
+                guildName: channel.guild?.name || '',
+                images: Array.isArray(extraImages) ? extraImages.filter(Boolean) : [],
+                cargoMention,
+            };
+            const resolveText = (t) => t ? renderTemplatePlaceholders(t, tplCtx) : null;
+
             const mainEmbed = new EmbedBuilder()
                 .setColor(color || '#8b0000')
-                .setTitle(title || null)
-                .setDescription(description || null)
-                .setFooter(footer ? { text: footer } : null);
+                .setTitle(resolveText(title))
+                .setDescription(resolveText(description))
+                .setFooter(footer ? { text: resolveText(footer) } : null);
 
             const filesToAttach = [];
             const processImage = (url, isThumbnail = false) => {
@@ -538,8 +548,8 @@ function startDashboard(client) {
 
             if (bundledFields.length > 0) {
                 mainEmbed.addFields(bundledFields.map(f => ({
-                    name: f.name || '\u200b',
-                    value: f.value || '\u200b',
+                    name: resolveText(f.name) || '\u200b',
+                    value: resolveText(f.value) || '\u200b',
                     inline: !!f.inline,
                 })));
             }
@@ -552,8 +562,8 @@ function startDashboard(client) {
                     .setColor(color || '#8b0000')
                     .setDescription(null);
                 sepEmbed.addFields([{
-                    name: f.name || '\u200b',
-                    value: f.value || '\u200b',
+                    name: resolveText(f.name) || '\u200b',
+                    value: resolveText(f.value) || '\u200b',
                     inline: !!f.inline,
                 }]);
                 await webhook.send({ ...webhookOpts, embeds: [sepEmbed] });
@@ -563,6 +573,53 @@ function startDashboard(client) {
             db.incrementStat('slash_commands_used');
             db.addLog('EMBED_WEBHOOK', `Embed enviado para <#${channelId}> via Painel Web`, channel.guild.id, null, 'Dashboard');
             res.json({ success: true });
+        } catch (error) {
+            console.error(error);
+            res.status(500).json({ success: false, error: error.message });
+        }
+    });
+
+    // ─────────────────────────────────────────────────────────────────────────
+    // API: Send Buttons Message
+    // ─────────────────────────────────────────────────────────────────────────
+    app.post('/api/send-buttons', requireGuildAdmin, async (req, res) => {
+        const { channelId, content, buttons } = req.body;
+        // buttons: Array<{ label: string; style: 'primary'|'success'|'danger'|'link'; type: 'add_role'|'remove_role'|'text_dm'|'text_visible'|'link'; roleId?: string; text?: string; url?: string; }>
+        if (!channelId) return res.status(400).json({ success: false, error: 'channelId obrigatório.' });
+        if (!Array.isArray(buttons) || buttons.length === 0) return res.status(400).json({ success: false, error: 'Adicione pelo menos um botão.' });
+        if (buttons.length > 5) return res.status(400).json({ success: false, error: 'Máximo de 5 botões por mensagem.' });
+
+        try {
+            const { ButtonBuilder, ButtonStyle, ActionRowBuilder } = require('discord.js');
+            const channel = await client.channels.fetch(channelId);
+            if (!channel) return res.status(404).json({ success: false, error: 'Canal não encontrado.' });
+
+            const STYLE_MAP = {
+                primary: ButtonStyle.Primary,
+                success: ButtonStyle.Success,
+                danger:  ButtonStyle.Danger,
+                secondary: ButtonStyle.Secondary,
+            };
+
+            const row = new ActionRowBuilder();
+            const ts = Date.now();
+            for (let i = 0; i < buttons.length; i++) {
+                const btn = buttons[i];
+                const b = new ButtonBuilder().setLabel(btn.label || 'Botão');
+                if (btn.type === 'link') {
+                    b.setStyle(ButtonStyle.Link).setURL(btn.url || 'https://discord.com');
+                } else {
+                    const customId = `btn_${btn.type}_${btn.roleId || 'noop'}_${ts}_${i}`;
+                    b.setStyle(STYLE_MAP[btn.style] || ButtonStyle.Primary).setCustomId(customId);
+                    // Store button config in DB for interaction handler
+                    db.set(`btn_cfg_${customId}`, { type: btn.type, roleId: btn.roleId || null, text: btn.text || '' });
+                }
+                row.addComponents(b);
+            }
+
+            const msg = await channel.send({ content: content || undefined, components: [row] });
+            db.addLog('BUTTON_PANEL', `Painel de botões enviado para <#${channelId}>`, channel.guild.id, null, 'Dashboard');
+            res.json({ success: true, messageId: msg.id });
         } catch (error) {
             console.error(error);
             res.status(500).json({ success: false, error: error.message });
