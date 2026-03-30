@@ -546,10 +546,16 @@ function startDashboard(client) {
                     }
                 }
 
-                // MediaGallery for grid images
-                const imgs = Array.isArray(gridImages) && gridImages.length > 0
-                    ? gridImages.filter(Boolean)
-                    : [image, thumbnail, ...(Array.isArray(extraImages) ? extraImages : [])].filter(Boolean);
+                // MediaGallery for grid images — only valid http(s) URLs
+                const isValidUrl = (u) => {
+                    if (!u || typeof u !== 'string') return false;
+                    const trimmed = u.trim();
+                    return trimmed.startsWith('http://') || trimmed.startsWith('https://');
+                };
+                const rawImgs = Array.isArray(gridImages) && gridImages.length > 0
+                    ? gridImages
+                    : [image, thumbnail, ...(Array.isArray(extraImages) ? extraImages : [])];
+                const imgs = rawImgs.map(u => (typeof u === 'string' ? u.trim() : '')).filter(isValidUrl);
                 if (imgs.length > 0) {
                     containerChildren.push({ type: 14, divider: false, spacing: 1 }); // Separator
                     containerChildren.push({
@@ -564,6 +570,10 @@ function startDashboard(client) {
                     containerChildren.push({ type: 10, content: `-# ${resolveText(footer)}` });
                 }
 
+                if (containerChildren.length === 0) {
+                    containerChildren.push({ type: 10, content: '​' }); // zero-width space fallback
+                }
+
                 components.push({
                     type: 17, // Container
                     accent_color: accentColor,
@@ -571,7 +581,6 @@ function startDashboard(client) {
                 });
 
                 // Send via REST (Components V2 requires raw API call with flag)
-                const webhookData = await client.rest.get(`/webhooks/${webhook.id}`);
                 await client.rest.post(`/webhooks/${webhook.id}/${webhook.token}`, {
                     body: {
                         username: webhookOpts.username,
@@ -580,8 +589,6 @@ function startDashboard(client) {
                         components,
                     },
                 });
-
-                void webhookData; // suppress lint
                 db.incrementStat('slash_commands_used');
                 db.addLog('EMBED_WEBHOOK', `Embed Components V2 enviado para <#${channelId}> via Painel Web`, channel.guild.id, null, 'Dashboard');
                 return res.json({ success: true });
