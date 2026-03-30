@@ -21,6 +21,34 @@ module.exports = {
         const guildId = message.guildId;
         if (!guildId) return;
 
+        // ── Pagination Panel (dashboard) ─────────────────────────────────────
+        const paginationKey = `pagination_${message.id}`;
+        const paginationCfg = db.get(paginationKey);
+        if (paginationCfg) {
+            try { await reaction.users.remove(user.id); } catch { /* ignore */ }
+            const { EmbedBuilder } = require('discord.js');
+            let { currentPage, pages, prevEmoji, nextEmoji, headerMsg } = paginationCfg;
+            const emojiName = emoji.id ? `<${emoji.animated ? 'a' : ''}:${emoji.name}:${emoji.id}>` : emoji.name;
+            if (emojiName === (prevEmoji || '⬅️')) {
+                currentPage = Math.max(0, currentPage - 1);
+            } else if (emojiName === (nextEmoji || '➡️')) {
+                currentPage = Math.min(pages.length - 1, currentPage + 1);
+            } else {
+                return;
+            }
+            db.set(paginationKey, { ...paginationCfg, currentPage });
+            const page = pages[currentPage];
+            const embed = new EmbedBuilder().setColor(page.color || '#C41230');
+            if (page.title) embed.setTitle(page.title);
+            if (page.description) embed.setDescription(page.description);
+            if (page.image) embed.setImage(page.image);
+            if (page.thumbnail) embed.setThumbnail(page.thumbnail);
+            if (page.authorName) embed.setAuthor({ name: page.authorName, iconURL: page.authorIcon || undefined });
+            embed.setFooter({ text: page.footerText || `Página ${currentPage + 1} de ${pages.length}` });
+            try { await message.edit({ content: headerMsg || null, embeds: [embed] }); } catch (err) { console.error('[pagination]', err); }
+            return;
+        }
+
         // ── Reaction Role Panel (dashboard) ──────────────────────────────────
         const emojiStr = emoji.id
             ? `<${emoji.animated ? 'a' : ''}:${emoji.name}:${emoji.id}>`

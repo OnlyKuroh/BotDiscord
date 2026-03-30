@@ -488,7 +488,7 @@ function startDashboard(client) {
 
     // API: Send Embed (Via Webhook)
     app.post('/api/send-embed', async (req, res) => {
-        const { channelId, title, description, color, image, thumbnail, footer, username, avatar, fields, extraImages, cargoRoleId } = req.body;
+        const { channelId, title, description, color, image, thumbnail, footer, username, avatar, fields, extraImages, cargoRoleId, useComponentsV2, gridImages } = req.body;
 
         try {
             const channel = await client.channels.fetch(channelId);
@@ -507,10 +507,6 @@ function startDashboard(client) {
                 avatarURL: avatar || client.user.displayAvatarURL(),
             };
 
-            // Fields bundled (separate: false) go into the main embed
-            const bundledFields = Array.isArray(fields) ? fields.filter(f => !f.separate) : [];
-            const separateFields = Array.isArray(fields) ? fields.filter(f => f.separate) : [];
-
             // Processar variáveis ${} (HORARIO, DIVISORIA, IMG1..IMG5, CARGO, etc.) que fazem sentido em envio manual
             const cargoMention = cargoRoleId ? `<@&${cargoRoleId}>` : '';
             const tplCtx = {
@@ -519,6 +515,82 @@ function startDashboard(client) {
                 cargoMention,
             };
             const resolveText = (t) => t ? renderTemplatePlaceholders(t, tplCtx) : null;
+
+            // ── Components V2 (MediaGallery grid) ─────────────────────────────
+            if (useComponentsV2) {
+                const IS_COMPONENTS_V2_FLAG = 1 << 15; // 32768
+                const components = [];
+                const accentColor = color ? parseInt(color.replace('#', ''), 16) : 0x8b0000;
+
+                // Container wrapping everything
+                const containerChildren = [];
+
+                // Title + description as TextDisplay
+                const textParts = [];
+                if (title) textParts.push(`## ${resolveText(title)}`);
+                if (description) textParts.push(resolveText(description));
+                if (textParts.length > 0) {
+                    containerChildren.push({ type: 10, content: textParts.join('\n') }); // TextDisplay = 10
+                }
+
+                // Fields as TextDisplay blocks
+                const allFields = Array.isArray(fields) ? fields.filter(f => f.name || f.value) : [];
+                if (allFields.length > 0) {
+                    containerChildren.push({ type: 14, divider: true, spacing: 1 }); // Separator = 14
+                    for (const f of allFields) {
+                        const fText = [
+                            f.name ? `**${resolveText(f.name)}**` : null,
+                            f.value ? resolveText(f.value) : null,
+                        ].filter(Boolean).join('\n');
+                        containerChildren.push({ type: 10, content: fText });
+                    }
+                }
+
+                // MediaGallery for grid images
+                const imgs = Array.isArray(gridImages) && gridImages.length > 0
+                    ? gridImages.filter(Boolean)
+                    : [image, thumbnail, ...(Array.isArray(extraImages) ? extraImages : [])].filter(Boolean);
+                if (imgs.length > 0) {
+                    containerChildren.push({ type: 14, divider: false, spacing: 1 }); // Separator
+                    containerChildren.push({
+                        type: 12, // MediaGallery
+                        items: imgs.slice(0, 10).map(url => ({ media: { url } })),
+                    });
+                }
+
+                // Footer as TextDisplay
+                if (footer) {
+                    containerChildren.push({ type: 14, divider: true, spacing: 1 });
+                    containerChildren.push({ type: 10, content: `-# ${resolveText(footer)}` });
+                }
+
+                components.push({
+                    type: 17, // Container
+                    accent_color: accentColor,
+                    components: containerChildren,
+                });
+
+                // Send via REST (Components V2 requires raw API call with flag)
+                const webhookData = await client.rest.get(`/webhooks/${webhook.id}`);
+                await client.rest.post(`/webhooks/${webhook.id}/${webhook.token}`, {
+                    body: {
+                        username: webhookOpts.username,
+                        avatar_url: webhookOpts.avatarURL,
+                        flags: IS_COMPONENTS_V2_FLAG,
+                        components,
+                    },
+                });
+
+                void webhookData; // suppress lint
+                db.incrementStat('slash_commands_used');
+                db.addLog('EMBED_WEBHOOK', `Embed Components V2 enviado para <#${channelId}> via Painel Web`, channel.guild.id, null, 'Dashboard');
+                return res.json({ success: true });
+            }
+
+            // ── Embed clássico ────────────────────────────────────────────────
+            // Fields bundled (separate: false) go into the main embed
+            const bundledFields = Array.isArray(fields) ? fields.filter(f => !f.separate) : [];
+            const separateFields = Array.isArray(fields) ? fields.filter(f => f.separate) : [];
 
             const mainEmbed = new EmbedBuilder()
                 .setColor(color || '#8b0000')
@@ -667,6 +739,100 @@ function startDashboard(client) {
             res.json({ success: true, messageId: msg.id });
         } catch (err) {
             console.error('[send-reactions]', err);
+            res.status(500).json({ error: String(err.message || err) });
+        }
+    });
+
+    // ── Endpoint: send-pagination ─────────────────────────────────────────────
+    app.post('/api/send-pagination', requireGuildAdmin, async (req, res) => {
+        const { channelId, pages, prevEmoji, nextEmoji, headerMsg, guildId } = req.body;
+        if (!channelId || !Array.isArray(pages) || pages.length === 0) {
+            return res.status(400).json({ error: 'channelId e pages obrigatórios.' });
+        }
+        try {
+            const channel = client.channels.cache.get(channelId);
+            if (!channel) return res.status(404).json({ error: 'Canal não encontrado.' });
+            const { EmbedBuilder } = require('discord.js');
+            const buildEmbed = (page, idx) => {
+                const embed = new EmbedBuilder().setColor(page.color || '#C41230');
+                if (page.title) embed.setTitle(page.title);
+                if (page.description) embed.setDescription(page.description);
+                if (page.image) embed.setImage(page.image);
+                if (page.thumbnail) embed.setThumbnail(page.thumbnail);
+                if (page.authorName) embed.setAuthor({ name: page.authorName, iconURL: page.authorIcon || undefined });
+                embed.setFooter({ text: page.footerText || `Página ${idx + 1} de ${pages.length}` });
+                return embed;
+            };
+            const msg = await channel.send({
+                content: headerMsg || undefined,
+                embeds: [buildEmbed(pages[0], 0)],
+            });
+            const prev = prevEmoji || '⬅️';
+            const next = nextEmoji || '➡️';
+            try { await msg.react(prev); } catch { /* ignore */ }
+            try { await msg.react(next); } catch { /* ignore */ }
+            db.set(`pagination_${msg.id}`, {
+                guildId: guildId || null,
+                channelId,
+                pages,
+                prevEmoji: prev,
+                nextEmoji: next,
+                currentPage: 0,
+                headerMsg: headerMsg || null,
+            });
+            db.addLog('PAGINATION', `Paginação criada em #${channel.name || channelId} (${pages.length} páginas)`, guildId || null, null, 'dashboard');
+            res.json({ success: true, messageId: msg.id });
+        } catch (err) {
+            console.error('[send-pagination]', err);
+            res.status(500).json({ error: String(err.message || err) });
+        }
+    });
+
+    // ── Prompt Library endpoints ───────────────────────────────────────────────
+    app.get('/api/prompts', (_req, res) => {
+        try {
+            const rows = db.getEntriesByPrefix('prompt_lib_');
+            const prompts = rows
+                .map(r => r.value)
+                .filter(Boolean)
+                .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
+            res.json(prompts);
+        } catch (err) {
+            res.status(500).json({ error: String(err.message || err) });
+        }
+    });
+
+    app.post('/api/prompts', requireGuildAdmin, (req, res) => {
+        try {
+            const { title, prompt, description, imageUrl, referenceImages, referenceCount, tags } = req.body;
+            if (!title || !prompt || !imageUrl) {
+                return res.status(400).json({ error: 'title, prompt e imageUrl obrigatórios.' });
+            }
+            const id = `${Date.now()}_${Math.random().toString(36).slice(2)}`;
+            const entry = {
+                id,
+                title,
+                prompt,
+                description: description || '',
+                imageUrl,
+                referenceImages: Array.isArray(referenceImages) ? referenceImages.filter(Boolean) : [],
+                referenceCount: referenceCount || 0,
+                tags: Array.isArray(tags) ? tags : [],
+                createdAt: new Date().toISOString(),
+                createdBy: req.user?.userId || 'admin',
+            };
+            db.set(`prompt_lib_${id}`, entry);
+            res.json({ success: true, prompt: entry });
+        } catch (err) {
+            res.status(500).json({ error: String(err.message || err) });
+        }
+    });
+
+    app.delete('/api/prompts/:id', requireGuildAdmin, (req, res) => {
+        try {
+            db.delete(`prompt_lib_${req.params.id}`);
+            res.json({ success: true });
+        } catch (err) {
             res.status(500).json({ error: String(err.message || err) });
         }
     });
