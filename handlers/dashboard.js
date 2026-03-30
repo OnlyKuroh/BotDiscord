@@ -581,6 +581,7 @@ function startDashboard(client) {
                 });
 
                 // Send via REST (Components V2 requires raw API call with flag)
+                console.log('[V2 DEBUG] containerChildren:', JSON.stringify(containerChildren, null, 2));
                 await client.rest.post(`/webhooks/${webhook.id}/${webhook.token}`, {
                     body: {
                         username: webhookOpts.username,
