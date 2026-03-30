@@ -546,21 +546,36 @@ function startDashboard(client) {
                     }
                 }
 
-                // MediaGallery for grid images — only valid http(s) URLs
-                const isValidUrl = (u) => {
-                    if (!u || typeof u !== 'string') return false;
-                    const trimmed = u.trim();
-                    return trimmed.startsWith('http://') || trimmed.startsWith('https://');
-                };
+                // MediaGallery for grid images
+                // Local uploads (/uploads/) are sent as attachments; external URLs used directly
                 const rawImgs = Array.isArray(gridImages) && gridImages.length > 0
                     ? gridImages
                     : [image, thumbnail, ...(Array.isArray(extraImages) ? extraImages : [])];
-                const imgs = rawImgs.map(u => (typeof u === 'string' ? u.trim() : '')).filter(isValidUrl);
-                if (imgs.length > 0) {
+
+                const v2Files = [];
+                const resolvedImgUrls = [];
+                for (const u of rawImgs) {
+                    if (!u || typeof u !== 'string') continue;
+                    const trimmed = u.trim();
+                    if (!trimmed) continue;
+                    if (trimmed.includes('/uploads/')) {
+                        // Local file — send as attachment
+                        const filename = trimmed.split('/').pop().split('?')[0];
+                        const filePath = path.join(uploadsDir, filename);
+                        if (fs.existsSync(filePath)) {
+                            v2Files.push({ name: filename, data: fs.readFileSync(filePath) });
+                            resolvedImgUrls.push(`attachment://${filename}`);
+                        }
+                    } else if (trimmed.startsWith('http://') || trimmed.startsWith('https://')) {
+                        resolvedImgUrls.push(trimmed);
+                    }
+                }
+
+                if (resolvedImgUrls.length > 0) {
                     containerChildren.push({ type: 14, divider: false, spacing: 1 }); // Separator
                     containerChildren.push({
                         type: 12, // MediaGallery
-                        items: imgs.slice(0, 10).map(url => ({ media: { url } })),
+                        items: resolvedImgUrls.slice(0, 10).map(url => ({ media: { url } })),
                     });
                 }
 
@@ -571,7 +586,7 @@ function startDashboard(client) {
                 }
 
                 if (containerChildren.length === 0) {
-                    containerChildren.push({ type: 10, content: '​' }); // zero-width space fallback
+                    containerChildren.push({ type: 10, content: '\u200b' });
                 }
 
                 components.push({
@@ -580,9 +595,9 @@ function startDashboard(client) {
                     components: containerChildren,
                 });
 
-                // Send via REST (Components V2 requires raw API call with flag)
-                console.log('[V2 DEBUG] containerChildren:', JSON.stringify(containerChildren, null, 2));
+                // Send via REST with optional file attachments
                 await client.rest.post(`/webhooks/${webhook.id}/${webhook.token}`, {
+                    files: v2Files.length > 0 ? v2Files : undefined,
                     body: {
                         username: webhookOpts.username,
                         avatar_url: webhookOpts.avatarURL,
